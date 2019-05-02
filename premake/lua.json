@@ -1,0 +1,164 @@
+{
+/*
+	按快捷键Ctrl+Shift+P打开命令输入 snippet  (也可以点击File=>Preferences=>User Snippets)
+	将本文件内容粘贴保存即可使用。
+*/
+	"定义宏": {
+		"prefix": "defines",
+		"body": [
+			"defines { \"$1\" }"
+		],
+		"description": "定义宏"
+	},
+	"包含其他premake": {
+		"prefix": "include",
+		"body": [
+			"include \"$1\""
+		],
+		"description": "包含其他premake"
+	},
+
+	"定义工程文件workspace": {
+		"prefix": "workspace",
+		"body": [
+			"workspace \"$1\"",
+			"configurations { \"Debug\", \"Release\" }",
+		 	"",
+			"filter \"configurations:Debug\"",
+			"   defines { \"DEBUG\" }",
+			"   flags { \"Symbols\" }",
+		 	"",
+			"filter \"configurations:Release\"",
+			"   defines { \"NDEBUG\" }",
+			"   optimize \"On\""
+		],
+		"description": "包含其他premake"
+	},
+	"编译的目标类型": {
+		"prefix": "kind",
+		"body": [
+			"kind \"${1|ConsoleApp,WindowedApp,SharedLib,StaticLib|}\""
+		],
+		"description": "编译的目标类型"
+	},
+	"编译的语言类型": {
+		"prefix": "language",
+		"body": [
+			"language \"${1|C,C++,C#|}\""
+		],
+		"description": "编译的语言类型"
+	},	
+	
+	"添加头文件搜索路径": {
+		"prefix": "includedirs",
+		"body": [
+			"includedirs {\"$1\"}"
+		],
+		"description": "添加头文件搜索路径"
+	},
+	"添加编译文件": {
+		"prefix": "files",
+		"body": [
+			"files {\"$1\"}"
+		],
+		"description": "添加编译文件，支持*（匹配当前目录）及**（匹配当前及其子目录）匹配文件"
+	},	
+
+	"移除编译文件": {
+		"prefix": "removefiles",
+		"body": [
+			"removefiles {\"$1\"}"
+		],
+		"description": "移除编译文件"
+	},
+
+	"添加链接库": {
+		"prefix": "links",
+		"body": [
+			"links {\"$1\"}"
+		],
+		"description": "添加链接库 ios链接系统库入Cocoa.framework"
+	},	
+	"添加库搜索目录": {
+		"prefix": "libdirs",
+		"body": [
+			"libdirs {\"$1\"}"
+		],
+		"description": "添加库搜索目录，查找os.findlib(\"X11\")"
+	},		
+	
+	"编译选项": {
+		"prefix": "flags",
+		"body": [
+			"flags \"${1|C++11,C++14,C90,C99,WinMain,MFC,StaticRuntime|}\""
+		],
+		"description": "Specifies build flags to modify the compiling or linking process."
+	},	
+	"编译优化": {
+		"prefix": "optimize",
+		"body": [
+			"optimize \"${1|Off,On,Debug,Size,Speed,Full|}\""
+		],
+		"description": "编译优化"
+	},		 
+	"编译设置": {
+		"prefix": "buildoptions",
+		"body": [
+			"buildoptions {\"$1\"}"
+		],
+		"description": "编译设置"
+	},		
+	"链接设置": {
+		"prefix": "linkoptions",
+		"body": [
+			"linkoptions {\"$1\"}"
+		],
+		"description": "链接设置"
+	},
+	"生成的目标名称": {
+		"prefix": "targetname",
+		"body": [
+			"targetname {\"$1\"}"
+		],
+		"description": "生成的目标名称"
+	},
+
+	"生成的目标路径": {
+		"prefix": "targetdir",
+		"body": [
+			"targetdir {\"$1\"}"
+		],
+		"description": "生成的目标路径"
+	},
+	
+	
+	"包含安卓其他的mk文件": {
+		"prefix": "amk_includes",
+		"body": [
+			"amk_includes {\"$1\"}"
+		],
+		"description": "包含安卓其他的mk文件"
+	},
+	 
+
+	"添加编译项目": {
+		"prefix": "project",
+		"body": [
+			"project \"$1\"",
+			"   kind \"StaticLib\"",
+			"   language \"C++\"",
+			"",
+			"   includedirs{",
+			"   }",
+			"",
+			"   defines{",
+			"   }",
+			"",
+			"   files {",
+			"   }"
+		],
+		"description": "添加编译项目"
+	}
+
+	
+}
