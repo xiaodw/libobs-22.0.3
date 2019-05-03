@@ -1590,6 +1590,7 @@ ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits,
    ZEXTERN gzFile ZEXPORT gzopen OF((const char *, const char *));
 
 #ifdef WIN32
+#    include <stddef.h>
    ZEXTERN gzFile ZEXPORT gzopen_w OF((const wchar_t*, const wchar_t*));
 #endif
 

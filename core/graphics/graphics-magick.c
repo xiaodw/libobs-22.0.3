@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "obsconfig.h"
+#include "obs-config.h"
 
 #if LIBOBS_USEIMAGEMAGICK
 

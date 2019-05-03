@@ -1,9 +1,6 @@
-
 project "libobs"
-	kind "StaticLib"
-	language "C++"
-	rtti "On"
-	exceptionhandling "On"
+	kind "SharedLib"
+	language "C"
 	
 	files{
 		"*.h",
@@ -15,6 +12,7 @@ project "libobs"
 	}
 	defines {
 		"NOMINMAX",
+		"PTW32_STATIC_LIB",
 	}
 	includedirs{
 		"./",
@@ -23,7 +21,18 @@ project "libobs"
 		"../3dparty/win_pthreads",
 		"../3dparty/jansson",
 	}
-
+	
+	links{
+		"zlib",
+		"jansson",
+		"pthread",
+		"avcodec",
+		"avformat",
+		"avutil",
+		"swresample",
+		"swscale",
+	}
+	
 if is_pfm("windows") then
 
 	files{
@@ -48,5 +57,8 @@ if is_pfm("windows") then
 		"util/platform-nix-dbus.c",
 		"util/threading-posix.*",
 	}
-	
+	links{
+		"Winmm",
+		"Psapi",
+	}
 end
