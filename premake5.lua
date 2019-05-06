@@ -33,7 +33,7 @@ include "3dparty/jansson"
 include "3dparty/win_pthreads"
 include "core"
 include "core/render/opengl"
-	
+include "core/render/d3d11"
 
 project "test"
 	kind "WindowedApp"
