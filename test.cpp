@@ -94,7 +94,7 @@ static void CreateOBS(HWND hwnd)
 	ovi.base_height     = rc.bottom;
 	ovi.fps_num         = 30000;
 	ovi.fps_den         = 1001;
-	ovi.graphics_module = DL_OPENGL;
+	ovi.graphics_module = DL_D3D11;
 	ovi.output_format   = VIDEO_FORMAT_RGBA;
 	ovi.output_width    = rc.right;
 	ovi.output_height   = rc.bottom;

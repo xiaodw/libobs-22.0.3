@@ -3,6 +3,8 @@ group "plugins"
 project "coreaudio-encoder"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
+
 	defines {
 
 	}
@@ -22,6 +24,8 @@ project "coreaudio-encoder"
 project "win-decklink"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
+	
 	defines {
 
 	}
@@ -49,6 +53,7 @@ project "win-decklink"
 project "image-source"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -66,17 +71,49 @@ project "image-source"
 		"pthread",
 	}	
 	
+	
+	
+if is_arch("x86_64") then
+project "ffmpeg-mux64"
+else
+project "ffmpeg-mux32"
+end
+	kind "ConsoleApp"
+	language "C++"
+	targetdir "../obs-plugins/"
+	defines {
+
+	}
+	files{
+		"obs-ffmpeg/ffmpeg-mux/*.h",
+		"obs-ffmpeg/ffmpeg-mux/*.c",
+	}
+
+	includedirs{
+		"../core/",
+	}
+
+	links{
+		"libobs",
+		"pthread",
+		"avcodec",
+		"avformat",
+		"avutil",
+		"avdevice",
+		"swresample",
+		"swscale",
+	}	
+	
 project "obs-ffmpeg"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
 	files{
 		"obs-ffmpeg/*.h",
 		"obs-ffmpeg/*.c",
-		"obs-ffmpeg/ffmpeg-mux/*.h",
-		"obs-ffmpeg/ffmpeg-mux/*.c",
 		"obs-ffmpeg/media-playback/*.h",
 		"obs-ffmpeg/media-playback/*.c",
 	}
@@ -101,6 +138,7 @@ project "obs-ffmpeg"
 project "obs-filters"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -123,6 +161,7 @@ project "obs-filters"
 project "obs-libfdk"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -144,6 +183,7 @@ project "obs-libfdk"
 project "obs-outputs"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 		"USE_MBEDTLS",
 		"FTL_STATIC_COMPILE",
@@ -184,6 +224,7 @@ project "obs-outputs"
 project "obs-qsv11"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 		"DX11_D3D"
 	}
@@ -213,6 +254,7 @@ project "obs-qsv11"
 project "obs-text"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -233,6 +275,7 @@ project "obs-text"
 project "obs-transitions"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -252,6 +295,7 @@ project "obs-transitions"
 project "obs-x264"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -272,6 +316,7 @@ project "obs-x264"
 project "vlc-video"
 	kind "SharedLib"
 	language "C"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -282,15 +327,18 @@ project "vlc-video"
 
 	includedirs{
 		"../core/",
+		"vlc-video/vlc",
 	}
 
 	links{
 		"libobs",
+		"pthread",
 	}		
 		
 project "win-capture"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -403,6 +451,7 @@ end
 project "win-dshow"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -487,6 +536,7 @@ project "seg_service"
 project "win-mf"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -513,6 +563,7 @@ project "win-mf"
 project "win-wasapi"
 	kind "SharedLib"
 	language "C++"
+	targetdir "../obs-plugins/"
 	defines {
 
 	}

@@ -40,8 +40,8 @@ const char *get_module_extension(void)
 #endif
 
 static const char *module_bin[] = {
-	"obs-plugins/" BIT_STRING,
-	"../obs-plugins/" BIT_STRING,
+	"obs-plugins",
+	"../obs-plugins",
 };
 
 static const char *module_data[] = {

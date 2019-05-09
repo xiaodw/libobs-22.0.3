@@ -60,7 +60,7 @@ void *os_dlopen(const char *path)
 {
 	struct dstr dll_name;
 	wchar_t *wpath;
-	wchar_t *wpath_slash;
+	wchar_t *wpath_slash = NULL;
 	HMODULE h_library = NULL;
 
 	if (!path)
@@ -76,22 +76,22 @@ void *os_dlopen(const char *path)
 	/* to make module dependency issues easier to deal with, allow
 	 * dynamically loaded libraries on windows to search for dependent
 	 * libraries that are within the library's own directory */
-	wpath_slash = wcsrchr(wpath, L'/');
-	if (wpath_slash) {
-		*wpath_slash = 0;
-		SetDllDirectoryW(wpath);
-		*wpath_slash = L'/';
-	}
+	//wpath_slash = wcsrchr(wpath, L'/');
+	//if (wpath_slash) {
+	//	*wpath_slash = 0;
+	//	SetDllDirectoryW(wpath);
+	//	*wpath_slash = L'/';
+	//}
 
-    if(wpath_slash)
-	    h_library = LoadLibraryW(wpath_slash+1);
-    else
+    //if(wpath_slash)
+	   // h_library = LoadLibraryW(wpath_slash+1);
+    //else
         h_library = LoadLibraryW(wpath);
 	bfree(wpath);
 	dstr_free(&dll_name);
 
-	if (wpath_slash)
-		SetDllDirectoryW(NULL);
+	//if (wpath_slash)
+	//	SetDllDirectoryW(NULL);
 
 	if (!h_library) {
 		DWORD error = GetLastError();
