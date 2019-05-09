@@ -1048,7 +1048,7 @@ bool profiler_snapshot_dump_csv_gz(const profiler_snapshot_t *snap,
 	if (!filename_w)
 		return false;
 
-	gz = gzopen_w(filename_w, L"wb");
+	gz = gzopen_w(filename_w, "wb");
 	bfree(filename_w);
 #else
 	gz = gzopen(filename, "wb");

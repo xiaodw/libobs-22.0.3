@@ -1,11 +1,10 @@
 
 project "pthread"
-	kind "StaticLib"
-	language "C++"
-	rtti "On"
-	exceptionhandling "On"
+	kind "SharedLib"
+	language "C"
 	defines {
-		"PTW32_STATIC_LIB"
+		--"PTW32_STATIC_LIB"
+		"PTW32_BUILD"
 	}
 	files{
 		"implement.h",

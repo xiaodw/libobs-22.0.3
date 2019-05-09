@@ -9,9 +9,13 @@ if is_pfm("android") then
 	defines { "POSIX" ,"ANDROID" }
 elseif is_pfm("windows") then
 	location "build"
-	defines { "_WIN32", "WIN32" ,"_WINDOWS", "NOMINMAX","PTW32_STATIC_LIB"}
+	defines { "_WIN32", "WIN32" ,"_WINDOWS"}
 	includedirs{
 		"3dparty/win_pthreads",
+		"depend/win32/include",
+	}
+	libdirs{
+		"depend/win32/bin"
 	}
 elseif is_pfm("ios") then
 	location "build"
@@ -28,12 +32,20 @@ filter "configurations:Release"
 	optimize "On"
 	optimize "Speed"
 
-include "3dparty/zlib"	
+group "3dparty"
+
 include "3dparty/jansson"
+include "3dparty/mbedtls"
 include "3dparty/win_pthreads"
+
+group "core"
 include "core"
 include "core/render/opengl"
 include "core/render/d3d11"
+include "plugins"
+
+
+group "test"
 
 project "test"
 	kind "WindowedApp"

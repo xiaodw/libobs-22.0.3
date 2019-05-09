@@ -41,12 +41,12 @@ const char *get_module_extension(void)
 
 static const char *module_bin[] = {
 	"obs-plugins/" BIT_STRING,
-	"../../obs-plugins/" BIT_STRING,
+	"../obs-plugins/" BIT_STRING,
 };
 
 static const char *module_data[] = {
 	"data/%module%",
-	"../../data/obs-plugins/%module%"
+	"../data/obs-plugins/%module%"
 };
 
 static const int module_patterns_size =
@@ -67,7 +67,7 @@ char *find_libobs_data_file(const char *file)
 	if (check_path(file, "data/libobs/", &path))
 		return path.array;
 
-	if (check_path(file, "../../data/libobs/", &path))
+	if (check_path(file, "../data/libobs/", &path))
 		return path.array;
 
 	dstr_free(&path);

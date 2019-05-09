@@ -26,6 +26,18 @@ function is_pfm(arg)
 	end	
 end
 
+local arch = "unknow"
+
+--armv7,arm64,x86_64,i386
+function is_arch(...)
+	local args={...}
+	for i,v in ipairs(args) do
+		if v== arch then
+			return true
+		end
+	end
+	return false
+end
 
 -- is_pfm("android")
 -- is_pfm("ios")
@@ -33,13 +45,22 @@ end
 
 
 if is_pfm("android") then
-	require "premake/android/androidmk"
 	
     ndkabi "armeabi-v7a"
     ndkplatform "android-14"
 	ndkstl "gnustl_static"
 	ndktoolchainversion "4.9"
+	arch = "armv7"
+elseif is_pfm("ios") then
+	arch = "arm64"
+elseif is_pfm("windows") then
+	arch = "i386"
 end
+
+
+
+
+
 
 -- premake5 vs2015
 -- premake5 androidmk --pfm=android

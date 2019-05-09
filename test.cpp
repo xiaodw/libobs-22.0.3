@@ -12,9 +12,8 @@
 static const int cx = 800;
 static const int cy = 600;
 
-#ifndef DL_OPENGL
 #define DL_OPENGL "obs_opengl"
-#endif
+#define DL_D3D11 "obs_d3d11"
 
 /* --------------------------------------------------- */
 
@@ -166,7 +165,9 @@ static void RenderWindow(void *data, uint32_t cx, uint32_t cy)
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		int numCmd)
 {
-    obs_add_data_path("../data/");
+    //obs_add_data_path("../data/libobs/");
+   // obs_add_module_path("../", "../");
+
 	HWND hwnd = NULL;
 	base_set_log_handler(do_log, nullptr);
 

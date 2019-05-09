@@ -83,7 +83,10 @@ void *os_dlopen(const char *path)
 		*wpath_slash = L'/';
 	}
 
-	h_library = LoadLibraryW(wpath);
+    if(wpath_slash)
+	    h_library = LoadLibraryW(wpath_slash+1);
+    else
+        h_library = LoadLibraryW(wpath);
 	bfree(wpath);
 	dstr_free(&dll_name);
 
