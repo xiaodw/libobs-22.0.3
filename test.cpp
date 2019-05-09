@@ -94,7 +94,7 @@ static void CreateOBS(HWND hwnd)
 	ovi.base_height     = rc.bottom;
 	ovi.fps_num         = 30000;
 	ovi.fps_den         = 1001;
-	ovi.graphics_module = DL_D3D11;
+	ovi.graphics_module = DL_OPENGL;
 	ovi.output_format   = VIDEO_FORMAT_RGBA;
 	ovi.output_width    = rc.right;
 	ovi.output_height   = rc.bottom;
@@ -123,7 +123,7 @@ static void AddTestItems(obs_scene_t *scene, obs_source_t *source)
 	obs_sceneitem_t *item = NULL;
 	struct vec2 scale;
 
-	vec2_set(&scale, 20.0f, 20.0f);
+	vec2_set(&scale, 1.0f, 1.0f);
 
 	item = obs_scene_add(scene, source);
 	obs_sceneitem_set_scale(item, &scale);
@@ -186,18 +186,18 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 
 		/* ------------------------------------------------------ */
 		/* create source */
-		SourceContext source = obs_source_create("random",
+		SourceContext source = obs_source_create("monitor_capture",
 				"some randon source", NULL, nullptr);
 		if (!source)
 			throw "Couldn't create random test source";
 
 		/* ------------------------------------------------------ */
 		/* create filter */
-		SourceContext filter = obs_source_create("test_filter",
-				"a nice green filter", NULL, nullptr);
-		if (!filter)
-			throw "Couldn't create test filter";
-		obs_source_filter_add(source, filter);
+		//SourceContext filter = obs_source_create("test_filter",
+		//		"a nice green filter", NULL, nullptr);
+		//if (!filter)
+		//	throw "Couldn't create test filter";
+		//obs_source_filter_add(source, filter);
 
 		/* ------------------------------------------------------ */
 		/* create scene and add source to scene (twice) */
@@ -229,7 +229,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 	obs_shutdown();
 
 	blog(LOG_INFO, "Number of memory leaks: %ld", bnum_allocs());
-	DestroyWindow(hwnd);
+	//DestroyWindow(hwnd);
 
 	UNUSED_PARAMETER(prevInstance);
 	UNUSED_PARAMETER(cmdLine);

@@ -80,7 +80,6 @@ project "ffmpeg-mux32"
 end
 	kind "ConsoleApp"
 	language "C++"
-	targetdir "../obs-plugins/"
 	defines {
 
 	}
@@ -231,6 +230,7 @@ project "obs-qsv11"
 	files{
 		"obs-qsv11/*.h",
 		"obs-qsv11/*.cpp",
+		"obs-qsv11/*.c",
 		"obs-qsv11/libmfx/**.h",
 		"obs-qsv11/libmfx/**.cpp",
 	}
