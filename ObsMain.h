@@ -3,6 +3,7 @@
 #include <util/util.hpp>
 #include <map>
 #include <string>
+#include "ObsConfig.h"
 
 //管理场景
 class ObsMain
@@ -13,6 +14,10 @@ public:
 
     //全局实例
     static ObsMain* Instance();
+
+    //创建视频源
+    OBSSource CreateSource(const char *id, const char *name, ObsSourceConfig* config);
+
 
     //场景管理
     OBSScene AddScene(const char* name);
@@ -25,11 +30,16 @@ public:
     const char *InputAudioSource() const;
     const char *OutputAudioSource() const;
 
+    void SetCurrentScene(OBSSource scene, bool force = false,
+        bool direct = false);
+
 private:
+
+    OBSContext  m_obsContext;
     std::map<std::string,OBSScene> m_scenes;
     OBSScene m_currentScene;
 
     ConfigFile  m_globalConfig;
-    OBSContext  m_obsContext;
+
 };
 

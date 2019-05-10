@@ -36,9 +36,6 @@ static void CreateOBS(HWND hwnd)
 	RECT rc;
 	GetClientRect(hwnd, &rc);
 
-	if (!obs_startup("en-US", nullptr, nullptr))
-		throw "Couldn't create OBS";
-
 	struct obs_video_info ovi;
 	ovi.adapter         = 0;
 
@@ -48,7 +45,7 @@ static void CreateOBS(HWND hwnd)
 
 	ovi.fps_num         = 30000;
 	ovi.fps_den         = 1001;
-	ovi.graphics_module = DL_OPENGL;
+	ovi.graphics_module = DL_D3D11;
 	ovi.output_format   = VIDEO_FORMAT_RGBA;
 
     //obsÊä³ö»­Ãæ³ß´ç
@@ -62,13 +59,8 @@ static void CreateOBS(HWND hwnd)
 
 static void AddTestItems(obs_scene_t *scene, obs_source_t *source)
 {
-	obs_sceneitem_t *item = NULL;
-	struct vec2 scale;
-
-	vec2_set(&scale, 1.0f, 1.0f);
-
-	item = obs_scene_add(scene, source);
-	obs_sceneitem_set_scale(item, &scale);
+    OBSSceneItem item = obs_scene_add(scene, source);
+    obs_sceneitem_select(item, true);
 }
 
 
@@ -82,7 +74,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
    // obs_add_module_path("../", "../");
 
 	base_set_log_handler(do_log, nullptr);
-
+    ObsMain* obsMain = ObsMain::Instance();
 	try {
 
         ObsWindow obsWindow;
@@ -101,11 +93,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		obs_load_all_modules();
 
 		/* ------------------------------------------------------ */
-		/* create source */
-		obs_source_t* source = obs_source_create("monitor_capture",
-				"some randon source", NULL, nullptr);
-		if (!source)
-			throw "Couldn't create random test source";
+        OBSSource source = obsMain->CreateSource("monitor_capture","screen capture source",NULL);
 
 		/* ------------------------------------------------------ */
 		/* create filter */
@@ -138,9 +126,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		MessageBoxA(NULL, error, NULL, 0);
 	}
 
-
     delete ObsMain::Instance();
-	obs_shutdown();
 
 	blog(LOG_INFO, "Number of memory leaks: %ld", bnum_allocs());
 	//DestroyWindow(hwnd);

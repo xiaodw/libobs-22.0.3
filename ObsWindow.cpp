@@ -23,12 +23,7 @@ void ObsWindow::CreateDisplay()
     info.window.hwnd = m_hWnd;
 
     m_display = obs_display_create(&info, 0xff000000);
-
-
-    obs_display_add_draw_callback(m_display, [](void*data, uint32_t cx, uint32_t cy) {
-        ObsWindow* window = (ObsWindow*)data;
-        window->RenderWindow(cx, cy);
-    }, this);
+    obs_display_add_draw_callback(m_display, _RenderWindow, this);
 
     InitPrimitives();
 
@@ -43,8 +38,16 @@ ObsWindow::ObsWindow()
 
 ObsWindow::~ObsWindow()
 {
-
-
+    obs_enter_graphics();
+    gs_vertexbuffer_destroy(box);
+    gs_vertexbuffer_destroy(boxLeft);
+    gs_vertexbuffer_destroy(boxTop);
+    gs_vertexbuffer_destroy(boxRight);
+    gs_vertexbuffer_destroy(boxBottom);
+    gs_vertexbuffer_destroy(circle);
+    obs_leave_graphics();
+    obs_display_remove_draw_callback(m_display,
+        ObsWindow::_RenderWindow, this);
 }
 
 LRESULT ObsWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -55,6 +58,9 @@ LRESULT ObsWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         ResizePreview((uint32_t)LOWORD(lParam), (uint32_t)HIWORD(lParam));
         break;
     case WM_CLOSE:
+        {
+
+        }
         PostQuitMessage(0);
     default:
         break;
@@ -151,6 +157,8 @@ static void DrawCircleAtPos(float x, float y)
     gs_matrix_identity();
     gs_matrix_translate(&pos);
     gs_matrix_scale3f(HANDLE_RADIUS, HANDLE_RADIUS, 1.0f);
+
+
     gs_draw(GS_LINESTRIP, 0, 0);
     gs_matrix_pop();
 }
@@ -307,6 +315,12 @@ void ObsWindow::DrawSceneEditing()
 }
 
 
+void ObsWindow::_RenderWindow(void* param, uint32_t cx, uint32_t cy)
+{
+    ObsWindow* window = (ObsWindow*)param;
+    window->RenderWindow(cx, cy);
+}
+
 void ObsWindow::RenderWindow(uint32_t cx, uint32_t cy)
 {
     obs_video_info ovi;
@@ -328,16 +342,8 @@ void ObsWindow::RenderWindow(uint32_t cx, uint32_t cy)
 
     DrawBackdrop(float(ovi.base_width), float(ovi.base_height));
 
-    //if (window->IsPreviewProgramMode()) {
-    //    OBSScene scene = window->GetCurrentScene();
-    //    obs_source_t *source = obs_scene_get_source(scene);
-    //    if (source)
-    //        obs_source_video_render(source);
-    //}
-    //else 
-    {
-        obs_render_main_texture();
-    }
+    obs_render_main_texture();
+
     gs_load_vertexbuffer(nullptr);
 
     /* --------------------------------------- */

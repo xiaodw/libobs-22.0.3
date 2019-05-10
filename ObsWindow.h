@@ -21,6 +21,7 @@ public:
     gs_vertbuffer_t *circle = nullptr;
 
 private:
+    static void _RenderWindow(void* param,uint32_t cx, uint32_t cy);
     void RenderWindow(uint32_t cx, uint32_t cy);
     void ResizePreview(uint32_t cx, uint32_t cy);
 
@@ -28,6 +29,7 @@ private:
     void DrawBackdrop(float cx, float cy);
     void DrawSceneEditing();
 
+    //ÊÇ·ñËø¶¨
     bool locked = false;
 
     virtual LPCTSTR GetWindowClassName() const { return _T("render_window"); }
