@@ -1,11 +1,15 @@
 #include "ObsMain.h"
+#include "ObsWindow.h"
 
 ObsMain* obsMain = NULL;
 
-ObsMain::ObsMain()
-    :m_obsContext("en-US", nullptr, nullptr)
-{
+#define DL_OPENGL "obs_opengl"
+#define DL_D3D11 "obs_d3d11"
 
+ObsMain::ObsMain()
+    :m_canvasSize(1280,720),m_outSize(1280, 720),m_obsContext("en-US", nullptr, nullptr)
+{
+    obs_load_all_modules();
 }
 
 ObsMain::~ObsMain()
@@ -95,6 +99,42 @@ OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfi
     obs_source_release(csource);
     return source;
 }
+
+bool ObsMain::ResetVideo()
+{
+    struct obs_video_info ovi;
+    ovi.adapter = 0;
+
+    //obs画布尺寸
+    ovi.base_width = m_canvasSize.width;
+    ovi.base_height = m_canvasSize.height;
+
+    ovi.fps_num = 30000;
+    ovi.fps_den = 1001;
+    ovi.graphics_module = DL_D3D11;
+    ovi.output_format = VIDEO_FORMAT_RGBA;
+
+    //obs输出画面尺寸
+    ovi.output_width = m_outSize.width;
+    ovi.output_height = m_outSize.height;
+
+    if (obs_reset_video(&ovi) != 0)
+    {
+        //使用opengl
+        ovi.graphics_module = DL_OPENGL;
+        return obs_reset_video(&ovi) == 0;
+    }
+    return true;
+}
+
+bool ObsMain::ResetVideoSize(const ObsSize& canvasSize, 
+    const ObsSize& outSize)
+{
+    m_canvasSize = canvasSize;
+    m_outSize = outSize;
+    return ResetVideo();
+}
+
 
 #ifdef __APPLE__
 #define INPUT_AUDIO_SOURCE  "coreaudio_input_capture"

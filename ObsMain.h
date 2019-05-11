@@ -4,6 +4,9 @@
 #include <map>
 #include <string>
 #include "ObsConfig.h"
+#include "ObsWindowBase.h"
+
+class ObsWindow;
 
 //管理场景
 class ObsMain
@@ -15,9 +18,13 @@ public:
     //全局实例
     static ObsMain* Instance();
 
+    //重置初始化视频
+    bool ResetVideo();
+
+    bool ResetVideoSize(const ObsSize& canvasSize,const ObsSize& outSize);
+
     //创建视频源
     OBSSource CreateSource(const char *id, const char *name, ObsSourceConfig* config);
-
 
     //场景管理
     OBSScene AddScene(const char* name);
@@ -34,6 +41,9 @@ public:
         bool direct = false);
 
 private:
+    //视频尺寸
+    ObsSize m_canvasSize;
+    ObsSize m_outSize;
 
     OBSContext  m_obsContext;
     std::map<std::string,OBSScene> m_scenes;

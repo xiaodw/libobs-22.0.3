@@ -8,26 +8,34 @@
 #define HANDLE_SEL_RADIUS (HANDLE_RADIUS * 1.5f)
 #define PREVIEW_EDGE_SIZE 10
 
-void ObsWindow::CreateDisplay()
+bool ObsWindow::CreateDisplay()
 {
-    if (m_display || !m_hWnd)
-        return;
+    if (m_display)
+        return false;
+    window_handle_t handle = GetWndHandle();
+    if (!handle)
+    {
+        blog(LOG_WARNING, "window not created cant create display");
+        return false;
+    }
 
-    RECT rc;
-    GetClientRect(m_hWnd,&rc);
+    ObsSize size = GetClientSize();
+
     gs_init_data info = {};
-    info.cx = rc.right - rc.left;
-    info.cy = rc.bottom - rc.top;
+    info.cx = size.width;
+    info.cy = size.height;
     info.format = GS_RGBA;
     info.zsformat = GS_ZS_NONE;
-    info.window.hwnd = m_hWnd;
+    info.window.hwnd = handle;
 
     m_display = obs_display_create(&info, 0xff000000);
     obs_display_add_draw_callback(m_display, _RenderWindow, this);
 
     InitPrimitives();
 
-    ResizePreview(info.cx, info.cy);
+    OnResize(size);
+
+    return true;
 }
 
 ObsWindow::ObsWindow()
@@ -49,26 +57,6 @@ ObsWindow::~ObsWindow()
     obs_display_remove_draw_callback(m_display,
         ObsWindow::_RenderWindow, this);
 }
-
-LRESULT ObsWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-    case WM_SIZE:
-        ResizePreview((uint32_t)LOWORD(lParam), (uint32_t)HIWORD(lParam));
-        break;
-    case WM_CLOSE:
-        {
-
-        }
-        PostQuitMessage(0);
-    default:
-        break;
-    }
-
-    return CMyWindow::HandleMessage(uMsg, wParam, lParam);
-}
-
 
 
 void ObsWindow::InitPrimitives()
@@ -347,11 +335,10 @@ void ObsWindow::RenderWindow(uint32_t cx, uint32_t cy)
     gs_load_vertexbuffer(nullptr);
 
     /* --------------------------------------- */
-    RECT rc;
-    GetClientRect(m_hWnd, &rc);
+    ObsSize size = GetClientSize();
 
-    float right = float(rc.right - rc.left) - m_previewX;
-    float bottom = float(rc.bottom - rc.top) - m_previewY;
+    float right = float(size.width) - m_previewX;
+    float bottom = float(size.height) - m_previewY;
 
     gs_ortho(-m_previewX, right,
         -m_previewY, bottom,
@@ -394,19 +381,19 @@ static inline void GetScaleAndCenterPos(
 }
 
 
-void ObsWindow::ResizePreview(uint32_t tcx, uint32_t tcy)
+void ObsWindow::OnResize(const ObsSize& size)
 {
     if (m_display)
     {
-        obs_display_resize(m_display, tcx, tcy);
+        obs_display_resize(m_display, size.width, size.height);
     }
 
     obs_video_info ovi;
     if (obs_get_video_info(&ovi))
     {
         GetScaleAndCenterPos(int(ovi.base_width), int(ovi.base_height),
-            tcx - PREVIEW_EDGE_SIZE * 2,
-            tcy - PREVIEW_EDGE_SIZE * 2,
+            size.width - PREVIEW_EDGE_SIZE * 2,
+            size.height - PREVIEW_EDGE_SIZE * 2,
             m_previewX, m_previewY, m_previewScale);
 
 

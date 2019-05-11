@@ -1,15 +1,18 @@
 #pragma once
 #include <tchar.h>
-#include "MyWindow.h"
 #include <obs.hpp>
+#include "ObsWindowBase.h"
 
-class ObsWindow :public CMyWindow
+class ObsWindow :public ObsWindowBase
 {
 public:
     ObsWindow();
     ~ObsWindow();
 
-    void CreateDisplay();//创建obsdisplay
+    //创建obs窗口
+    static ObsWindow* Create();
+
+    bool CreateDisplay();//创建obsdisplay
 
     obs_display_t* display() { return m_display; }
 
@@ -20,10 +23,10 @@ public:
     gs_vertbuffer_t *boxBottom = nullptr;
     gs_vertbuffer_t *circle = nullptr;
 
-private:
+protected:
     static void _RenderWindow(void* param,uint32_t cx, uint32_t cy);
     void RenderWindow(uint32_t cx, uint32_t cy);
-    void ResizePreview(uint32_t cx, uint32_t cy);
+    void OnResize(const ObsSize& size) override;
 
     void InitPrimitives();
     void DrawBackdrop(float cx, float cy);
@@ -31,10 +34,6 @@ private:
 
     //是否锁定
     bool locked = false;
-
-    virtual LPCTSTR GetWindowClassName() const { return _T("render_window"); }
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
     OBSDisplay m_display;
 
     float m_previewScale = 1.0;
