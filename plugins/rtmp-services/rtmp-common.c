@@ -2,9 +2,7 @@
 #include <util/dstr.h>
 #include <obs-module.h>
 #include <jansson.h>
-
 #include "rtmp-format-ver.h"
-#include "twitch.h"
 
 struct rtmp_common {
 	char *service;
@@ -23,8 +21,6 @@ static const char *rtmp_common_getname(void *unused)
 static json_t *open_services_file(void);
 static inline json_t *find_service(json_t *root, const char *name);
 static inline const char *get_string_val(json_t *service, const char *key);
-
-extern void twitch_ingests_refresh(int seconds);
 
 static void ensure_valid_url(struct rtmp_common *service, json_t *json,
 		obs_data_t *settings)
@@ -280,34 +276,6 @@ static void properties_data_destroy(void *data)
 		json_decref(root);
 }
 
-static bool fill_twitch_servers_locked(obs_property_t *servers_prop)
-{
-	size_t count = twitch_ingest_count();
-
-	obs_property_list_add_string(servers_prop,
-			obs_module_text("Server.Auto"), "auto");
-
-	if (count <= 1)
-		return false;
-
-	for (size_t i = 0; i < count; i++) {
-		struct twitch_ingest ing = twitch_ingest(i);
-		obs_property_list_add_string(servers_prop, ing.name, ing.url);
-	}
-
-	return true;
-}
-
-static inline bool fill_twitch_servers(obs_property_t *servers_prop)
-{
-	bool success;
-
-	twitch_ingests_lock();
-	success = fill_twitch_servers_locked(servers_prop);
-	twitch_ingests_unlock();
-
-	return success;
-}
 
 static void fill_servers(obs_property_t *servers_prop, json_t *service,
 		const char *name)
@@ -329,10 +297,6 @@ static void fill_servers(obs_property_t *servers_prop, json_t *service,
 	if (strcmp(name, "Mixer.com - FTL") == 0) {
 		obs_property_list_add_string(servers_prop,
 				obs_module_text("Server.Auto"), "auto");
-	}
-	if (strcmp(name, "Twitch") == 0) {
-		if (fill_twitch_servers(servers_prop))
-			return;
 	}
 
 	json_array_foreach (servers, index, server) {
@@ -541,21 +505,6 @@ static const char *rtmp_common_get_output_type(void *data)
 static const char *rtmp_common_url(void *data)
 {
 	struct rtmp_common *service = data;
-
-	if (service->service && strcmp(service->service, "Twitch") == 0) {
-		if (service->server && strcmp(service->server, "auto") == 0) {
-			struct twitch_ingest ing;
-
-			twitch_ingests_refresh(3);
-
-			twitch_ingests_lock();
-			ing = twitch_ingest(0);
-			twitch_ingests_unlock();
-
-			return ing.url;
-		}
-	}
-
 	return service->server;
 }
 
