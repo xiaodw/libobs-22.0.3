@@ -57,6 +57,7 @@ project "test"
 		"core/"
 	}
 	files{
+		"*.h",
 		"*.cpp",
 	}
 	defines {

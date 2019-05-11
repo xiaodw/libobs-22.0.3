@@ -5,7 +5,7 @@
 #include <graphics/matrix4.h>
 #include "ObsWindowBase.h"
 
-
+//obsäÖÈ¾´°¿Ú
 class ObsWindow :public ObsWindowBase
 {
 public:

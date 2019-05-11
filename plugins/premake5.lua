@@ -587,5 +587,25 @@ project "win-wasapi"
 		"wmcodecdspuuid",
 	}	
 	
+project "rtmp-services"
+	kind "SharedLib"
+	language "C++"
+	targetdir "../obs-plugins/"
+	defines {
 
+	}
+	files{
+		"rtmp-services/*.h",
+		"rtmp-services/*.c",
+	}
+
+	includedirs{
+		"../core/",
+		"../3dparty/jansson",
+	}
+
+	links{
+		"libobs",
+		"jansson",
+	}	
 	

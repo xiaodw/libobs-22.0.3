@@ -38,12 +38,11 @@ OBSScene ObsMain::GetCurrentScene()
 OBSScene ObsMain::AddScene(const char* name)
 {
     //c指针赋值给c++后需要释放
-    obs_scene_t* cscene = obs_scene_create(name);
-    if (!cscene)
+    OBSScene scene = obs_scene_create(name);
+    if (!scene)
         return NULL;
 
-    OBSScene scene(cscene);
-    obs_scene_release(cscene);
+    obs_scene_release(scene);
 
     m_scenes[name] = scene;
     if (m_scenes.size() == 1)
@@ -93,12 +92,11 @@ OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfi
         hotkey = config->hotkey;
     }
 
-    obs_source_t* csource = obs_source_create(id, name, settings, hotkey);
-    if (!csource)
+    OBSSource source = obs_source_create(id, name, settings, hotkey);
+    if (!source)
         return NULL;
-    
-    OBSSource source(csource);
-    obs_source_release(csource);
+
+    obs_source_release(source);
     return source;
 }
 

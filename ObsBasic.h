@@ -5,6 +5,16 @@
 
 #define Str(s) s
 
+struct RtmpServer
+{
+    std::string server;
+    std::string key;
+    bool use_auth = false;
+    std::string username;
+    std::string password;
+};
+
+
 class ObsBasic
 {
 public:
@@ -20,6 +30,8 @@ public:
     obs_service_t *GetService();
     void  SetService(obs_service_t *service);
 
+
+    bool SetRtmpServer(const RtmpServer& server);
 
     bool StreamingActive() const;
     bool Active() const;

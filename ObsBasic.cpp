@@ -640,6 +640,30 @@ void  ObsBasic::SetService(obs_service_t *service)
         m_service = service;
 }
 
+bool ObsBasic::SetRtmpServer(const RtmpServer& server)
+{
+    OBSData settings = obs_data_create();
+    if (!settings)
+        return false;
+
+    obs_data_release(settings);
+
+    obs_data_set_string(settings, "server", server.server.c_str());
+    obs_data_set_string(settings, "key", server.key.c_str());
+    obs_data_set_bool(settings, "use_auth", server.use_auth);
+    obs_data_set_string(settings, "username", server.username.c_str());
+    obs_data_set_string(settings, "password", server.password.c_str());
+
+    OBSService newService = obs_service_create("rtmp_common",
+        "default_service", settings, NULL);
+
+    if (!newService)
+        return false;
+    obs_service_release(newService);
+    SetService(newService);
+    return true;
+}
+
 bool ObsBasic::StartStreaming()
 {
     if (m_outputHandler->StreamingActive())

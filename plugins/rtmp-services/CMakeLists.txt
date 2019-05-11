@@ -3,13 +3,11 @@ project(rtmp-services)
 include_directories(${OBS_JANSSON_INCLUDE_DIRS})
 
 set(rtmp-services_SOURCES
-	twitch.c
 	rtmp-common.c
 	rtmp-custom.c
 	rtmp-services-main.c)
 
 set(rtmp-services_HEADERS
-	twitch.h
 	rtmp-format-ver.h)
 
 set(RTMP_SERVICES_URL
@@ -30,7 +28,6 @@ add_library(rtmp-services MODULE
 	${rtmp-services_config_HEADERS})
 target_link_libraries(rtmp-services
 	libobs
-	file-updater
 	${OBS_JANSSON_IMPORT})
 
 target_include_directories(rtmp-services
