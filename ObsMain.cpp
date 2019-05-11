@@ -1,13 +1,11 @@
 #include "ObsMain.h"
 #include "ObsWindow.h"
+#include "util/platform.h"
 
 ObsMain* obsMain = NULL;
 
-#define DL_OPENGL "obs_opengl"
-#define DL_D3D11 "obs_d3d11"
-
 ObsMain::ObsMain()
-    :m_canvasSize(1280,720),m_outSize(1280, 720),m_obsContext("en-US", nullptr, nullptr)
+    :m_obsContext("en-US", nullptr, nullptr)
 {
     obs_load_all_modules();
 }
@@ -25,6 +23,14 @@ ObsMain* ObsMain::Instance()
     if (!obsMain)
         obsMain = new ObsMain();
     return obsMain;
+}
+
+OBSScene ObsMain::FindScene(const char* name)
+{
+    auto find = m_scenes.find(name);
+    if (find != m_scenes.end())
+        return find->second;
+    return NULL;
 }
 
 OBSScene ObsMain::GetCurrentScene()
@@ -66,8 +72,7 @@ bool ObsMain::SelectScene(const char* name)
     return false;
 }
 
-void ObsMain::SetCurrentScene(OBSSource scene, bool force,
-    bool direct)
+void ObsMain::SetCurrentScene(OBSSource scene)
 {
     if (m_currentScene)
     {
@@ -100,41 +105,59 @@ OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfi
     return source;
 }
 
-bool ObsMain::ResetVideo()
+
+
+#ifdef __APPLE__
+#define BASE_PATH ".."
+#else
+#define BASE_PATH ".."
+#endif
+
+#define CONFIG_PATH BASE_PATH "/config"
+
+#ifndef OBS_UNIX_STRUCTURE
+#define OBS_UNIX_STRUCTURE 0
+#endif
+
+bool portable_mode = false;
+
+int GetConfigPath(char *path, size_t size, const char *name)
 {
-    struct obs_video_info ovi;
-    ovi.adapter = 0;
-
-    //obs画布尺寸
-    ovi.base_width = m_canvasSize.width;
-    ovi.base_height = m_canvasSize.height;
-
-    ovi.fps_num = 30000;
-    ovi.fps_den = 1001;
-    ovi.graphics_module = DL_D3D11;
-    ovi.output_format = VIDEO_FORMAT_RGBA;
-
-    //obs输出画面尺寸
-    ovi.output_width = m_outSize.width;
-    ovi.output_height = m_outSize.height;
-
-    if (obs_reset_video(&ovi) != 0)
-    {
-        //使用opengl
-        ovi.graphics_module = DL_OPENGL;
-        return obs_reset_video(&ovi) == 0;
+    if (!OBS_UNIX_STRUCTURE && portable_mode) {
+        if (name && *name) {
+            return snprintf(path, size, CONFIG_PATH "/%s", name);
+        }
+        else {
+            return snprintf(path, size, CONFIG_PATH);
+        }
     }
-    return true;
+    else {
+        return os_get_config_path(path, size, name);
+    }
 }
 
-bool ObsMain::ResetVideoSize(const ObsSize& canvasSize, 
-    const ObsSize& outSize)
+int ObsMain::GetProfilePath(char *path, size_t size, const char *file)const
 {
-    m_canvasSize = canvasSize;
-    m_outSize = outSize;
-    return ResetVideo();
-}
+    char profiles_path[512];
+    const char *profile = config_get_string(config(),"Basic", "ProfileDir");
+    int ret;
 
+    if (!profile)
+        return -1;
+    if (!path)
+        return -1;
+    if (!file)
+        file = "";
+
+    ret = GetConfigPath(profiles_path, 512, "obs-studio/basic/profiles");
+    if (ret <= 0)
+        return ret;
+
+    if (!*file)
+        return snprintf(path, size, "%s/%s", profiles_path, profile);
+
+    return snprintf(path, size, "%s/%s/%s", profiles_path, profile, file);
+}
 
 #ifdef __APPLE__
 #define INPUT_AUDIO_SOURCE  "coreaudio_input_capture"

@@ -1,9 +1,8 @@
 #pragma once
-#include <tchar.h>
 #include <obs.hpp>
+#include <memory>
 #include <graphics/vec2.h>
 #include <graphics/matrix4.h>
-
 #include "ObsWindowBase.h"
 
 
@@ -12,9 +11,6 @@ class ObsWindow :public ObsWindowBase
 public:
     ObsWindow();
     ~ObsWindow();
-
-    //创建obs窗口
-    static ObsWindow* Create();
 
     bool CreateDisplay();//创建obsdisplay
 
@@ -35,6 +31,7 @@ protected:
     void OnMousePressEvent(ObsMouseEvent *event) override;
     void OnMouseReleaseEvent(ObsMouseEvent *event) override;
     void OnMouseMoveEvent(ObsMouseEvent *event) override;
+    void OnFocusChange(bool bGet) override;
 
     void GetStretchHandleData(const vec2 &pos);
 

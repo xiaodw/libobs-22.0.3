@@ -63,11 +63,13 @@ public:
 
     //获取窗口尺寸
     virtual ObsSize GetClientSize() =0;
-    virtual void OnResize(const ObsSize& size) =0;
     virtual window_handle_t CreateWnd(window_handle_t parent,const ObsRect& pos) =0;
     virtual void SetWindowPos(const ObsRect& rc) = 0;
     virtual window_handle_t GetWndHandle() = 0;
-
+    
+    //窗口事件
+    virtual void OnResize(const ObsSize& size) = 0;
+    virtual void OnFocusChange(bool bGet) =0;
 
     //鼠标事件
     virtual void OnMousePressEvent(ObsMouseEvent *event) {}

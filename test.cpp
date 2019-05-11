@@ -2,7 +2,7 @@
 #include <time.h>
 #include <windows.h>
 #include "ObsMain.h"
-#include "ObsWindow.h"
+#include "ObsBasic.h"
 
 static void do_log(int log_level, const char *msg, va_list args, void *param)
 {
@@ -29,7 +29,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
     ObsMain* obsMain = ObsMain::Instance();
 	try {
 
-        ObsWindow * obsWindow = ObsWindow::Create();
+        ObsBasic * obsWindow = ObsBasic::Create();
 
         ObsRect rc = {100,200,800,600};
         window_handle_t hwnd = obsWindow->CreateWnd(NULL,rc);
@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 
 		/* ------------------------------------------------------ */
 		/* create OBS */
-        obsMain->ResetVideo();
+        obsWindow->InitObs();
 
 		/* ------------------------------------------------------ */
         OBSSource source = obsMain->CreateSource("monitor_capture","screen capture source",NULL);

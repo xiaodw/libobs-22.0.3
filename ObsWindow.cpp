@@ -8,7 +8,7 @@
 
 #define HANDLE_RADIUS     4.0f
 #define HANDLE_SEL_RADIUS (HANDLE_RADIUS * 1.5f)
-#define PREVIEW_EDGE_SIZE 10
+#define PREVIEW_EDGE_SIZE 4
 
 bool ObsWindow::CreateDisplay()
 {
@@ -1178,5 +1178,13 @@ void ObsWindow::OnMouseMoveEvent(ObsMouseEvent *event)
         }
         mouseMoved = true;
     }
+}
+
+void ObsWindow::OnFocusChange(bool bGet)
+{
+    if (bGet)
+        locked = false;
+    else
+        locked = true;
 }
 

@@ -272,7 +272,7 @@ int ObsWin32Window::DoMessageLoop()
 
 
 
-ObsWindow* ObsWindow::Create()
+ObsBasic* ObsBasic::Create()
 {
     return new ObsWin32Window();
 }
@@ -391,7 +391,12 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             OnMouseReleaseEvent(&event);
         }
         break;
-
+    case WM_SETFOCUS:
+        OnFocusChange(true);
+        break;
+    case WM_KILLFOCUS:
+        OnFocusChange(false);
+        break;
     }
 
     return ::CallWindowProc(m_OldWndProc, m_hWnd, uMsg, wParam, lParam);
