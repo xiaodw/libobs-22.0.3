@@ -18,6 +18,8 @@ public:
     //全局实例
     static ObsMain* Instance();
 
+    bool InitGlobalConfig();
+
     //创建视频源
     OBSSource CreateSource(const char *id, const char *name, ObsSourceConfig* config);
 
@@ -36,6 +38,8 @@ public:
 
     int GetProfilePath(char *path, size_t size, const char *file) const;
 private:
+    bool InitGlobalConfigDefaults();
+
     OBSContext  m_obsContext;
     std::map<std::string,OBSScene> m_scenes;
     OBSScene m_currentScene;

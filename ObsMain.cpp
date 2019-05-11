@@ -7,7 +7,6 @@ ObsMain* obsMain = NULL;
 ObsMain::ObsMain()
     :m_obsContext("en-US", nullptr, nullptr)
 {
-    obs_load_all_modules();
 }
 
 ObsMain::~ObsMain()
@@ -139,11 +138,16 @@ int GetConfigPath(char *path, size_t size, const char *name)
 int ObsMain::GetProfilePath(char *path, size_t size, const char *file)const
 {
     char profiles_path[512];
-    const char *profile = config_get_string(config(),"Basic", "ProfileDir");
+    const char *profile = config_get_string(config(),"Basic", "Profile");
     int ret;
 
     if (!profile)
-        return -1;
+    {
+        //给个默认名
+        profile = "profile";
+        config_set_string(config(), "Basic", "Profile", profile);
+    }
+
     if (!path)
         return -1;
     if (!file)
@@ -180,5 +184,115 @@ const char *ObsMain::OutputAudioSource() const
     return OUTPUT_AUDIO_SOURCE;
 }
 
+bool ObsMain::InitGlobalConfig()
+{
+    char path[512];
+    bool changed = false;
+
+    int len = GetConfigPath(path, sizeof(path),
+        "obs-studio/global.ini");
+    if (len <= 0) {
+        return false;
+    }
+
+    int errorcode = m_globalConfig.Open(path, CONFIG_OPEN_ALWAYS);
+    if (errorcode != CONFIG_SUCCESS) {
+        blog(LOG_ERROR, "Failed to open global.ini: %d", errorcode);
+        return false;
+    }
+
+    if (!config_has_user_value(m_globalConfig, "General", "Pre19Defaults")) {
+        uint32_t lastVersion = config_get_int(m_globalConfig, "General",
+            "LastVersion");
+        bool useOldDefaults = lastVersion &&
+            lastVersion < MAKE_SEMANTIC_VERSION(19, 0, 0);
+
+        config_set_bool(m_globalConfig, "General", "Pre19Defaults",
+            useOldDefaults);
+        changed = true;
+    }
+
+    if (!config_has_user_value(m_globalConfig, "General", "Pre21Defaults")) {
+        uint32_t lastVersion = config_get_int(m_globalConfig, "General",
+            "LastVersion");
+        bool useOldDefaults = lastVersion &&
+            lastVersion < MAKE_SEMANTIC_VERSION(21, 0, 0);
+
+        config_set_bool(m_globalConfig, "General", "Pre21Defaults",
+            useOldDefaults);
+        changed = true;
+    }
 
 
+    if (changed)
+        config_save_safe(m_globalConfig, "tmp", nullptr);
+
+    return InitGlobalConfigDefaults();
+}
+
+
+#define DEFAULT_LANG "en-US"
+
+bool ObsMain::InitGlobalConfigDefaults()
+{
+    config_set_default_string(m_globalConfig, "General", "Language",
+        DEFAULT_LANG);
+    config_set_default_uint(m_globalConfig, "General", "MaxLogs", 10);
+    config_set_default_int(m_globalConfig, "General", "InfoIncrement", -1);
+    config_set_default_string(m_globalConfig, "General", "ProcessPriority",
+        "Normal");
+    config_set_default_bool(m_globalConfig, "General", "EnableAutoUpdates",
+        true);
+
+#if _WIN32
+    config_set_default_string(m_globalConfig, "Video", "Renderer",
+        "Direct3D 11");
+#else
+    config_set_default_string(globalConfig, "Video", "Renderer", "OpenGL");
+#endif
+
+    config_set_default_bool(m_globalConfig, "BasicWindow", "PreviewEnabled",
+        true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "PreviewProgramMode", false);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SceneDuplicationMode", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SwapScenesMode", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SnappingEnabled", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "ScreenSnapping", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SourceSnapping", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "CenterSnapping", false);
+    config_set_default_double(m_globalConfig, "BasicWindow",
+        "SnapDistance", 10.0);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "RecordWhenStreaming", false);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "KeepRecordingWhenStreamStops", false);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SysTrayEnabled", true);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SysTrayWhenStarted", false);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "SaveProjectors", false);
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "ShowTransitions", true);
+
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "VerticalVolControl", false);
+
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "MultiviewMouseSwitch", true);
+
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "MultiviewDrawNames", true);
+
+    config_set_default_bool(m_globalConfig, "BasicWindow",
+        "MultiviewDrawAreas", true);
+
+    return true;
+}

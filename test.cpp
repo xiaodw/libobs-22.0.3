@@ -27,6 +27,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 
 	base_set_log_handler(do_log, nullptr);
     ObsMain* obsMain = ObsMain::Instance();
+    obsMain->InitGlobalConfig();
+
 	try {
 
         ObsBasic * obsWindow = ObsBasic::Create();
