@@ -12,6 +12,7 @@ public:
     ObsWindow();
     ~ObsWindow();
 
+    static ObsWindow*  Create();
     bool CreateDisplay();//´´½¨obsdisplay
 
     obs_display_t* display() { return m_display; }

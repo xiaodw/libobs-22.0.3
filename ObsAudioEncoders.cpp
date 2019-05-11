@@ -83,7 +83,7 @@ static void HandleSampleRate(obs_property_t* prop, const char *id)
 		return;
 	}
 
-	uint32_t sampleRate = config_get_uint(ObsMain::Instance()->config(), "Audio",
+	uint32_t sampleRate = config_get_uint(GetBasicConfig(), "Audio",
 			"SampleRate");
 
     if (!sampleRate)

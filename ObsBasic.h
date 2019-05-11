@@ -1,18 +1,15 @@
 #pragma once
-#include "ObsWindow.h"
+#include <memory>
 #include "ObsOutputs.h"
 #include <util/util.hpp>
 
 #define Str(s) s
 
-class ObsBasic :public ObsWindow
+class ObsBasic
 {
 public:
     ObsBasic();
     ~ObsBasic();
-
-    //创建obs
-    static ObsBasic* Create();
 
     //初始化obs
     void InitObs();
@@ -49,7 +46,8 @@ public:
     void ReplayBufferStopping();
 
     //basic config
-    config_t* config() { return m_basicConfig; }
+    config_t* basicConfig() { return m_basicConfig; }
+    
 protected:
     bool InitBasicConfigDefaults();
     void GetConfigFPS(uint32_t &num, uint32_t &den) const;
@@ -64,7 +62,7 @@ protected:
 
     void CheckForSimpleModeX264Fallback();
 
-
+    OBSContext  m_obsContext;
     OBSService m_service;
     ConfigFile    m_basicConfig;
     std::unique_ptr<BasicOutputHandler> m_outputHandler;

@@ -11,13 +11,16 @@
 #define DL_D3D11 "obs_d3d11"
 
 ObsBasic::ObsBasic()
+    :m_obsContext("en-US", nullptr, nullptr)
 {
-
 }
 
 ObsBasic::~ObsBasic()
 {
-
+    m_service = NULL;
+    m_basicConfig.Close();
+    m_outputHandler.reset();
+    m_obsContext = NULL;
 }
 
 #define STARTUP_SEPARATOR \
@@ -596,7 +599,7 @@ bool ObsBasic::InitBasicConfig()
     }
 
     if (config_get_string(m_basicConfig, "General", "Name") == nullptr) {
-        const char *curName = config_get_string(ObsMain::Instance()->config(),
+        const char *curName = config_get_string(GetGlobalConfig(),
             "Basic", "Profile");
 
         config_set_string(m_basicConfig, "General", "Name", curName);

@@ -272,7 +272,7 @@ int ObsWin32Window::DoMessageLoop()
 
 
 
-ObsBasic* ObsBasic::Create()
+ObsWindow* ObsWindow::Create()
 {
     return new ObsWin32Window();
 }

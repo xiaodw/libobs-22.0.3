@@ -207,7 +207,7 @@ static bool CreateAACEncoder(OBSEncoder &res, string &id, int bitrate,
 
 config_t* BasicOutputHandler::config()const
 {
-    return main->config();
+    return main->basicConfig();
 }
 
 struct SimpleOutput : BasicOutputHandler {

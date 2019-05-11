@@ -5,11 +5,12 @@
 #include <string>
 #include "ObsConfig.h"
 #include "ObsWindowBase.h"
+#include "ObsBasic.h"
 
 class ObsWindow;
 
 //π‹¿Ì≥°æ∞
-class ObsMain
+class ObsMain:public ObsBasic
 {
 public:
     ObsMain();
@@ -30,9 +31,7 @@ public:
     OBSScene FindScene(const char* name);
     OBSScene GetCurrentScene();
 
-    config_t* config()const  { return m_globalConfig; }
-    const char *InputAudioSource() const;
-    const char *OutputAudioSource() const;
+    config_t* globalConfig()const  { return m_globalConfig; }
 
     void SetCurrentScene(OBSSource scene);
 
@@ -40,10 +39,10 @@ public:
 private:
     bool InitGlobalConfigDefaults();
 
-    OBSContext  m_obsContext;
     std::map<std::string,OBSScene> m_scenes;
     OBSScene m_currentScene;
     ConfigFile  m_globalConfig;
 };
 
-inline config_t *GetGlobalConfig() { return ObsMain::Instance()->config(); }
+inline config_t *GetGlobalConfig() { return ObsMain::Instance()->globalConfig(); }
+inline config_t *GetBasicConfig() { return ObsMain::Instance()->basicConfig(); }

@@ -1,10 +1,10 @@
 #pragma once
 #include <Windows.h>
 #include <tchar.h>
-#include "ObsBasic.h"
+#include "ObsWindow.h"
 
 //windows下窗口实现
-class ObsWin32Window:public ObsBasic
+class ObsWin32Window:public ObsWindow
 {
 public:
     static void SetInstance(HINSTANCE hins)

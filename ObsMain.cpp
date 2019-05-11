@@ -5,7 +5,6 @@
 ObsMain* obsMain = NULL;
 
 ObsMain::ObsMain()
-    :m_obsContext("en-US", nullptr, nullptr)
 {
 }
 
@@ -13,7 +12,6 @@ ObsMain::~ObsMain()
 {
     m_scenes.clear();
     m_currentScene = NULL;
-    m_obsContext = NULL;
     obsMain =  nullptr;
 }
 
@@ -138,14 +136,14 @@ int GetConfigPath(char *path, size_t size, const char *name)
 int ObsMain::GetProfilePath(char *path, size_t size, const char *file)const
 {
     char profiles_path[512];
-    const char *profile = config_get_string(config(),"Basic", "Profile");
+    const char *profile = config_get_string(globalConfig(),"Basic", "Profile");
     int ret;
 
     if (!profile)
     {
         //给个默认名
         profile = "profile";
-        config_set_string(config(), "Basic", "Profile", profile);
+        config_set_string(globalConfig(), "Basic", "Profile", profile);
     }
 
     if (!path)
@@ -161,27 +159,6 @@ int ObsMain::GetProfilePath(char *path, size_t size, const char *file)const
         return snprintf(path, size, "%s/%s", profiles_path, profile);
 
     return snprintf(path, size, "%s/%s/%s", profiles_path, profile, file);
-}
-
-#ifdef __APPLE__
-#define INPUT_AUDIO_SOURCE  "coreaudio_input_capture"
-#define OUTPUT_AUDIO_SOURCE "coreaudio_output_capture"
-#elif _WIN32
-#define INPUT_AUDIO_SOURCE  "wasapi_input_capture"
-#define OUTPUT_AUDIO_SOURCE "wasapi_output_capture"
-#else
-#define INPUT_AUDIO_SOURCE  "pulse_input_capture"
-#define OUTPUT_AUDIO_SOURCE "pulse_output_capture"
-#endif
-
-const char *ObsMain::InputAudioSource() const
-{
-    return INPUT_AUDIO_SOURCE;
-}
-
-const char *ObsMain::OutputAudioSource() const
-{
-    return OUTPUT_AUDIO_SOURCE;
 }
 
 bool ObsMain::InitGlobalConfig()
