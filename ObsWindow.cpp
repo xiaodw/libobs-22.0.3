@@ -4,6 +4,8 @@
 #include <graphics/vec4.h>
 #include <graphics/matrix4.h>
 #include <algorithm>
+#include <functional>
+
 #define HANDLE_RADIUS     4.0f
 #define HANDLE_SEL_RADIUS (HANDLE_RADIUS * 1.5f)
 #define PREVIEW_EDGE_SIZE 10
@@ -28,7 +30,7 @@ bool ObsWindow::CreateDisplay()
     info.zsformat = GS_ZS_NONE;
     info.window.hwnd = handle;
 
-    m_display = obs_display_create(&info, 0xff000000);
+    m_display = obs_display_create(&info, 0x333333);
     obs_display_add_draw_callback(m_display, _RenderWindow, this);
 
     InitPrimitives();
@@ -40,12 +42,21 @@ bool ObsWindow::CreateDisplay()
 
 ObsWindow::ObsWindow()
 {
-
-
+    matrix4_identity(&screenToItem);
+    matrix4_identity(&itemToScreen);
+    matrix4_identity(&invGroupTransform);
+    vec2_zero(&startItemPos);
+    vec2_zero(&cropSize);
+    vec2_zero(&stretchItemSize);
+    vec2_zero(&startPos);
+    vec2_zero(&lastMoveOffset);
 }
 
 ObsWindow::~ObsWindow()
 {
+    obs_display_remove_draw_callback(m_display,
+        ObsWindow::_RenderWindow, this);
+
     obs_enter_graphics();
     gs_vertexbuffer_destroy(box);
     gs_vertexbuffer_destroy(boxLeft);
@@ -54,8 +65,6 @@ ObsWindow::~ObsWindow()
     gs_vertexbuffer_destroy(boxBottom);
     gs_vertexbuffer_destroy(circle);
     obs_leave_graphics();
-    obs_display_remove_draw_callback(m_display,
-        ObsWindow::_RenderWindow, this);
 }
 
 
@@ -311,6 +320,9 @@ void ObsWindow::_RenderWindow(void* param, uint32_t cx, uint32_t cy)
 
 void ObsWindow::RenderWindow(uint32_t cx, uint32_t cy)
 {
+    if (!GetWndHandle())
+        return;
+
     obs_video_info ovi;
 
     obs_get_video_info(&ovi);
@@ -399,6 +411,772 @@ void ObsWindow::OnResize(const ObsSize& size)
 
         m_previewX += float(PREVIEW_EDGE_SIZE);
         m_previewY += float(PREVIEW_EDGE_SIZE);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+//鼠标事件处理
+
+static vec3 GetTransformedPos(float x, float y, const matrix4 &mat)
+{
+    vec3 result;
+    vec3_set(&result, x, y, 0.0f);
+    vec3_transform(&result, &result, &mat);
+    return result;
+}
+
+
+struct HandleFindData {
+    const vec2    &pos;
+    const float   radius;
+    matrix4       parent_xform;
+
+    OBSSceneItem item;
+    ItemHandle   handle = ItemHandle::None;
+
+    HandleFindData(const HandleFindData &) = delete;
+    HandleFindData(HandleFindData &&) = delete;
+    HandleFindData& operator=(const HandleFindData &) = delete;
+    HandleFindData& operator=(HandleFindData &&) = delete;
+
+    inline HandleFindData(const vec2 &pos_, float scale)
+        : pos(pos_),
+        radius(HANDLE_SEL_RADIUS / scale)
+    {
+        matrix4_identity(&parent_xform);
+    }
+
+    inline HandleFindData(const HandleFindData &hfd,
+        obs_sceneitem_t *parent)
+        : pos(hfd.pos),
+        radius(hfd.radius),
+        item(hfd.item),
+        handle(hfd.handle)
+    {
+        obs_sceneitem_get_draw_transform(parent, &parent_xform);
+    }
+};
+
+static bool FindHandleAtPos(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    HandleFindData &data = *reinterpret_cast<HandleFindData*>(param);
+
+    if (!obs_sceneitem_selected(item)) {
+        if (obs_sceneitem_is_group(item)) {
+            HandleFindData newData(data, item);
+            obs_sceneitem_group_enum_items(item, FindHandleAtPos,
+                &newData);
+            data.item = newData.item;
+            data.handle = newData.handle;
+        }
+
+        return true;
+    }
+
+    matrix4        transform;
+    vec3           pos3;
+    float          closestHandle = data.radius;
+
+    vec3_set(&pos3, data.pos.x, data.pos.y, 0.0f);
+
+    obs_sceneitem_get_box_transform(item, &transform);
+
+    auto TestHandle = [&](float x, float y, ItemHandle handle)
+    {
+        vec3 handlePos = GetTransformedPos(x, y, transform);
+        vec3_transform(&handlePos, &handlePos, &data.parent_xform);
+
+        float dist = vec3_dist(&handlePos, &pos3);
+        if (dist < data.radius) {
+            if (dist < closestHandle) {
+                closestHandle = dist;
+                data.handle = handle;
+                data.item = item;
+            }
+        }
+    };
+
+    TestHandle(0.0f, 0.0f, ItemHandle::TopLeft);
+    TestHandle(0.5f, 0.0f, ItemHandle::TopCenter);
+    TestHandle(1.0f, 0.0f, ItemHandle::TopRight);
+    TestHandle(0.0f, 0.5f, ItemHandle::CenterLeft);
+    TestHandle(1.0f, 0.5f, ItemHandle::CenterRight);
+    TestHandle(0.0f, 1.0f, ItemHandle::BottomLeft);
+    TestHandle(0.5f, 1.0f, ItemHandle::BottomCenter);
+    TestHandle(1.0f, 1.0f, ItemHandle::BottomRight);
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+static vec2 GetItemSize(obs_sceneitem_t *item)
+{
+    obs_bounds_type boundsType = obs_sceneitem_get_bounds_type(item);
+    vec2 size;
+
+    if (boundsType != OBS_BOUNDS_NONE) {
+        obs_sceneitem_get_bounds(item, &size);
+    }
+    else {
+        obs_source_t *source = obs_sceneitem_get_source(item);
+        obs_sceneitem_crop crop;
+        vec2 scale;
+
+        obs_sceneitem_get_scale(item, &scale);
+        obs_sceneitem_get_crop(item, &crop);
+        size.x = float(obs_source_get_width(source) -
+            crop.left - crop.right) * scale.x;
+        size.y = float(obs_source_get_height(source) -
+            crop.top - crop.bottom) * scale.y;
+    }
+
+    return size;
+}
+
+
+void ObsWindow::GetStretchHandleData(const vec2 &pos)
+{
+
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+    if (!scene)
+        return;
+
+    float scale = m_previewScale;
+    vec2 scaled_pos = pos;
+    vec2_divf(&scaled_pos, &scaled_pos, scale);
+    HandleFindData data(scaled_pos, scale);
+    obs_scene_enum_items(scene, FindHandleAtPos, &data);
+
+    stretchItem = std::move(data.item);
+    stretchHandle = data.handle;
+
+    if (stretchHandle != ItemHandle::None) {
+        matrix4 boxTransform;
+        vec3    itemUL;
+        float   itemRot;
+
+        stretchItemSize = GetItemSize(stretchItem);
+
+        obs_sceneitem_get_box_transform(stretchItem, &boxTransform);
+        itemRot = obs_sceneitem_get_rot(stretchItem);
+        vec3_from_vec4(&itemUL, &boxTransform.t);
+
+        /* build the item space conversion matrices */
+        matrix4_identity(&itemToScreen);
+        matrix4_rotate_aa4f(&itemToScreen, &itemToScreen,
+            0.0f, 0.0f, 1.0f, RAD(itemRot));
+        matrix4_translate3f(&itemToScreen, &itemToScreen,
+            itemUL.x, itemUL.y, 0.0f);
+
+        matrix4_identity(&screenToItem);
+        matrix4_translate3f(&screenToItem, &screenToItem,
+            -itemUL.x, -itemUL.y, 0.0f);
+        matrix4_rotate_aa4f(&screenToItem, &screenToItem,
+            0.0f, 0.0f, 1.0f, RAD(-itemRot));
+
+        obs_sceneitem_get_crop(stretchItem, &startCrop);
+        obs_sceneitem_get_pos(stretchItem, &startItemPos);
+
+        obs_source_t *source = obs_sceneitem_get_source(stretchItem);
+        cropSize.x = float(obs_source_get_width(source) -
+            startCrop.left - startCrop.right);
+        cropSize.y = float(obs_source_get_height(source) -
+            startCrop.top - startCrop.bottom);
+
+        stretchGroup = obs_sceneitem_get_group(scene, stretchItem);
+        if (stretchGroup) {
+            obs_sceneitem_get_draw_transform(stretchGroup,
+                &invGroupTransform);
+            matrix4_inv(&invGroupTransform,
+                &invGroupTransform);
+            obs_sceneitem_defer_group_resize_begin(stretchGroup);
+        }
+    }
+}
+
+
+struct SceneFindData {
+    const vec2   &pos;
+    OBSSceneItem item;
+    bool         selectBelow;
+
+    obs_sceneitem_t *group = nullptr;
+
+    SceneFindData(const SceneFindData &) = delete;
+    SceneFindData(SceneFindData &&) = delete;
+    SceneFindData& operator=(const SceneFindData &) = delete;
+    SceneFindData& operator=(SceneFindData &&) = delete;
+
+    inline SceneFindData(const vec2 &pos_, bool selectBelow_)
+        : pos(pos_),
+        selectBelow(selectBelow_)
+    {}
+};
+
+
+static bool CheckItemSelected(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    SceneFindData *data = reinterpret_cast<SceneFindData*>(param);
+    matrix4       transform;
+    vec3          transformedPos;
+    vec3          pos3;
+
+    if (!SceneItemHasVideo(item))
+        return true;
+    if (obs_sceneitem_is_group(item)) {
+        data->group = item;
+        obs_sceneitem_group_enum_items(item, CheckItemSelected, param);
+        data->group = nullptr;
+
+        if (data->item) {
+            return false;
+        }
+    }
+
+    vec3_set(&pos3, data->pos.x, data->pos.y, 0.0f);
+
+    obs_sceneitem_get_box_transform(item, &transform);
+
+    if (data->group) {
+        matrix4 parent_transform;
+        obs_sceneitem_get_draw_transform(data->group, &parent_transform);
+        matrix4_mul(&transform, &transform, &parent_transform);
+    }
+
+    matrix4_inv(&transform, &transform);
+    vec3_transform(&transformedPos, &pos3, &transform);
+
+    if (transformedPos.x >= 0.0f && transformedPos.x <= 1.0f &&
+        transformedPos.y >= 0.0f && transformedPos.y <= 1.0f) {
+        if (obs_sceneitem_selected(item)) {
+            data->item = item;
+            return false;
+        }
+    }
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+
+bool ObsWindow::SelectedAtPos(const vec2 &pos)
+{
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+    if (!scene)
+        return false;
+
+    SceneFindData data(pos, false);
+    obs_scene_enum_items(scene, CheckItemSelected, &data);
+    return !!data.item;
+}
+
+
+void ObsWindow::OnMousePressEvent(ObsMouseEvent *event)
+{
+    if (locked) {
+        return;
+    }
+
+    float x = float(event->x) - m_previewX;
+    float y = float(event->y) - m_previewY;
+
+    if (event->button != LeftButton &&
+        event->button != RightButton)
+        return;
+
+    if (event->button == LeftButton)
+        mouseDown = true;
+
+
+    vec2_set(&startPos, x, y);
+    GetStretchHandleData(startPos);
+
+    vec2_divf(&startPos, &startPos, m_previewScale);
+    startPos.x = std::round(startPos.x);
+    startPos.y = std::round(startPos.y);
+
+    mouseOverItems = SelectedAtPos(startPos);
+    vec2_zero(&lastMoveOffset);
+}
+
+
+vec2 ObsWindow::GetMouseEventPos(ObsMouseEvent *event)
+{
+    float pixelRatio = 1.0;
+    float scale = pixelRatio / m_previewScale;
+    vec2 pos;
+    vec2_set(&pos,
+        (float(event->x) - m_previewX / pixelRatio) * scale,
+        (float(event->y) - m_previewY / pixelRatio) * scale);
+
+    return pos;
+}
+
+
+static bool FindItemAtPos(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    SceneFindData *data = reinterpret_cast<SceneFindData*>(param);
+    matrix4       transform;
+    matrix4       invTransform;
+    vec3          transformedPos;
+    vec3          pos3;
+    vec3          pos3_;
+
+    if (!SceneItemHasVideo(item))
+        return true;
+    if (obs_sceneitem_locked(item))
+        return true;
+
+    vec3_set(&pos3, data->pos.x, data->pos.y, 0.0f);
+
+    obs_sceneitem_get_box_transform(item, &transform);
+
+    matrix4_inv(&invTransform, &transform);
+    vec3_transform(&transformedPos, &pos3, &invTransform);
+    vec3_transform(&pos3_, &transformedPos, &transform);
+
+    if (CloseFloat(pos3.x, pos3_.x) && CloseFloat(pos3.y, pos3_.y) &&
+        transformedPos.x >= 0.0f && transformedPos.x <= 1.0f &&
+        transformedPos.y >= 0.0f && transformedPos.y <= 1.0f) {
+        if (data->selectBelow && obs_sceneitem_selected(item)) {
+            if (data->item)
+                return false;
+            else
+                data->selectBelow = false;
+        }
+
+        data->item = item;
+    }
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+OBSSceneItem ObsWindow::GetItemAtPos(const vec2 &pos, bool selectBelow)
+{
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+    if (!scene)
+        return OBSSceneItem();
+
+    SceneFindData data(pos, selectBelow);
+    obs_scene_enum_items(scene, FindItemAtPos, &data);
+    return data.item;
+}
+
+
+static bool select_one(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+{
+    obs_sceneitem_t *selectedItem =
+        reinterpret_cast<obs_sceneitem_t*>(param);
+    if (obs_sceneitem_is_group(item))
+        obs_sceneitem_group_enum_items(item, select_one, param);
+
+    obs_sceneitem_select(item, (selectedItem == item));
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+void ObsWindow::DoSelect(const vec2 &pos)
+{
+    OBSScene     scene =ObsMain::Instance()->GetCurrentScene();
+    OBSSceneItem item = GetItemAtPos(pos, true);
+
+    obs_scene_enum_items(scene, select_one, (obs_sceneitem_t*)item);
+}
+
+void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
+{
+    if (locked) {
+        return;
+    }
+
+    if (mouseDown) {
+        vec2 pos = GetMouseEventPos(event);
+
+        if (!mouseMoved)
+            DoSelect(pos);
+
+        if (stretchGroup) {
+            obs_sceneitem_defer_group_resize_end(stretchGroup);
+        }
+
+        stretchItem = nullptr;
+        stretchGroup = nullptr;
+        mouseDown = false;
+        mouseMoved = false;
+        cropping = false;
+    }
+}
+
+
+
+vec3 ObsWindow::CalculateStretchPos(const vec3 &tl, const vec3 &br)
+{
+    uint32_t alignment = obs_sceneitem_get_alignment(stretchItem);
+    vec3 pos;
+
+    vec3_zero(&pos);
+
+    if (alignment & OBS_ALIGN_LEFT)
+        pos.x = tl.x;
+    else if (alignment & OBS_ALIGN_RIGHT)
+        pos.x = br.x;
+    else
+        pos.x = (br.x - tl.x) * 0.5f + tl.x;
+
+    if (alignment & OBS_ALIGN_TOP)
+        pos.y = tl.y;
+    else if (alignment & OBS_ALIGN_BOTTOM)
+        pos.y = br.y;
+    else
+        pos.y = (br.y - tl.y) * 0.5f + tl.y;
+
+    return pos;
+}
+
+void ObsWindow::ClampAspect(vec3 &tl, vec3 &br, vec2 &size,
+    const vec2 &baseSize)
+{
+    float    baseAspect = baseSize.x / baseSize.y;
+    float    aspect = size.x / size.y;
+    uint32_t stretchFlags = (uint32_t)stretchHandle;
+
+    if (stretchHandle == ItemHandle::TopLeft ||
+        stretchHandle == ItemHandle::TopRight ||
+        stretchHandle == ItemHandle::BottomLeft ||
+        stretchHandle == ItemHandle::BottomRight) {
+        if (aspect < baseAspect) {
+            if ((size.y >= 0.0f && size.x >= 0.0f) ||
+                (size.y <= 0.0f && size.x <= 0.0f))
+                size.x = size.y * baseAspect;
+            else
+                size.x = size.y * baseAspect * -1.0f;
+        }
+        else {
+            if ((size.y >= 0.0f && size.x >= 0.0f) ||
+                (size.y <= 0.0f && size.x <= 0.0f))
+                size.y = size.x / baseAspect;
+            else
+                size.y = size.x / baseAspect * -1.0f;
+        }
+
+    }
+    else if (stretchHandle == ItemHandle::TopCenter ||
+        stretchHandle == ItemHandle::BottomCenter) {
+        if ((size.y >= 0.0f && size.x >= 0.0f) ||
+            (size.y <= 0.0f && size.x <= 0.0f))
+            size.x = size.y * baseAspect;
+        else
+            size.x = size.y * baseAspect * -1.0f;
+
+    }
+    else if (stretchHandle == ItemHandle::CenterLeft ||
+        stretchHandle == ItemHandle::CenterRight) {
+        if ((size.y >= 0.0f && size.x >= 0.0f) ||
+            (size.y <= 0.0f && size.x <= 0.0f))
+            size.y = size.x / baseAspect;
+        else
+            size.y = size.x / baseAspect * -1.0f;
+    }
+
+    size.x = std::round(size.x);
+    size.y = std::round(size.y);
+
+    if (stretchFlags & ITEM_LEFT)
+        tl.x = br.x - size.x;
+    else if (stretchFlags & ITEM_RIGHT)
+        br.x = tl.x + size.x;
+
+    if (stretchFlags & ITEM_TOP)
+        tl.y = br.y - size.y;
+    else if (stretchFlags & ITEM_BOTTOM)
+        br.y = tl.y + size.y;
+}
+
+
+static float maxfunc(float x, float y)
+{
+    return x > y ? x : y;
+}
+
+static float minfunc(float x, float y)
+{
+    return x < y ? x : y;
+}
+
+void ObsWindow::CropItem(const vec2 &pos)
+{
+    obs_bounds_type boundsType = obs_sceneitem_get_bounds_type(stretchItem);
+    uint32_t stretchFlags = (uint32_t)stretchHandle;
+    uint32_t align = obs_sceneitem_get_alignment(stretchItem);
+    vec3 tl, br, pos3;
+
+    vec3_zero(&tl);
+    vec3_set(&br, stretchItemSize.x, stretchItemSize.y, 0.0f);
+
+    vec3_set(&pos3, pos.x, pos.y, 0.0f);
+    vec3_transform(&pos3, &pos3, &screenToItem);
+
+    obs_sceneitem_crop crop = startCrop;
+    vec2 scale;
+
+    obs_sceneitem_get_scale(stretchItem, &scale);
+
+    vec2 max_tl;
+    vec2 max_br;
+
+    vec2_set(&max_tl,
+        float(-crop.left) * scale.x,
+        float(-crop.top) * scale.y);
+    vec2_set(&max_br,
+        stretchItemSize.x + crop.right * scale.x,
+        stretchItemSize.y + crop.bottom * scale.y);
+
+    typedef std::function<float(float, float)> minmax_func_t;
+
+    minmax_func_t min_x = scale.x < 0.0f ? maxfunc : minfunc;
+    minmax_func_t min_y = scale.y < 0.0f ? maxfunc : minfunc;
+    minmax_func_t max_x = scale.x < 0.0f ? minfunc : maxfunc;
+    minmax_func_t max_y = scale.y < 0.0f ? minfunc : maxfunc;
+
+    pos3.x = min_x(pos3.x, max_br.x);
+    pos3.x = max_x(pos3.x, max_tl.x);
+    pos3.y = min_y(pos3.y, max_br.y);
+    pos3.y = max_y(pos3.y, max_tl.y);
+
+    if (stretchFlags & ITEM_LEFT) {
+        float maxX = stretchItemSize.x - (2.0 * scale.x);
+        pos3.x = tl.x = min_x(pos3.x, maxX);
+
+    }
+    else if (stretchFlags & ITEM_RIGHT) {
+        float minX = (2.0 * scale.x);
+        pos3.x = br.x = max_x(pos3.x, minX);
+    }
+
+    if (stretchFlags & ITEM_TOP) {
+        float maxY = stretchItemSize.y - (2.0 * scale.y);
+        pos3.y = tl.y = min_y(pos3.y, maxY);
+
+    }
+    else if (stretchFlags & ITEM_BOTTOM) {
+        float minY = (2.0 * scale.y);
+        pos3.y = br.y = max_y(pos3.y, minY);
+    }
+
+#define ALIGN_X (ITEM_LEFT|ITEM_RIGHT)
+#define ALIGN_Y (ITEM_TOP|ITEM_BOTTOM)
+    vec3 newPos;
+    vec3_zero(&newPos);
+
+    uint32_t align_x = (align & ALIGN_X);
+    uint32_t align_y = (align & ALIGN_Y);
+    if (align_x == (stretchFlags & ALIGN_X) && align_x != 0)
+        newPos.x = pos3.x;
+    else if (align & ITEM_RIGHT)
+        newPos.x = stretchItemSize.x;
+    else if (!(align & ITEM_LEFT))
+        newPos.x = stretchItemSize.x * 0.5f;
+
+    if (align_y == (stretchFlags & ALIGN_Y) && align_y != 0)
+        newPos.y = pos3.y;
+    else if (align & ITEM_BOTTOM)
+        newPos.y = stretchItemSize.y;
+    else if (!(align & ITEM_TOP))
+        newPos.y = stretchItemSize.y * 0.5f;
+#undef ALIGN_X
+#undef ALIGN_Y
+
+    crop = startCrop;
+
+    if (stretchFlags & ITEM_LEFT)
+        crop.left += int(std::round(tl.x / scale.x));
+    else if (stretchFlags & ITEM_RIGHT)
+        crop.right += int(std::round((stretchItemSize.x - br.x) / scale.x));
+
+    if (stretchFlags & ITEM_TOP)
+        crop.top += int(std::round(tl.y / scale.y));
+    else if (stretchFlags & ITEM_BOTTOM)
+        crop.bottom += int(std::round((stretchItemSize.y - br.y) / scale.y));
+
+    vec3_transform(&newPos, &newPos, &itemToScreen);
+    newPos.x = std::round(newPos.x);
+    newPos.y = std::round(newPos.y);
+
+#if 0
+    vec3 curPos;
+    vec3_zero(&curPos);
+    obs_sceneitem_get_pos(stretchItem, (vec2*)&curPos);
+    blog(LOG_DEBUG, "curPos {%d, %d} - newPos {%d, %d}",
+        int(curPos.x), int(curPos.y),
+        int(newPos.x), int(newPos.y));
+    blog(LOG_DEBUG, "crop {%d, %d, %d, %d}",
+        crop.left, crop.top,
+        crop.right, crop.bottom);
+#endif
+
+    obs_sceneitem_defer_update_begin(stretchItem);
+    obs_sceneitem_set_crop(stretchItem, &crop);
+    if (boundsType == OBS_BOUNDS_NONE)
+        obs_sceneitem_set_pos(stretchItem, (vec2*)&newPos);
+    obs_sceneitem_defer_update_end(stretchItem);
+}
+
+void ObsWindow::StretchItem(const vec2 &pos)
+{
+    obs_bounds_type boundsType = obs_sceneitem_get_bounds_type(stretchItem);
+    uint32_t stretchFlags = (uint32_t)stretchHandle;
+    bool shiftDown =  false;
+    vec3 tl, br, pos3;
+
+    vec3_zero(&tl);
+    vec3_set(&br, stretchItemSize.x, stretchItemSize.y, 0.0f);
+
+    vec3_set(&pos3, pos.x, pos.y, 0.0f);
+    vec3_transform(&pos3, &pos3, &screenToItem);
+
+    if (stretchFlags & ITEM_LEFT)
+        tl.x = pos3.x;
+    else if (stretchFlags & ITEM_RIGHT)
+        br.x = pos3.x;
+
+    if (stretchFlags & ITEM_TOP)
+        tl.y = pos3.y;
+    else if (stretchFlags & ITEM_BOTTOM)
+        br.y = pos3.y;
+
+    obs_source_t *source = obs_sceneitem_get_source(stretchItem);
+
+    vec2 baseSize;
+    vec2_set(&baseSize,
+        float(obs_source_get_width(source)),
+        float(obs_source_get_height(source)));
+
+    vec2 size;
+    vec2_set(&size, br.x - tl.x, br.y - tl.y);
+
+    if (boundsType != OBS_BOUNDS_NONE) {
+        if (shiftDown)
+            ClampAspect(tl, br, size, baseSize);
+
+        if (tl.x > br.x) std::swap(tl.x, br.x);
+        if (tl.y > br.y) std::swap(tl.y, br.y);
+
+        vec2_abs(&size, &size);
+
+        obs_sceneitem_set_bounds(stretchItem, &size);
+    }
+    else {
+        obs_sceneitem_crop crop;
+        obs_sceneitem_get_crop(stretchItem, &crop);
+
+        baseSize.x -= float(crop.left + crop.right);
+        baseSize.y -= float(crop.top + crop.bottom);
+
+        if (!shiftDown)
+            ClampAspect(tl, br, size, baseSize);
+
+        vec2_div(&size, &size, &baseSize);
+        obs_sceneitem_set_scale(stretchItem, &size);
+    }
+
+    pos3 = CalculateStretchPos(tl, br);
+    vec3_transform(&pos3, &pos3, &itemToScreen);
+
+    vec2 newPos;
+    vec2_set(&newPos, std::round(pos3.x), std::round(pos3.y));
+    obs_sceneitem_set_pos(stretchItem, &newPos);
+}
+
+static bool move_items(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+{
+    if (obs_sceneitem_locked(item))
+        return true;
+
+    bool selected = obs_sceneitem_selected(item);
+    vec2 *offset = reinterpret_cast<vec2*>(param);
+
+    if (obs_sceneitem_is_group(item) && !selected) {
+        matrix4 transform;
+        vec3 new_offset;
+        vec3_set(&new_offset, offset->x, offset->y, 0.0f);
+
+        obs_sceneitem_get_draw_transform(item, &transform);
+        vec4_set(&transform.t, 0.0f, 0.0f, 0.0f, 1.0f);
+        matrix4_inv(&transform, &transform);
+        vec3_transform(&new_offset, &new_offset, &transform);
+        obs_sceneitem_group_enum_items(item, move_items, &new_offset);
+    }
+
+    if (selected) {
+        vec2 pos;
+        obs_sceneitem_get_pos(item, &pos);
+        vec2_add(&pos, &pos, offset);
+        obs_sceneitem_set_pos(item, &pos);
+    }
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+void ObsWindow::MoveItems(const vec2 &pos)
+{
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+
+    vec2 offset, moveOffset;
+    vec2_sub(&offset, &pos, &startPos);
+    vec2_sub(&moveOffset, &offset, &lastMoveOffset);
+
+    vec2_add(&lastMoveOffset, &lastMoveOffset, &moveOffset);
+
+    obs_scene_enum_items(scene, move_items, &moveOffset);
+}
+
+
+void ObsWindow::OnMouseMoveEvent(ObsMouseEvent *event)
+{
+    if (locked)
+        return;
+
+    if (mouseDown) {
+        vec2 pos = GetMouseEventPos(event);
+
+        if (!mouseMoved && !mouseOverItems &&
+            stretchHandle == ItemHandle::None) {
+            ProcessClick(startPos);
+            mouseOverItems = SelectedAtPos(startPos);
+        }
+
+        pos.x = std::round(pos.x);
+        pos.y = std::round(pos.y);
+
+        if (stretchHandle != ItemHandle::None) {
+            OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+            obs_sceneitem_t *group = obs_sceneitem_get_group(
+                scene, stretchItem);
+            if (group) {
+                vec3 group_pos;
+                vec3_set(&group_pos, pos.x, pos.y, 0.0f);
+                vec3_transform(&group_pos, &group_pos,
+                    &invGroupTransform);
+                pos.x = group_pos.x;
+                pos.y = group_pos.y;
+            }
+
+            if (cropping)
+                CropItem(pos);
+            else
+                StretchItem(pos);
+
+        }
+        else if (mouseOverItems) {
+            MoveItems(pos);
+        }
+        mouseMoved = true;
     }
 }
 

@@ -267,7 +267,9 @@ void matrix4_transpose(struct matrix4 *dst, const struct matrix4 *m)
 		return;
 	}
 
-#ifdef NO_INTRINSICS
+//#ifdef NO_INTRINSICS
+
+#if 1
 	dst->x.x = m->x.x;
 	dst->x.y = m->y.x;
 	dst->x.z = m->z.x;

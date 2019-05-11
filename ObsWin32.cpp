@@ -324,10 +324,74 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_SIZE:
         {
-            ObsSize size(LOWORD(lParam), HIWORD(lParam));
+            ObsSize size(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             OnResize(size);
         }
         break;
+    case WM_MOUSEMOVE:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = NoButton;
+            OnMouseMoveEvent(&event);
+        }
+        break;
+    case WM_LBUTTONDOWN:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = LeftButton;
+            OnMousePressEvent(&event);
+        }
+        break;
+    case WM_RBUTTONDOWN:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = RightButton;
+            OnMousePressEvent(&event);
+        }
+        break;
+    case WM_MBUTTONDOWN:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = MiddleButton;
+            OnMousePressEvent(&event);
+        }
+        break;
+    case WM_LBUTTONUP:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = LeftButton;
+            OnMouseReleaseEvent(&event);
+        }
+        break;
+    case WM_RBUTTONUP:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = RightButton;
+            OnMouseReleaseEvent(&event);
+        }
+        break;
+    case WM_MBUTTONUP:
+        {
+            ObsMouseEvent event;
+            event.x = GET_X_LPARAM(lParam);
+            event.y = GET_Y_LPARAM(lParam);
+            event.button = MiddleButton;
+            OnMouseReleaseEvent(&event);
+        }
+        break;
+
     }
 
     return ::CallWindowProc(m_OldWndProc, m_hWnd, uMsg, wParam, lParam);

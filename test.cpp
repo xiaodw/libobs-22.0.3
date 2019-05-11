@@ -1,21 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <windows.h>
-
-#include <util/base.h>
-#include <graphics/vec2.h>
-#include <media-io/audio-resampler.h>
-#include <obs.h>
-
-
-#include <intrin.h>
-
 #include "ObsMain.h"
 #include "ObsWindow.h"
-
-static const int cx = 800;
-static const int cy = 600;
-
 
 static void do_log(int log_level, const char *msg, va_list args, void *param)
 {
@@ -31,16 +18,6 @@ static void do_log(int log_level, const char *msg, va_list args, void *param)
 	UNUSED_PARAMETER(param);
 }
 
-
-static void AddTestItems(obs_scene_t *scene, obs_source_t *source)
-{
-    OBSSceneItem item = obs_scene_add(scene, source);
-    obs_sceneitem_select(item, true);
-}
-
-
-
-/* --------------------------------------------------- */
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		int numCmd)
@@ -72,7 +49,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 
         OBSScene scene = ObsMain::Instance()->AddScene("test scene");
 
-		AddTestItems(scene, source);
+        OBSSceneItem item = obs_scene_add(scene, source);
+        //obs_sceneitem_select(item, true);
 
 		/* ------------------------------------------------------ */
 		/* set the scene as the primary draw source and go */
