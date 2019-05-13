@@ -46,7 +46,11 @@ OBSScene ObsMain::AddScene(const char* name)
 
     m_scenes[name] = scene;
     if (m_scenes.size() == 1)
+    {
         m_currentScene = scene;
+        SetCurrentScene(obs_scene_get_source(m_currentScene),true);
+    }
+
     return scene;
 }
 
@@ -63,14 +67,19 @@ bool ObsMain::SelectScene(const char* name)
     if (find != m_scenes.end())
     {
         m_currentScene = find->second;
+        SetCurrentScene(obs_scene_get_source(m_currentScene));
         return true;
     }
     return false;
 }
 
-void ObsMain::SetCurrentScene(OBSSource scene)
+void ObsMain::SetCurrentScene(OBSSource scene, bool force)
 {
-    if (m_currentScene)
+    if (m_curTransition)
+    {
+        TransitionToScene(scene,force);
+    }
+    else if (m_currentScene)
     {
         OBSSource actualLastScene = obs_scene_get_source(m_currentScene);
         if (actualLastScene != scene) {
@@ -80,6 +89,28 @@ void ObsMain::SetCurrentScene(OBSSource scene)
                 obs_source_dec_showing(actualLastScene);
         }
     }
+}
+
+void ObsMain::TransitionToScene(OBSSource source, bool force)
+{
+    obs_scene_t *scene = obs_scene_from_source(source);
+    if (!scene)
+        return;
+
+    OBSSource transition = obs_get_output_source(0);
+    if (!transition)
+        return;
+
+    if (force) {
+        obs_transition_set(transition, source);
+    }
+    else {
+        int duration = 300;
+        obs_transition_start(transition,
+            OBS_TRANSITION_MODE_AUTO, duration, source);
+    }
+
+    obs_source_release(transition);
 }
 
 OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfig* config)

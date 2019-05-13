@@ -60,8 +60,14 @@ public:
     //basic config
     config_t* basicConfig() { return m_basicConfig; }
     
+    void SetTransition(OBSSource transition);
+
 protected:
+    //初始化配置
     bool InitBasicConfigDefaults();
+    //初始化默认转换
+    void InitDefaultTransitions();
+
     void GetConfigFPS(uint32_t &num, uint32_t &den) const;
     void GetFPSCommon(uint32_t &num, uint32_t &den) const;
     void GetFPSInteger(uint32_t &num, uint32_t &den) const;
@@ -78,6 +84,9 @@ protected:
     OBSService m_service;
     ConfigFile    m_basicConfig;
     std::unique_ptr<BasicOutputHandler> m_outputHandler;
+
+    obs_source_t *m_fadeTransition = nullptr;
+    obs_source_t *m_curTransition = nullptr;
 
     bool streamingStopping = false;
     bool recordingStopping = false;

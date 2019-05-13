@@ -83,6 +83,8 @@ void ObsBasic::InitObs()
 
     blog(LOG_INFO, "InitService\n");
     InitService();
+
+    InitDefaultTransitions();
 }
 
 bool ObsBasic::ResetAudio()
@@ -856,4 +858,50 @@ void ObsBasic::CheckForSimpleModeX264Fallback()
             curRecEncoder);
     if (changed)
         config_save_safe(m_basicConfig, "tmp", nullptr);
+}
+
+
+void ObsBasic::SetTransition(OBSSource transition)
+{
+    obs_source_t *oldTransition = obs_get_output_source(0);
+
+    if (oldTransition && transition) {
+        obs_transition_swap_begin(transition, oldTransition);
+        obs_set_output_source(0, transition);
+        obs_transition_swap_end(transition, oldTransition);
+    }
+    else {
+        obs_set_output_source(0, transition);
+    }
+
+    m_curTransition = transition;
+    if (oldTransition)
+        obs_source_release(oldTransition);
+}
+
+
+void ObsBasic::InitDefaultTransitions()
+{
+    std::vector<OBSSource> transitions;
+    size_t idx = 0;
+    const char *id;
+
+    /* automatically add transitions that have no configuration (things
+    * such as cut/fade/etc) */
+    while (obs_enum_transition_types(idx++, &id)) {
+        if (!obs_is_source_configurable(id)) {
+            const char *name = obs_source_get_display_name(id);
+            if (strcmp(id, "fade_transition") == 0)
+            {
+                obs_source_t *tr = obs_source_create_private(
+                    id, name, NULL);
+                transitions.emplace_back(tr);
+                m_fadeTransition = tr;
+                obs_source_release(tr);
+            }
+        }
+    }
+
+    //设置当前转换
+    SetTransition(m_fadeTransition);
 }

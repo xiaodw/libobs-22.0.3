@@ -54,10 +54,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
         OBSSceneItem item = obs_scene_add(scene, source);
         //obs_sceneitem_select(item, true);
 
-		/* ------------------------------------------------------ */
-		/* set the scene as the primary draw source and go */
-		obs_set_output_source(0, obs_scene_get_source(scene));
-
         obsWindow->CreateDisplay();
 
 		MSG msg;

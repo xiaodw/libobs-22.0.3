@@ -33,7 +33,10 @@ public:
 
     config_t* globalConfig()const  { return m_globalConfig; }
 
-    void SetCurrentScene(OBSSource scene);
+    //设置当前场景
+    void SetCurrentScene(OBSSource scene, bool force = false);
+
+    void TransitionToScene(OBSSource source, bool force = false);
 
     int GetProfilePath(char *path, size_t size, const char *file) const;
 private:
