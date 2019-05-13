@@ -167,7 +167,7 @@ static std::string GenerateSourceName(const  std::string &base)
 }
 
 
-void ObsMain::AddDropSource(const char *data, DropType image)
+bool ObsMain::AddDropSource(const char *data, DropType image)
 {
     obs_data_t *settings = obs_data_create();
     obs_source_t *source = nullptr;
@@ -209,7 +209,7 @@ void ObsMain::AddDropSource(const char *data, DropType image)
 
     if (!obs_source_get_display_name(type)) {
         obs_data_release(settings);
-        return;
+        return false;
     }
 
     if (name.empty())
@@ -225,9 +225,68 @@ void ObsMain::AddDropSource(const char *data, DropType image)
     }
 
     obs_data_release(settings);
+
+    return source != nullptr;
 }
 
 
+
+
+static const char *textExtensions[] = {
+    "txt", "log", nullptr
+};
+
+static const char *imageExtensions[] = {
+    "bmp", "tga", "png", "jpg", "jpeg", "gif", nullptr
+};
+
+static const char *mediaExtensions[] = {
+    "3ga", "669", "a52", "aac", "ac3", "adt", "adts", "aif", "aifc",
+    "aiff", "amb", "amr", "aob", "ape", "au", "awb", "caf", "dts",
+    "flac", "it", "kar", "m4a", "m4b", "m4p", "m5p", "mid", "mka",
+    "mlp", "mod", "mpa", "mp1", "mp2", "mp3", "mpc", "mpga", "mus",
+    "oga", "ogg", "oma", "opus", "qcp", "ra", "rmi", "s3m", "sid",
+    "spx", "tak", "thd", "tta", "voc", "vqf", "w64", "wav", "wma",
+    "wv", "xa", "xm", "3g2", "3gp", "3gp2", "3gpp", "amv", "asf", "avi",
+    "bik", "crf", "divx", "drc", "dv", "evo", "f4v", "flv", "gvi",
+    "gxf", "iso", "m1v", "m2v", "m2t", "m2ts", "m4v", "mkv", "mov",
+    "mp2", "mp2v", "mp4", "mp4v", "mpe", "mpeg", "mpeg1", "mpeg2",
+    "mpeg4", "mpg", "mpv2", "mts", "mtv", "mxf", "mxg", "nsv", "nuv",
+    "ogg", "ogm", "ogv", "ogx", "ps", "rec", "rm", "rmvb", "rpl", "thp",
+    "tod", "ts", "tts", "txd", "vob", "vro", "webm", "wm", "wmv", "wtv",
+    nullptr
+};
+
+bool ObsMain::AddSourceFile(const char* file)
+{
+    const char **cmp;
+    std::string suffix = GetFilePostfix(file);
+    bool found = false;
+
+#define CHECK_SUFFIX(extensions, type) \
+cmp = extensions; \
+while (*cmp) { \
+	if (stricmp(*cmp, suffix.c_str()) == 0) { \
+		found = AddDropSource(file, type); \
+		break; \
+	} \
+\
+	cmp++; \
+} \
+\
+if (found) \
+	break;
+
+    do {
+        CHECK_SUFFIX(textExtensions, DropType_Text);
+        CHECK_SUFFIX(imageExtensions, DropType_Image);
+        CHECK_SUFFIX(mediaExtensions, DropType_Media);
+    } while (0);
+
+#undef CHECK_SUFFIX
+
+    return found;
+}
 
 
 #ifdef __APPLE__

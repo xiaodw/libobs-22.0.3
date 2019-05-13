@@ -35,8 +35,10 @@ public:
     bool AddSource(OBSSource source);
 
     //添加拖拽的文件
-    void AddDropSource(const char *data, DropType image);
+    bool AddDropSource(const char *data, DropType image);
 
+    //添加源文件
+    bool AddSourceFile(const char* file);
 
     //场景管理
     OBSScene AddScene(const char* name);

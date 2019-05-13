@@ -53,6 +53,8 @@ protected:
     vec2 GetMouseEventPos(ObsMouseEvent *event);
     static bool SelectedAtPos(const vec2 &pos);
     void DoSelect(const vec2 &pos);
+    void DoCtrlSelect(const vec2 &pos);
+
     OBSSceneItem GetItemAtPos(const vec2 &pos, bool selectBelow);
     void ProcessClick(const vec2 &pos) {
         DoSelect(pos);
