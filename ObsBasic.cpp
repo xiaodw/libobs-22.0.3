@@ -11,7 +11,7 @@
 #define DL_D3D11 "obs_d3d11"
 
 ObsBasic::ObsBasic()
-    :m_obsContext("en-US", nullptr, nullptr)
+    :m_context("en-US", nullptr, nullptr)
 {
 }
 
@@ -20,7 +20,8 @@ ObsBasic::~ObsBasic()
     m_service = NULL;
     m_basicConfig.Close();
     m_outputHandler.reset();
-    m_obsContext = NULL;
+    m_curTransition = NULL;
+    m_context = NULL;
 }
 
 #define STARTUP_SEPARATOR \
@@ -325,7 +326,7 @@ void ObsBasic::StreamDelayStarting(int delay)
 }
 void ObsBasic::StreamStopping()
 {
-    streamingStopping = true;
+    m_streamingStopping = true;
 }
 void ObsBasic::StreamDelayStopping(int delay)
 {
@@ -333,42 +334,42 @@ void ObsBasic::StreamDelayStopping(int delay)
 }
 void ObsBasic::StreamingStart()
 {
-    streamingStopping = false;
+    m_streamingStopping = false;
 }
 void ObsBasic::StreamingStop(int code, const char* error)
 {
-    streamingStopping = false;
+    m_streamingStopping = false;
 }
 
 
 void ObsBasic::RecordingStart()
 {
-    recordingStopping = false;
+    m_recordingStopping = false;
 }
 
 void ObsBasic::RecordStopping()
 {
-    recordingStopping = true;
+    m_recordingStopping = true;
 }
 
 void ObsBasic::RecordingStop(int code)
 {
-    streamingStopping = false;
+    m_streamingStopping = false;
 }
 
 void ObsBasic::ReplayBufferStart()
 {
-    replayBufferStopping = false;
+    m_replayBufferStopping = false;
 }
 
 void ObsBasic::ReplayBufferStop(int code)
 {
-    replayBufferStopping = false;
+    m_replayBufferStopping = false;
 }
 
 void ObsBasic::ReplayBufferStopping()
 {
-    replayBufferStopping = true;
+    m_replayBufferStopping = true;
 }
 
 static const double scaled_vals[] =
@@ -692,7 +693,7 @@ bool ObsBasic::StartStreaming()
 void ObsBasic::StopStreaming()
 {
     if (m_outputHandler->StreamingActive())
-        m_outputHandler->StopStreaming(streamingStopping);
+        m_outputHandler->StopStreaming(m_streamingStopping);
 
     bool recordWhenStreaming = config_get_bool(GetGlobalConfig(),
         "BasicWindow", "RecordWhenStreaming");
@@ -741,7 +742,7 @@ bool ObsBasic::StartRecording()
 void ObsBasic::StopRecording()
 {
     if (m_outputHandler->RecordingActive())
-        m_outputHandler->StopRecording(recordingStopping);
+        m_outputHandler->StopRecording(m_recordingStopping);
 }
 
 static int CountVideoSources()
@@ -795,7 +796,7 @@ void ObsBasic::StopReplayBuffer()
         return;
 
     if (m_outputHandler->ReplayBufferActive())
-        m_outputHandler->StopReplayBuffer(replayBufferStopping);
+        m_outputHandler->StopReplayBuffer(m_replayBufferStopping);
 }
 
 
@@ -882,7 +883,6 @@ void ObsBasic::SetTransition(OBSSource transition)
 
 void ObsBasic::InitDefaultTransitions()
 {
-    std::vector<OBSSource> transitions;
     size_t idx = 0;
     const char *id;
 
@@ -895,13 +895,91 @@ void ObsBasic::InitDefaultTransitions()
             {
                 obs_source_t *tr = obs_source_create_private(
                     id, name, NULL);
-                transitions.emplace_back(tr);
-                m_fadeTransition = tr;
+                SetTransition(tr);
                 obs_source_release(tr);
             }
         }
     }
-
-    //设置当前转换
-    SetTransition(m_fadeTransition);
 }
+
+
+#ifdef __APPLE__
+#define INPUT_AUDIO_SOURCE  "coreaudio_input_capture"
+#define OUTPUT_AUDIO_SOURCE "coreaudio_output_capture"
+#elif _WIN32
+#define INPUT_AUDIO_SOURCE  "wasapi_input_capture"
+#define OUTPUT_AUDIO_SOURCE "wasapi_output_capture"
+#else
+#define INPUT_AUDIO_SOURCE  "pulse_input_capture"
+#define OUTPUT_AUDIO_SOURCE "pulse_output_capture"
+#endif
+
+const char *InputAudioSource()
+{
+    return INPUT_AUDIO_SOURCE;
+}
+
+const char *OutputAudioSource()
+{
+    return OUTPUT_AUDIO_SOURCE;
+}
+
+void ObsBasic::EnableDesktopAudio(bool enable)
+{
+    if(enable)
+        ResetAudioDevice(OutputAudioSource(), "default",
+            Str("Basic.DesktopDevice1"), 1);
+    else
+        ResetAudioDevice(OutputAudioSource(), "disabled",
+            Str("Basic.DesktopDevice1"), 1);
+}
+
+void ObsBasic::EnableInputAudio(bool enable)
+{
+    if (enable)
+        ResetAudioDevice(InputAudioSource(), "default",
+            Str("Basic.AuxDevice1"), 1);
+    else
+        ResetAudioDevice(InputAudioSource(), "disabled",
+            Str("Basic.AuxDevice1"), 1);
+}
+
+void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
+    const char *deviceDesc, int channel)
+{
+    bool disable = deviceId && strcmp(deviceId, "disabled") == 0;
+    obs_source_t *source;
+    obs_data_t *settings;
+
+    source = obs_get_output_source(channel);
+    if (source) {
+        if (disable) {
+            obs_set_output_source(channel, nullptr);
+        }
+        else {
+            settings = obs_source_get_settings(source);
+            const char *oldId = obs_data_get_string(settings,
+                "device_id");
+            if (strcmp(oldId, deviceId) != 0) {
+                obs_data_set_string(settings, "device_id",
+                    deviceId);
+                obs_source_update(source, settings);
+            }
+            obs_data_release(settings);
+        }
+
+        obs_source_release(source);
+
+    }
+    else if (!disable) {
+        settings = obs_data_create();
+        obs_data_set_string(settings, "device_id", deviceId);
+        source = obs_source_create(sourceId, deviceDesc, settings,
+            nullptr);
+        obs_data_release(settings);
+
+        obs_set_output_source(channel, source);
+        obs_source_release(source);
+    }
+}
+

@@ -24,9 +24,6 @@ public:
     //初始化obs
     void InitObs();
 
-    void ResetOutputs();
-    bool InitBasicConfig();
-
     obs_service_t *GetService();
     void  SetService(obs_service_t *service);
 
@@ -62,7 +59,11 @@ public:
     
     void SetTransition(OBSSource transition);
 
+    void EnableDesktopAudio(bool enable);
+    void EnableInputAudio(bool enable);
 protected:
+    bool InitBasicConfig();
+
     //初始化配置
     bool InitBasicConfigDefaults();
     //初始化默认转换
@@ -76,22 +77,25 @@ protected:
 
     int  ResetVideo();
     bool ResetAudio();
+    void ResetOutputs();
+
+    void ResetAudioDevice(const char *sourceId, const char *deviceId,
+        const char *deviceDesc, int channel);
+
     bool  InitService();
 
     void CheckForSimpleModeX264Fallback();
 
-    OBSContext  m_obsContext;
+    OBSContext  m_context;
     OBSService m_service;
     ConfigFile    m_basicConfig;
     std::unique_ptr<BasicOutputHandler> m_outputHandler;
 
-    obs_source_t *m_fadeTransition = nullptr;
-    obs_source_t *m_curTransition = nullptr;
+    OBSSource m_curTransition; //当前场景转换
 
-    bool streamingStopping = false;
-    bool recordingStopping = false;
-    bool replayBufferStopping = false;
-
+    bool m_streamingStopping = false;
+    bool m_recordingStopping = false;
+    bool m_replayBufferStopping = false;
 };
 
 

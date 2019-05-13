@@ -56,12 +56,20 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 
         obsWindow->CreateDisplay();
 
+        //开始推流
+        RtmpServer addr;
+        addr.server = "rtmp://192.168.1.10/live";
+        addr.key = "livestream";
+        obsMain->SetRtmpServer(addr);
+        obsMain->StartStreaming();
+
 		MSG msg;
 		while (GetMessage(&msg, NULL, 0, 0)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
+        obsMain->StopStreaming();
         delete obsWindow;
 	} catch (char *error) {
 		MessageBoxA(NULL, error, NULL, 0);
