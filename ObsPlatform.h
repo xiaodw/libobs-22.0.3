@@ -7,7 +7,7 @@
 
 std::string GetDefaultVideoSavePath();
 
-
-
+std::string GetFileName(const  std::string &file);
+std::string GetFilePostfix(const  std::string &file);
 
 

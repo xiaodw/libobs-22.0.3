@@ -1,4 +1,5 @@
 #include "ObsWin32.h"
+#include "util/utf8.h"
 #include <assert.h>
 
 #include <WindowsX.h>
@@ -58,6 +59,8 @@ HWND ObsWin32Window::Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DW
     m_hWnd = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle, x, y, cx, cy, hwndParent, hMenu, m_instance, this);
     InitWindow();//初始化窗口
     ASSERT(m_hWnd != NULL);
+
+    DragAcceptFiles(m_hWnd, TRUE);
     return m_hWnd;
 }
 
@@ -396,6 +399,27 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KILLFOCUS:
         OnFocusChange(false);
+        break;
+    case WM_DROPFILES:
+        {
+            HDROP hdrop = (HDROP)wParam;
+            TCHAR szPath[MAX_PATH];
+            CHAR szPathA[MAX_PATH];
+            UINT nCount = DragQueryFile(hdrop, 0xFFFFFFFF, NULL, 0);
+            if (nCount)
+            {
+                for (UINT nIndex = 0; nIndex < nCount; ++nIndex)
+                {
+                    DragQueryFile(hdrop, nIndex, szPath, _countof(szPath));
+
+                    //转为utf8
+                    size_t len = wchar_to_utf8(szPath, 0, szPathA, sizeof(szPathA), 0);
+                    szPathA[len] = '\0';
+                    OnDropFile(szPathA);
+                }
+            }
+            DragFinish(hdrop);
+        }
         break;
     }
 

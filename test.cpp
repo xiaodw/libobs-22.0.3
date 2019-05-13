@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		/* ------------------------------------------------------ */
 		/* create scene and add source to scene (twice) */
 
-        OBSScene scene = ObsMain::Instance()->AddScene("test scene");
+        OBSScene scene = obsMain->AddScene("test scene");
 
-        OBSSceneItem item = obs_scene_add(scene, source);
-        //obs_sceneitem_select(item, true);
+        obsMain->AddSource(source);
+
 
         obsWindow->CreateDisplay();
 

@@ -9,6 +9,13 @@
 
 class ObsWindow;
 
+enum DropType {
+    DropType_RawText,
+    DropType_Text,
+    DropType_Image,
+    DropType_Media,
+};
+
 //管理场景
 class ObsMain:public ObsBasic
 {
@@ -23,6 +30,13 @@ public:
 
     //创建视频源
     OBSSource CreateSource(const char *id, const char *name, ObsSourceConfig* config);
+
+    //添加source到当前场景
+    bool AddSource(OBSSource source);
+
+    //添加拖拽的文件
+    void AddDropSource(const char *data, DropType image);
+
 
     //场景管理
     OBSScene AddScene(const char* name);

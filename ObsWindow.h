@@ -33,7 +33,7 @@ protected:
     void OnMouseReleaseEvent(ObsMouseEvent *event) override;
     void OnMouseMoveEvent(ObsMouseEvent *event) override;
     void OnFocusChange(bool bGet) override;
-
+    void OnDropFile(const char* file) override;
     void GetStretchHandleData(const vec2 &pos);
 
     void InitPrimitives();
@@ -41,7 +41,7 @@ protected:
     void DrawSceneEditing();
 
     //ÊÇ·ñËø¶¨
-    bool locked = false;
+    bool m_locked = false;
     OBSDisplay m_display;
 
     float m_previewScale = 1.0;

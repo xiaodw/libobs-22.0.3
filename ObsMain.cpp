@@ -1,5 +1,6 @@
 #include "ObsMain.h"
 #include "ObsWindow.h"
+#include "ObsPlatform.h"
 #include "util/platform.h"
 
 ObsMain* obsMain = NULL;
@@ -130,6 +131,102 @@ OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfi
     obs_source_release(source);
     return source;
 }
+
+bool ObsMain::AddSource(OBSSource source)
+{
+    if (!m_currentScene || !source)
+        return false;
+    obs_sceneitem_t* item= obs_scene_add(m_currentScene, source);
+    if (item)
+    {
+        //obs_sceneitem_release(item);
+        return true;
+    }
+    else
+        return false;
+}
+
+static std::string GenerateSourceName(const  std::string &base)
+{
+    std::string name;
+    int inc = 0;
+
+    for (;; inc++) {
+        name = base;
+
+        if (inc) {
+            name += " (";
+            name += std::to_string(inc + 1);
+            name += ")";
+        }
+
+        obs_source_t *source = obs_get_source_by_name(name.c_str());
+        if (!source)
+            return name;
+    }
+}
+
+
+void ObsMain::AddDropSource(const char *data, DropType image)
+{
+    obs_data_t *settings = obs_data_create();
+    obs_source_t *source = nullptr;
+    const char *type = nullptr;
+    std::string name;
+
+    switch (image) {
+    case DropType_RawText:
+        obs_data_set_string(settings, "text", data);
+#ifdef _WIN32
+        type = "text_gdiplus";
+#else
+        type = "text_ft2_source";
+#endif
+        break;
+    case DropType_Text:
+#ifdef _WIN32
+        obs_data_set_bool(settings, "read_from_file", true);
+        obs_data_set_string(settings, "file", data);
+        name = GetFileName(name);
+        type = "text_gdiplus";
+#else
+        obs_data_set_bool(settings, "from_file", true);
+        obs_data_set_string(settings, "text_file", data);
+        type = "text_ft2_source";
+#endif
+        break;
+    case DropType_Image:
+        obs_data_set_string(settings, "file", data);
+        name = GetFileName(name);
+        type = "image_source";
+        break;
+    case DropType_Media:
+        obs_data_set_string(settings, "local_file", data);
+        name = GetFileName(name);
+        type = "ffmpeg_source";
+        break;
+    }
+
+    if (!obs_source_get_display_name(type)) {
+        obs_data_release(settings);
+        return;
+    }
+
+    if (name.empty())
+        name = obs_source_get_display_name(type);
+    source = obs_source_create(type,
+        GenerateSourceName(name).c_str(),
+        settings, nullptr);
+
+    if (source) {
+        OBSScene scene = GetCurrentScene();
+        obs_scene_add(scene, source);
+        obs_source_release(source);
+    }
+
+    obs_data_release(settings);
+}
+
 
 
 

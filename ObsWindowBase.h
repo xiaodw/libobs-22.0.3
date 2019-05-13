@@ -69,7 +69,8 @@ public:
     
     //窗口事件
     virtual void OnResize(const ObsSize& size) = 0;
-    virtual void OnFocusChange(bool bGet) =0;
+    virtual void OnFocusChange(bool bGet) = 0;
+    virtual void OnDropFile(const char* file) = 0;
 
     //鼠标事件
     virtual void OnMousePressEvent(ObsMouseEvent *event) {}

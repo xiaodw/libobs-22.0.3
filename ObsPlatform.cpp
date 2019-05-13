@@ -22,3 +22,28 @@ std::string GetDefaultVideoSavePath()
 }
 
 
+std::string GetFileName(const  std::string &file)
+{
+#ifdef WIN32
+    auto find = file.rfind('\\');
+#else
+    auto find = file.rfind('/');
+#endif
+    if (find != std::string::npos)
+    {
+        return file.substr(find + 1);
+    }
+    return file;
+}
+
+
+std::string GetFilePostfix(const  std::string &file)
+{
+    auto find = file.rfind('.');
+
+    if (find != std::string::npos)
+    {
+        return file.substr(find + 1);
+    }
+    return file;
+}
