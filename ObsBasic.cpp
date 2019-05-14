@@ -394,8 +394,14 @@ bool ObsBasic::InitBasicConfigDefaults()
     /* use 1920x1080 for new default base res if main monitor is above
     * 1920x1080, but don't apply for people from older builds -- only to
     * new users */
-    int  cx = 1920;
-    int  cy = 1080;
+    int  cx = 0;
+    int  cy = 0;
+
+    if (!GetScreenSize(&cx, &cy) || cx > 1920 || cy > 1080)
+    {
+        cx = 1920;
+        cy = 1080;
+    }
 
     /* ----------------------------------------------------- */
     /* move over mixer values in advanced if older config */
@@ -411,20 +417,20 @@ bool ObsBasic::InitBasicConfigDefaults()
     }
 
     /* ----------------------------------------------------- */
-
-    config_set_default_string(m_basicConfig, "Output", "Mode", "Simple");
-
+    config_set_default_string(m_basicConfig, "Output", "Mode", DEFAULT_OUTPUT_MOD);
+    
+    //简单输出选项
     config_set_default_string(m_basicConfig, "SimpleOutput", "FilePath",
         GetDefaultVideoSavePath().c_str());
-    config_set_default_string(m_basicConfig, "SimpleOutput", "RecFormat",
-        "flv");
+    config_set_default_string(m_basicConfig, "SimpleOutput", "RecFormat", 
+        DEFAULT_RECORD_FORMAT);
     config_set_default_uint(m_basicConfig, "SimpleOutput", "VBitrate",
-        2500);
+        DEFAULT_VIDEO_BITRATE);
     config_set_default_string(m_basicConfig, "SimpleOutput", "StreamEncoder",
         SIMPLE_ENCODER_X264);
-    config_set_default_uint(m_basicConfig, "SimpleOutput", "ABitrate", 160);
+    config_set_default_uint(m_basicConfig, "SimpleOutput", "ABitrate", DEFAULT_AUDIO_BITRATE);
     config_set_default_bool(m_basicConfig, "SimpleOutput", "UseAdvanced",
-        false);
+        USE_ADV_CONFIG);
     config_set_default_bool(m_basicConfig, "SimpleOutput", "EnforceBitrate",
         true);
     config_set_default_string(m_basicConfig, "SimpleOutput", "Preset",
@@ -439,6 +445,8 @@ bool ObsBasic::InitBasicConfigDefaults()
     config_set_default_string(m_basicConfig, "SimpleOutput", "RecRBPrefix",
         "Replay");
 
+
+    //高级输出选项
     config_set_default_bool(m_basicConfig, "AdvOut", "ApplyServiceSettings",
         true);
     config_set_default_bool(m_basicConfig, "AdvOut", "UseRescale", false);
@@ -449,7 +457,8 @@ bool ObsBasic::InitBasicConfigDefaults()
 
     config_set_default_string(m_basicConfig, "AdvOut", "RecFilePath",
         GetDefaultVideoSavePath().c_str());
-    config_set_default_string(m_basicConfig, "AdvOut", "RecFormat", "flv");
+    config_set_default_string(m_basicConfig, "AdvOut", "RecFormat", 
+        DEFAULT_RECORD_FORMAT);
     config_set_default_bool(m_basicConfig, "AdvOut", "RecUseRescale",
         false);
     config_set_default_uint(m_basicConfig, "AdvOut", "RecTracks", (1 << 0));
@@ -461,13 +470,13 @@ bool ObsBasic::InitBasicConfigDefaults()
     config_set_default_string(m_basicConfig, "AdvOut", "FFFilePath",
         GetDefaultVideoSavePath().c_str());
     config_set_default_string(m_basicConfig, "AdvOut", "FFExtension", "mp4");
-    config_set_default_uint(m_basicConfig, "AdvOut", "FFVBitrate", 2500);
-    config_set_default_uint(m_basicConfig, "AdvOut", "FFVGOPSize", 250);
+    config_set_default_uint(m_basicConfig, "AdvOut", "FFVBitrate", DEFAULT_VIDEO_BITRATE);
+    config_set_default_uint(m_basicConfig, "AdvOut", "FFVGOPSize", DEFAULT_GOPSIZE);
     config_set_default_bool(m_basicConfig, "AdvOut", "FFUseRescale",
         false);
     config_set_default_bool(m_basicConfig, "AdvOut", "FFIgnoreCompat",
         false);
-    config_set_default_uint(m_basicConfig, "AdvOut", "FFABitrate", 160);
+    config_set_default_uint(m_basicConfig, "AdvOut", "FFABitrate", DEFAULT_AUDIO_BITRATE);
     config_set_default_uint(m_basicConfig, "AdvOut", "FFAudioTrack", 1);
 
     config_set_default_uint(m_basicConfig, "AdvOut", "Track1Bitrate", 160);

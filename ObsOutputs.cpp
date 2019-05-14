@@ -453,6 +453,9 @@ void SimpleOutput::Update()
 	obs_data_set_string(h264Settings, "rate_control", "CBR");
 	obs_data_set_int(h264Settings, "bitrate", videoBitrate);
 
+    //¹Ø¼üÖ¡Ê±³¤
+    obs_data_set_int(h264Settings, "keyint_sec", 2); 
+
 	if (advanced) {
 		obs_data_set_string(h264Settings, "preset", preset);
 		obs_data_set_string(h264Settings, "x264opts", custom);

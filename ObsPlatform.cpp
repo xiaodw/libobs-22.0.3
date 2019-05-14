@@ -47,3 +47,13 @@ std::string GetFilePostfix(const  std::string &file)
     }
     return file;
 }
+
+
+
+bool GetScreenSize(int *cx, int *cy)
+{
+    *  cx = GetSystemMetrics(SM_CXSCREEN);
+    *  cy = GetSystemMetrics(SM_CYSCREEN);
+    return true;
+}
+
