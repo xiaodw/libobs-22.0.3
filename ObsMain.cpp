@@ -7,6 +7,7 @@ ObsMain* obsMain = NULL;
 
 ObsMain::ObsMain()
 {
+    InitOBSCallbacks();
 }
 
 ObsMain::~ObsMain()
@@ -27,7 +28,7 @@ OBSScene ObsMain::FindScene(const char* name)
 {
     auto find = m_scenes.find(name);
     if (find != m_scenes.end())
-        return find->second;
+        return find->second->scene;
     return NULL;
 }
 
@@ -43,15 +44,30 @@ OBSScene ObsMain::AddScene(const char* name)
     if (!scene)
         return NULL;
 
-    obs_scene_release(scene);
-
-    m_scenes[name] = scene;
-    if (m_scenes.size() == 1)
+    if (m_scenes.size() == 0)
     {
         m_currentScene = scene;
         SetCurrentScene(obs_scene_get_source(m_currentScene),true);
     }
 
+    SceneData* data = new SceneData(scene);
+
+    obs_source_t *source = obs_scene_get_source(scene);
+    signal_handler_t *handler = obs_source_get_signal_handler(source);
+
+    data->handlers.assign({
+        std::make_shared<OBSSignal>(handler, "item_add",
+        ObsMain::SceneItemAdded, this),
+        std::make_shared<OBSSignal>(handler, "item_select",
+        ObsMain::SceneItemSelected, this),
+        std::make_shared<OBSSignal>(handler, "item_deselect",
+        ObsMain::SceneItemDeselected, this),
+        std::make_shared<OBSSignal>(handler, "reorder",
+        ObsMain::SceneReordered, this),
+    });
+
+    m_scenes[name] = std::unique_ptr<SceneData>(data);
+    obs_scene_release(scene);
     return scene;
 }
 
@@ -59,7 +75,17 @@ void ObsMain::RemoveScene(const char* name)
 {
     auto find = m_scenes.find(name);
     if (find != m_scenes.end())
+    {
+        obs_source_t *source = obs_scene_get_source(find->second->scene);
+
+        //移除scene
+        if(source)
+            obs_source_remove(source);
+
         m_scenes.erase(find);
+
+        //自动选中下一个scene
+    }
 }
 
 bool ObsMain::SelectScene(const char* name)
@@ -67,7 +93,7 @@ bool ObsMain::SelectScene(const char* name)
     auto find = m_scenes.find(name);
     if (find != m_scenes.end())
     {
-        m_currentScene = find->second;
+        m_currentScene = find->second->scene;
         SetCurrentScene(obs_scene_get_source(m_currentScene));
         return true;
     }
@@ -145,6 +171,111 @@ bool ObsMain::AddSource(OBSSource source)
     else
         return false;
 }
+
+void ObsMain::InitOBSCallbacks()
+{
+    m_signalHandlers.reserve(m_signalHandlers.size() + 6);
+    m_signalHandlers.emplace_back(obs_get_signal_handler(), "source_create",
+        ObsMain::SourceCreated, this);
+    m_signalHandlers.emplace_back(obs_get_signal_handler(), "source_remove",
+        ObsMain::SourceRemoved, this);
+    m_signalHandlers.emplace_back(obs_get_signal_handler(), "source_activate",
+        ObsMain::SourceActivated, this);
+    m_signalHandlers.emplace_back(obs_get_signal_handler(), "source_deactivate",
+        ObsMain::SourceDeactivated, this);
+    m_signalHandlers.emplace_back(obs_get_signal_handler(), "source_rename",
+        ObsMain::SourceRenamed, this);
+}
+
+void ObsMain::SceneReordered(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+
+    obs_scene_t *scene = (obs_scene_t*)calldata_ptr(params, "scene");
+
+    if(pThis->m_observer)
+        pThis->m_observer->OnReorderSources(scene);
+}
+
+void ObsMain::SceneItemAdded(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
+    if (pThis->m_observer)
+        pThis->m_observer->OnAddSceneItem(item);
+}
+
+void ObsMain::SceneItemSelected(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_scene_t     *scene = (obs_scene_t*)calldata_ptr(params, "scene");
+    obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
+    if (pThis->m_observer)
+        pThis->m_observer->OnSelectSceneItem(scene,item,true);
+}
+
+void ObsMain::SceneItemDeselected(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_scene_t     *scene = (obs_scene_t*)calldata_ptr(params, "scene");
+    obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
+    if (pThis->m_observer)
+        pThis->m_observer->OnSelectSceneItem(scene, item, false);
+}
+
+void ObsMain::SourceCreated(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+    if (pThis->m_observer)
+        pThis->m_observer->OnAddScene(source);
+}
+
+void ObsMain::SourceRemoved(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+    if (pThis->m_observer)
+        pThis->m_observer->OnRemoveScene(source);
+}
+
+void ObsMain::SourceActivated(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+    uint32_t     flags = obs_source_get_output_flags(source);
+
+    if (flags & OBS_SOURCE_AUDIO && pThis->m_observer)
+    {
+        pThis->m_observer->OnActivateAudioSource(source);
+    }
+}
+
+void ObsMain::SourceDeactivated(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+    uint32_t     flags = obs_source_get_output_flags(source);
+
+    if (flags & OBS_SOURCE_AUDIO && pThis->m_observer)
+    {
+        pThis->m_observer->OnDeactivateAudioSource(source);
+    }
+}
+
+void ObsMain::SourceRenamed(void *data, calldata_t *params)
+{
+    ObsMain* pThis = (ObsMain*)data;
+    obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+    const char *newName = calldata_string(params, "new_name");
+    const char *prevName = calldata_string(params, "prev_name");
+
+    if (pThis->m_observer)
+        pThis->m_observer->OnRenameSources(source, prevName, newName);
+
+    blog(LOG_INFO, "Source '%s' renamed to '%s'", prevName, newName);
+}
+
 
 static std::string GenerateSourceName(const  std::string &base)
 {

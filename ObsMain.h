@@ -3,6 +3,8 @@
 #include <util/util.hpp>
 #include <map>
 #include <string>
+#include <vector>
+#include <memory>
 #include "ObsConfig.h"
 #include "ObsWindowBase.h"
 #include "ObsBasic.h"
@@ -15,6 +17,8 @@ enum DropType {
     DropType_Image,
     DropType_Media,
 };
+
+
 
 //管理场景
 class ObsMain:public ObsBasic
@@ -56,11 +60,39 @@ public:
 
     int GetProfilePath(char *path, size_t size, const char *file) const;
 private:
-    bool InitGlobalConfigDefaults();
 
-    std::map<std::string,OBSScene> m_scenes;
+    //scene回调
+    static void SceneReordered(void *data, calldata_t *params);
+    static void SceneItemAdded(void *data, calldata_t *params);
+    static void SceneItemSelected(void *data, calldata_t *params);
+    static void SceneItemDeselected(void *data, calldata_t *params);
+
+    //source操作回调
+    static void SourceCreated(void *data, calldata_t *params);
+    static void SourceRemoved(void *data, calldata_t *params);
+    static void SourceActivated(void *data, calldata_t *params);
+    static void SourceDeactivated(void *data, calldata_t *params);
+    static void SourceRenamed(void *data, calldata_t *params);
+
+
+    bool InitGlobalConfigDefaults();
+    void InitOBSCallbacks();
+
+
+    struct SceneData {
+        SceneData(OBSScene s)
+            :scene(s)
+        {
+        }
+        OBSScene scene;
+        std::vector<std::shared_ptr<OBSSignal>> handlers;
+    };
+
+    std::map<std::string,std::unique_ptr<SceneData>> m_scenes;
     OBSScene m_currentScene;
     ConfigFile  m_globalConfig;
+
+    std::vector<OBSSignal> m_signalHandlers;
 };
 
 inline config_t *GetGlobalConfig() { return ObsMain::Instance()->globalConfig(); }

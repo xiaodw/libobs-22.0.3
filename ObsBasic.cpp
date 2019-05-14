@@ -327,6 +327,8 @@ void ObsBasic::StreamDelayStarting(int delay)
 void ObsBasic::StreamStopping()
 {
     m_streamingStopping = true;
+    if (m_observer)
+        m_observer->OnStreamStopping();
 }
 void ObsBasic::StreamDelayStopping(int delay)
 {
@@ -335,26 +337,41 @@ void ObsBasic::StreamDelayStopping(int delay)
 void ObsBasic::StreamingStart()
 {
     m_streamingStopping = false;
+
+    if (m_observer)
+        m_observer->OnStreamingStart();
 }
 void ObsBasic::StreamingStop(int code, const char* error)
 {
     m_streamingStopping = false;
+
+    if (m_observer)
+        m_observer->OnStreamingStop(code,error);
 }
 
 
 void ObsBasic::RecordingStart()
 {
     m_recordingStopping = false;
+
+    if (m_observer)
+        m_observer->OnRecordingStart();
 }
 
 void ObsBasic::RecordStopping()
 {
     m_recordingStopping = true;
+
+    if (m_observer)
+        m_observer->OnRecordStopping();
 }
 
 void ObsBasic::RecordingStop(int code)
 {
     m_streamingStopping = false;
+
+    if (m_observer)
+        m_observer->OnRecordingStop(code);
 }
 
 void ObsBasic::ReplayBufferStart()
@@ -991,4 +1008,6 @@ void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
         obs_source_release(source);
     }
 }
+
+
 

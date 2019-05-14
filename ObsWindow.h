@@ -1,6 +1,7 @@
 #pragma once
 #include <obs.hpp>
 #include <memory>
+#include <vector>
 #include <graphics/vec2.h>
 #include <graphics/matrix4.h>
 #include "ObsWindowBase.h"
@@ -23,6 +24,10 @@ public:
     gs_vertbuffer_t *boxRight = nullptr;
     gs_vertbuffer_t *boxBottom = nullptr;
     gs_vertbuffer_t *circle = nullptr;
+
+    //ÒÆ³ý×é¼þ
+    void RemoveSelectedSceneItem();
+    std::vector<OBSSceneItem> GetSelectedSceneItem();
 
 protected:
     static void _RenderWindow(void* param,uint32_t cx, uint32_t cy);

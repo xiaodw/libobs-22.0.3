@@ -14,6 +14,36 @@ struct RtmpServer
     std::string password;
 };
 
+class ObsObserver
+{
+public:
+    virtual ~ObsObserver() {}
+
+    virtual void OnReorderSources(OBSScene scene) = 0;
+    virtual void OnAddSceneItem(OBSSceneItem item) = 0;
+    virtual void OnSelectSceneItem(OBSScene scene,OBSSceneItem item,bool sel) = 0;
+
+    virtual void OnAddScene(OBSSource source) =0;
+    virtual void OnRemoveScene(OBSSource source) = 0;
+    
+    virtual void OnActivateAudioSource(OBSSource source) =0;
+
+    virtual void OnDeactivateAudioSource(OBSSource source) = 0;
+
+    virtual void OnRenameSources(OBSSource source,
+        const char* oldName,const char* newName) = 0;
+
+    //推流回调接口
+    virtual void OnStreamStopping() = 0;
+    virtual void OnStreamingStart() = 0;
+    virtual void OnStreamingStop(int code, const char* error) = 0;
+
+    //录制回调接口
+    virtual void OnRecordingStart() = 0;
+    virtual void OnRecordStopping() = 0;
+    virtual void OnRecordingStop(int code) = 0;
+};
+
 
 class ObsBasic
 {
@@ -61,6 +91,7 @@ public:
 
     void EnableDesktopAudio(bool enable);
     void EnableInputAudio(bool enable);
+
 protected:
     bool InitBasicConfig();
 
@@ -96,6 +127,8 @@ protected:
     bool m_streamingStopping = false;
     bool m_recordingStopping = false;
     bool m_replayBufferStopping = false;
+
+    ObsObserver* m_observer = nullptr;
 };
 
 
