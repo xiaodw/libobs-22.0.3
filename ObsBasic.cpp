@@ -19,6 +19,7 @@ ObsBasic::~ObsBasic()
 {
     m_service = NULL;
     m_basicConfig.Close();
+    m_globalConfig.Close();
     m_outputHandler.reset();
     m_curTransition = NULL;
     m_context = NULL;
@@ -604,7 +605,7 @@ void ObsBasic::ResetOutputs()
 bool ObsBasic::InitBasicConfig()
 {
     char configPath[512];
-    int ret = ObsMain::Instance()->GetProfilePath(configPath, sizeof(configPath), "");
+    int ret = GetProfilePath(configPath, sizeof(configPath), "");
     if (ret <= 0) {
         blog(LOG_ERROR, "Failed to get profile path");
         return false;
@@ -615,7 +616,7 @@ bool ObsBasic::InitBasicConfig()
         return false;
     }
 
-    ret = ObsMain::Instance()->GetProfilePath(configPath, sizeof(configPath), "basic.ini");
+    ret = GetProfilePath(configPath, sizeof(configPath), "basic.ini");
     if (ret <= 0) {
         blog(LOG_ERROR, "Failed to get base.ini path");
         return false;
@@ -940,12 +941,12 @@ void ObsBasic::InitDefaultTransitions()
 #define OUTPUT_AUDIO_SOURCE "pulse_output_capture"
 #endif
 
-const char *InputAudioSource()
+const char *ObsBasic::InputAudioSource()
 {
     return INPUT_AUDIO_SOURCE;
 }
 
-const char *OutputAudioSource()
+const char *ObsBasic::OutputAudioSource()
 {
     return OUTPUT_AUDIO_SOURCE;
 }
@@ -959,6 +960,38 @@ void ObsBasic::EnableDesktopAudio(bool enable)
         ResetAudioDevice(OutputAudioSource(), "disabled",
             Str("Basic.DesktopDevice1"), 1);
 }
+
+static inline bool HasAudioDevices(const char *source_id)
+{
+    const char *output_id = source_id;
+    obs_properties_t *props = obs_get_source_properties(output_id);
+    size_t count = 0;
+
+    if (!props)
+        return false;
+
+    obs_property_t *devices = obs_properties_get(props, "device_id");
+    if (devices)
+        count = obs_property_list_item_count(devices);
+
+    obs_properties_destroy(props);
+
+    return count != 0;
+}
+
+void ObsBasic::InitAudioSources()
+{
+    bool hasDesktopAudio = HasAudioDevices(OutputAudioSource());
+    bool hasInputAudio = HasAudioDevices(InputAudioSource());
+
+    if (hasDesktopAudio)
+        ResetAudioDevice(OutputAudioSource(), "default",
+            Str("Basic.DesktopDevice1"), 1);
+    if (hasInputAudio)
+        ResetAudioDevice(InputAudioSource(), "default",
+            Str("Basic.AuxDevice1"), 3);
+}
+
 
 void ObsBasic::EnableInputAudio(bool enable)
 {
@@ -1009,5 +1042,64 @@ void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
     }
 }
 
+
+
+
+#ifdef __APPLE__
+#define BASE_PATH ".."
+#else
+#define BASE_PATH ".."
+#endif
+
+#define CONFIG_PATH BASE_PATH "/config"
+
+#ifndef OBS_UNIX_STRUCTURE
+#define OBS_UNIX_STRUCTURE 0
+#endif
+
+bool portable_mode = false;
+
+int ObsBasic::GetConfigPath(char *path, size_t size, const char *name)
+{
+    if (!OBS_UNIX_STRUCTURE && portable_mode) {
+        if (name && *name) {
+            return snprintf(path, size, CONFIG_PATH "/%s", name);
+        }
+        else {
+            return snprintf(path, size, CONFIG_PATH);
+        }
+    }
+    else {
+        return os_get_config_path(path, size, name);
+    }
+}
+
+int ObsBasic::GetProfilePath(char *path, size_t size, const char *file)
+{
+    char profiles_path[512];
+    const char *profile = config_get_string(globalConfig(), "Basic", "Profile");
+    int ret;
+
+    if (!profile)
+    {
+        //给个默认名
+        profile = "profile";
+        config_set_string(globalConfig(), "Basic", "Profile", profile);
+    }
+
+    if (!path)
+        return -1;
+    if (!file)
+        file = "";
+
+    ret = GetConfigPath(profiles_path, 512, "obs-studio/basic/profiles");
+    if (ret <= 0)
+        return ret;
+
+    if (!*file)
+        return snprintf(path, size, "%s/%s", profiles_path, profile);
+
+    return snprintf(path, size, "%s/%s/%s", profiles_path, profile, file);
+}
 
 

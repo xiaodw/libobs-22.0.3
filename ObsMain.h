@@ -1,10 +1,12 @@
 #pragma once
 #include <obs.hpp>
 #include <util/util.hpp>
-#include <map>
+#include <vector>
 #include <string>
 #include <vector>
 #include <memory>
+#include <mutex>
+
 #include "ObsConfig.h"
 #include "ObsWindowBase.h"
 #include "ObsBasic.h"
@@ -30,6 +32,7 @@ public:
     //全局实例
     static ObsMain* Instance();
 
+    void InitObs() override;
     bool InitGlobalConfig();
 
     //创建视频源
@@ -45,21 +48,29 @@ public:
     bool AddSourceFile(const char* file);
 
     //场景管理
-    OBSScene AddScene(const char* name);
-    void RemoveScene(const char* name);
-    bool SelectScene(const char* name);
     OBSScene FindScene(const char* name);
     OBSScene GetCurrentScene();
 
-    config_t* globalConfig()const  { return m_globalConfig; }
+    void AddScene(const char* name,bool setCurrent);
+    void SetCurrentScene(OBSScene scene);
 
     //设置当前场景
     void SetCurrentScene(OBSSource scene, bool force = false);
 
-    void TransitionToScene(OBSSource source, bool force = false);
 
-    int GetProfilePath(char *path, size_t size, const char *file) const;
+    void Load(const char *file);
+    void SaveProject();
 private:
+    void OnAddScene(OBSScene scene);
+    void OnRemoveScene(OBSScene scene);
+
+    void ClearSceneData();
+    void CreateDefaultScene(bool firstStart);
+    void LoadSceneListOrder(obs_data_array_t *array);
+
+    obs_data_array_t *SaveSceneListOrder();
+    void Save(const char *file);
+    void SaveProjectDeferred();
 
     //scene回调
     static void SceneReordered(void *data, calldata_t *params);
@@ -78,21 +89,37 @@ private:
     bool InitGlobalConfigDefaults();
     void InitOBSCallbacks();
 
+    void TransitionToScene(OBSSource source, bool force = false);
 
     struct SceneData {
         SceneData(OBSScene s)
             :scene(s)
         {
         }
+
+        ~SceneData()
+        {
+            //obs_source_t* source = obs_scene_get_source(scene);
+            //obs_source_remove(source);
+        }
+
+        const char* name() {
+            return obs_source_get_name(obs_scene_get_source(scene));
+        }
+
         OBSScene scene;
         std::vector<std::shared_ptr<OBSSignal>> handlers;
     };
 
-    std::map<std::string,std::unique_ptr<SceneData>> m_scenes;
+    std::mutex m_lock;
+    std::vector<std::unique_ptr<SceneData>> m_scenes;
     OBSScene m_currentScene;
-    ConfigFile  m_globalConfig;
+
 
     std::vector<OBSSignal> m_signalHandlers;
+
+    bool m_loaded = false;
+    bool m_projectChanged = false;
 };
 
 inline config_t *GetGlobalConfig() { return ObsMain::Instance()->globalConfig(); }

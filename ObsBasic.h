@@ -52,7 +52,7 @@ public:
     ~ObsBasic();
 
     //初始化obs
-    void InitObs();
+    virtual void InitObs();
 
     obs_service_t *GetService();
     void  SetService(obs_service_t *service);
@@ -86,13 +86,21 @@ public:
 
     //basic config
     config_t* basicConfig() { return m_basicConfig; }
-    
+    config_t* globalConfig()const { return m_globalConfig; }
+
     void SetTransition(OBSSource transition);
 
     void EnableDesktopAudio(bool enable);
     void EnableInputAudio(bool enable);
+    void InitAudioSources();
+
+    int GetProfilePath(char *path, size_t size, const char *file);
+    int GetConfigPath(char *path, size_t size, const char *name);
 
 protected:
+    const char *InputAudioSource();
+    const char *OutputAudioSource();
+
     bool InitBasicConfig();
 
     //初始化配置
@@ -119,7 +127,9 @@ protected:
 
     OBSContext  m_context;
     OBSService m_service;
-    ConfigFile    m_basicConfig;
+    ConfigFile  m_basicConfig;
+    ConfigFile  m_globalConfig;
+
     std::unique_ptr<BasicOutputHandler> m_outputHandler;
 
     OBSSource m_curTransition; //当前场景转换

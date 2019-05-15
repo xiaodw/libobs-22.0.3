@@ -43,15 +43,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		/* create OBS */
         obsMain->InitObs();
 
-		/* ------------------------------------------------------ */
-        OBSSource source = obsMain->CreateSource("monitor_capture","screen capture source",NULL);
 
-		/* ------------------------------------------------------ */
-		/* create scene and add source to scene (twice) */
-
-        OBSScene scene = obsMain->AddScene("test scene");
-
-        obsMain->AddSource(source);
+  //      OBSSource source = obsMain->CreateSource("monitor_capture","screen capture source",NULL);
+  //      OBSScene scene = obsMain->AddScene("test scene");
+  //      obsMain->AddSource(source);
 
 
         obsWindow->CreateDisplay();
@@ -61,7 +56,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
         addr.server = "rtmp://192.168.1.10/live";
         addr.key = "livestream";
         obsMain->SetRtmpServer(addr);
-        obsMain->StartStreaming();
+        //obsMain->StartStreaming();
 
 		MSG msg;
 		while (GetMessage(&msg, NULL, 0, 0)) {
@@ -69,7 +64,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 			DispatchMessage(&msg);
 		}
 
-        obsMain->StopStreaming();
+        //obsMain->StopStreaming();
+        obsMain->SaveProject();
+
         delete obsWindow;
 	} catch (char *error) {
 		MessageBoxA(NULL, error, NULL, 0);

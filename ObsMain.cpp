@@ -12,9 +12,11 @@ ObsMain::ObsMain()
 
 ObsMain::~ObsMain()
 {
+    ClearSceneData();
     m_scenes.clear();
-    m_currentScene = NULL;
+    m_currentScene = nullptr;
     obsMain =  nullptr;
+    m_signalHandlers.clear();
 }
 
 ObsMain* ObsMain::Instance()
@@ -26,9 +28,13 @@ ObsMain* ObsMain::Instance()
 
 OBSScene ObsMain::FindScene(const char* name)
 {
-    auto find = m_scenes.find(name);
-    if (find != m_scenes.end())
-        return find->second->scene;
+    for (auto& sd : m_scenes)
+    {
+        if (strcmp(sd->name(), name) == 0)
+        {
+            return sd->scene;
+        }
+    }
     return NULL;
 }
 
@@ -37,18 +43,23 @@ OBSScene ObsMain::GetCurrentScene()
     return m_currentScene;
 }
 
-OBSScene ObsMain::AddScene(const char* name)
+void ObsMain::AddScene(const char* name, bool setCurrent)
 {
-    //c指针赋值给c++后需要释放
-    OBSScene scene = obs_scene_create(name);
-    if (!scene)
-        return NULL;
+    obs_scene_t  *scene = obs_scene_create(name);
+    if(setCurrent)
+        SetCurrentScene(scene);
+    obs_scene_release(scene);
+}
 
-    if (m_scenes.size() == 0)
-    {
-        m_currentScene = scene;
-        SetCurrentScene(obs_scene_get_source(m_currentScene),true);
-    }
+void ObsMain::SetCurrentScene(OBSScene scene)
+{
+    m_currentScene = scene;
+    SetCurrentScene(obs_scene_get_source(scene));
+}
+
+void ObsMain::OnAddScene(OBSScene scene)
+{
+    std::lock_guard<std::mutex> lock(m_lock);
 
     SceneData* data = new SceneData(scene);
 
@@ -66,42 +77,31 @@ OBSScene ObsMain::AddScene(const char* name)
         ObsMain::SceneReordered, this),
     });
 
-    m_scenes[name] = std::unique_ptr<SceneData>(data);
-    obs_scene_release(scene);
-    return scene;
+    blog(LOG_INFO, "add scene %s\n", obs_source_get_name(source));
+    m_scenes.push_back(std::unique_ptr<SceneData>(data));
 }
 
-void ObsMain::RemoveScene(const char* name)
+void ObsMain::OnRemoveScene(OBSScene scene)
 {
-    auto find = m_scenes.find(name);
-    if (find != m_scenes.end())
+    std::lock_guard<std::mutex> lock(m_lock);
+    for (auto i=m_scenes.begin();i!=m_scenes.end();++i)
     {
-        obs_source_t *source = obs_scene_get_source(find->second->scene);
-
-        //移除scene
-        if(source)
-            obs_source_remove(source);
-
-        m_scenes.erase(find);
-
-        //自动选中下一个scene
+        if (scene == (*i)->scene)
+        {
+            i = m_scenes.erase(i);
+            break;
+        }
     }
-}
-
-bool ObsMain::SelectScene(const char* name)
-{
-    auto find = m_scenes.find(name);
-    if (find != m_scenes.end())
-    {
-        m_currentScene = find->second->scene;
-        SetCurrentScene(obs_scene_get_source(m_currentScene));
-        return true;
-    }
-    return false;
 }
 
 void ObsMain::SetCurrentScene(OBSSource scene, bool force)
 {
+    obs_scene_t* _scene= obs_scene_from_source(scene);
+    if (_scene && m_currentScene!=_scene)
+    {
+        m_currentScene = _scene;
+    }
+
     if (m_curTransition)
     {
         TransitionToScene(scene,force);
@@ -165,7 +165,6 @@ bool ObsMain::AddSource(OBSSource source)
     obs_sceneitem_t* item= obs_scene_add(m_currentScene, source);
     if (item)
     {
-        //obs_sceneitem_release(item);
         return true;
     }
     else
@@ -227,6 +226,13 @@ void ObsMain::SourceCreated(void *data, calldata_t *params)
 {
     ObsMain* pThis = (ObsMain*)data;
     obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+
+    obs_scene_t* scene = obs_scene_from_source(source);
+    if (scene != NULL)
+    {
+        pThis->OnAddScene(scene);
+    }
+
     if (pThis->m_observer)
         pThis->m_observer->OnAddScene(source);
 }
@@ -235,6 +241,13 @@ void ObsMain::SourceRemoved(void *data, calldata_t *params)
 {
     ObsMain* pThis = (ObsMain*)data;
     obs_source_t *source = (obs_source_t*)calldata_ptr(params, "source");
+
+    obs_scene_t* scene = obs_scene_from_source(source);
+    if (scene != NULL)
+    {
+        pThis->OnRemoveScene(scene);
+    }
+
     if (pThis->m_observer)
         pThis->m_observer->OnRemoveScene(source);
 }
@@ -419,62 +432,31 @@ if (found) \
     return found;
 }
 
-
-#ifdef __APPLE__
-#define BASE_PATH ".."
-#else
-#define BASE_PATH ".."
-#endif
-
-#define CONFIG_PATH BASE_PATH "/config"
-
-#ifndef OBS_UNIX_STRUCTURE
-#define OBS_UNIX_STRUCTURE 0
-#endif
-
-bool portable_mode = false;
-
-int GetConfigPath(char *path, size_t size, const char *name)
+void ObsMain::InitObs()
 {
-    if (!OBS_UNIX_STRUCTURE && portable_mode) {
-        if (name && *name) {
-            return snprintf(path, size, CONFIG_PATH "/%s", name);
-        }
-        else {
-            return snprintf(path, size, CONFIG_PATH);
-        }
-    }
-    else {
-        return os_get_config_path(path, size, name);
-    }
-}
+    ObsBasic::InitObs();
 
-int ObsMain::GetProfilePath(char *path, size_t size, const char *file)const
-{
-    char profiles_path[512];
-    const char *profile = config_get_string(globalConfig(),"Basic", "Profile");
+    char savePath[512];
+    char fileName[512];
     int ret;
+    const char *sceneCollection = config_get_string(globalConfig(),
+        "Basic", "SceneCollectionFile");
 
-    if (!profile)
-    {
-        //给个默认名
-        profile = "profile";
-        config_set_string(globalConfig(), "Basic", "Profile", profile);
-    }
+    if (!sceneCollection)
+        throw "Failed to get scene collection name";
 
-    if (!path)
-        return -1;
-    if (!file)
-        file = "";
-
-    ret = GetConfigPath(profiles_path, 512, "obs-studio/basic/profiles");
+    ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+        sceneCollection);
     if (ret <= 0)
-        return ret;
+        throw "Failed to create scene collection file name";
 
-    if (!*file)
-        return snprintf(path, size, "%s/%s", profiles_path, profile);
+   ret = GetConfigPath(savePath, sizeof(savePath), fileName);
+    if (ret <= 0)
+        throw "Failed to get scene collection json file path";
 
-    return snprintf(path, size, "%s/%s/%s", profiles_path, profile, file);
+    Load(savePath);
+
+    //CreateDefaultScene(true);
 }
 
 bool ObsMain::InitGlobalConfig()
@@ -588,4 +570,297 @@ bool ObsMain::InitGlobalConfigDefaults()
         "MultiviewDrawAreas", true);
 
     return true;
+}
+
+
+void ObsMain::ClearSceneData()
+{
+    obs_set_output_source(0, nullptr);
+    obs_set_output_source(1, nullptr);
+    obs_set_output_source(2, nullptr);
+    obs_set_output_source(3, nullptr);
+    obs_set_output_source(4, nullptr);
+    obs_set_output_source(5, nullptr);
+
+    auto cb = [](void *unused, obs_source_t *source)
+    {
+        obs_source_remove(source);
+        UNUSED_PARAMETER(unused);
+        return true;
+    };
+
+    obs_enum_sources(cb, nullptr);
+
+    m_scenes.clear();
+    m_currentScene = nullptr;
+    m_curTransition = nullptr;
+
+
+    blog(LOG_INFO, "All scene data cleared");
+    blog(LOG_INFO, "------------------------------------------------");
+}
+
+
+void ObsMain::CreateDefaultScene(bool firstStart)
+{
+    ClearSceneData();
+    InitDefaultTransitions();
+
+    obs_scene_t  *scene = obs_scene_create(Str("Basic.Scene"));
+    if (firstStart)
+        InitAudioSources();
+
+    SetCurrentScene(scene);
+    obs_scene_release(scene);
+}
+
+static void LoadAudioDevice(const char *name, int channel, obs_data_t *parent)
+{
+    obs_data_t *data = obs_data_get_obj(parent, name);
+    if (!data)
+        return;
+
+    obs_source_t *source = obs_load_source(data);
+    if (source) {
+        obs_set_output_source(channel, source);
+        obs_source_release(source);
+    }
+
+    obs_data_release(data);
+}
+
+void ObsMain::LoadSceneListOrder(obs_data_array_t *array)
+{
+    size_t num = obs_data_array_count(array);
+
+    for (size_t i = 0; i < num; i++) {
+        obs_data_t *data = obs_data_array_item(array, i);
+        const char *name = obs_data_get_string(data, "name");
+
+
+        obs_data_release(data);
+    }
+}
+
+
+void ObsMain::Load(const char *file)
+{
+    obs_data_t *data = obs_data_create_from_json_file_safe(file, "bak");
+    if (!data) {
+        blog(LOG_INFO, "No scene file found, creating default scene");
+        CreateDefaultScene(true);
+        SaveProject();
+        return;
+    }
+
+    ClearSceneData();
+    InitDefaultTransitions();
+
+    obs_data_array_t *sceneOrder = obs_data_get_array(data, "scene_order");
+    obs_data_array_t *sources = obs_data_get_array(data, "sources");
+    obs_data_array_t *groups = obs_data_get_array(data, "groups");
+    const char *sceneName = obs_data_get_string(data, "current_scene");
+
+    int newDuration = obs_data_get_int(data, "transition_duration");
+    if (!newDuration)
+        newDuration = 300;
+
+    const char *curSceneCollection = config_get_string(globalConfig(), "Basic", "SceneCollection");
+
+    obs_data_set_default_string(data, "name", curSceneCollection);
+    obs_source_t     *curScene;
+
+    LoadAudioDevice(DESKTOP_AUDIO_1, 1, data);
+    LoadAudioDevice(DESKTOP_AUDIO_2, 2, data);
+    LoadAudioDevice(AUX_AUDIO_1, 3, data);
+    LoadAudioDevice(AUX_AUDIO_2, 4, data);
+    LoadAudioDevice(AUX_AUDIO_3, 5, data);
+
+    if (!sources) {
+        sources = groups;
+        groups = nullptr;
+    }
+    else {
+        obs_data_array_push_back_array(sources, groups);
+    }
+
+    obs_load_sources(sources, nullptr, nullptr);
+
+    if (sceneOrder)
+        LoadSceneListOrder(sceneOrder);
+
+    curScene = obs_get_source_by_name(sceneName);
+    
+    if (curScene)
+    {
+        obs_source_addref(curScene);
+        SetCurrentScene(curScene, true);
+        obs_source_release(curScene);
+    }
+    else
+    {
+        CreateDefaultScene(false);
+    }
+
+    obs_data_array_release(sources);
+    obs_data_array_release(groups);
+    obs_data_array_release(sceneOrder);
+
+    //bool fixedScaling = obs_data_get_bool(data, "scaling_enabled");
+    //int scalingLevel = (int)obs_data_get_int(data, "scaling_level");
+    //float scrollOffX = (float)obs_data_get_double(data, "scaling_off_x");
+    //float scrollOffY = (float)obs_data_get_double(data, "scaling_off_y");
+
+    obs_data_release(data);
+}
+
+
+void ObsMain::SaveProject()
+{
+    m_projectChanged = true;
+    SaveProjectDeferred();
+}
+
+void ObsMain::SaveProjectDeferred()
+{
+    if (!m_projectChanged)
+        return;
+
+    m_projectChanged = false;
+
+    const char *sceneCollection = config_get_string(globalConfig(),
+        "Basic", "SceneCollectionFile");
+    char savePath[512];
+    char fileName[512];
+    int ret;
+
+    if (!sceneCollection)
+        return;
+
+    ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
+        sceneCollection);
+    if (ret <= 0)
+        return;
+
+    ret = GetConfigPath(savePath, sizeof(savePath), fileName);
+    if (ret <= 0)
+        return;
+
+    Save(savePath);
+}
+
+
+obs_data_array_t *ObsMain::SaveSceneListOrder()
+{
+    obs_data_array_t *sceneOrder = obs_data_array_create();
+
+    for (auto& sc: m_scenes) {
+        obs_data_t *data = obs_data_create();
+        obs_data_set_string(data, "name", sc->name());
+        obs_data_array_push_back(sceneOrder, data);
+        obs_data_release(data);
+    }
+    return sceneOrder;
+}
+
+static void SaveAudioDevice(const char *name, int channel, obs_data_t *parent,
+    std::vector<OBSSource> &audioSources)
+{
+    obs_source_t *source = obs_get_output_source(channel);
+    if (!source)
+        return;
+
+    audioSources.push_back(source);
+
+    obs_data_t *data = obs_save_source(source);
+
+    obs_data_set_obj(parent, name, data);
+
+    obs_data_release(data);
+    obs_source_release(source);
+}
+
+static obs_data_t *GenerateSaveData(config_t* config,obs_data_array_t *sceneOrder,
+    OBSScene &scene, int transitionDuration)
+{
+    obs_data_t *saveData = obs_data_create();
+
+    std::vector<OBSSource> audioSources;
+    audioSources.reserve(5);
+
+    SaveAudioDevice(DESKTOP_AUDIO_1, 1, saveData, audioSources);
+    SaveAudioDevice(DESKTOP_AUDIO_2, 2, saveData, audioSources);
+    SaveAudioDevice(AUX_AUDIO_1, 3, saveData, audioSources);
+    SaveAudioDevice(AUX_AUDIO_2, 4, saveData, audioSources);
+    SaveAudioDevice(AUX_AUDIO_3, 5, saveData, audioSources);
+
+    /* -------------------------------- */
+    /* save non-group sources           */
+
+    auto FilterAudioSources = [&](obs_source_t *source)
+    {
+        if (obs_source_is_group(source))
+            return false;
+
+        return find(begin(audioSources), end(audioSources), source) ==
+            end(audioSources);
+    };
+    using FilterAudioSources_t = decltype(FilterAudioSources);
+
+    obs_data_array_t *sourcesArray = obs_save_sources_filtered(
+        [](void *data, obs_source_t *source)
+    {
+        return (*static_cast<FilterAudioSources_t*>(data))(source);
+    }, static_cast<void*>(&FilterAudioSources));
+
+    /* -------------------------------- */
+    /* save group sources separately    */
+
+    /* saving separately ensures they won't be loaded in older versions */
+    obs_data_array_t *groupsArray = obs_save_sources_filtered(
+        [](void*, obs_source_t *source)
+    {
+        return obs_source_is_group(source);
+    }, nullptr);
+
+    /* -------------------------------- */
+
+    obs_source_t *transition = obs_get_output_source(0);
+    obs_source_t *currentScene = obs_scene_get_source(scene);
+    const char   *sceneName = obs_source_get_name(currentScene);
+
+    const char *sceneCollection = config_get_string(config,
+        "Basic", "SceneCollection");
+
+    obs_data_set_string(saveData, "current_scene", sceneName);
+    obs_data_set_array(saveData, "scene_order", sceneOrder);
+    obs_data_set_string(saveData, "name", sceneCollection);
+    obs_data_set_array(saveData, "sources", sourcesArray);
+    obs_data_set_array(saveData, "groups", groupsArray);
+    obs_data_array_release(sourcesArray);
+    obs_data_array_release(groupsArray);
+
+    obs_data_set_string(saveData, "current_transition",
+        obs_source_get_name(transition));
+    obs_data_set_int(saveData, "transition_duration", transitionDuration);
+    obs_source_release(transition);
+
+    return saveData;
+}
+
+void ObsMain::Save(const char *file)
+{
+    OBSScene scene = GetCurrentScene();
+    OBSSource curProgramScene = obs_scene_get_source(scene);
+
+    obs_data_array_t *sceneOrder = SaveSceneListOrder();
+
+    obs_data_t *saveData = GenerateSaveData(globalConfig(), sceneOrder,
+        scene, 300);
+
+    if (!obs_data_save_json_safe(saveData, file, "tmp", "bak"))
+        blog(LOG_ERROR, "Could not save scene data to %s", file);
+
+    obs_data_release(saveData);
+    obs_data_array_release(sceneOrder);
 }
