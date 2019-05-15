@@ -139,9 +139,7 @@ void ObsWindow::DrawBackdrop(float cx, float cy)
     gs_load_vertexbuffer(nullptr);
 }
 
-
-
-static void DrawCircleAtPos(float x, float y)
+static void DrawSquareAtPos(float x, float y)
 {
     struct vec3 pos;
     vec3_set(&pos, x, y, 0.0f);
@@ -153,10 +151,10 @@ static void DrawCircleAtPos(float x, float y)
     gs_matrix_push();
     gs_matrix_identity();
     gs_matrix_translate(&pos);
-    gs_matrix_scale3f(HANDLE_RADIUS, HANDLE_RADIUS, 1.0f);
 
-
-    gs_draw(GS_LINESTRIP, 0, 0);
+    gs_matrix_translate3f(-HANDLE_RADIUS, -HANDLE_RADIUS, 0.0f);
+    gs_matrix_scale3f(HANDLE_RADIUS * 2, HANDLE_RADIUS * 2, 1.0f);
+    gs_draw(GS_TRISTRIP, 0, 0);
     gs_matrix_pop();
 }
 
@@ -231,19 +229,18 @@ bool DrawSelectedItem(obs_scene_t *scene,
     obs_sceneitem_get_info(item, &info);
 
     ObsWindow* window = (ObsWindow*)param;
-    gs_load_vertexbuffer(window->circle);
-
+    gs_load_vertexbuffer(window->box);
     gs_matrix_push();
     gs_matrix_mul(&boxTransform);
 
-    DrawCircleAtPos(0.0f, 0.0f);
-    DrawCircleAtPos(0.0f, 1.0f);
-    DrawCircleAtPos(1.0f, 0.0f);
-    DrawCircleAtPos(1.0f, 1.0f);
-    DrawCircleAtPos(0.5f, 0.0f);
-    DrawCircleAtPos(0.0f, 0.5f);
-    DrawCircleAtPos(0.5f, 1.0f);
-    DrawCircleAtPos(1.0f, 0.5f);
+    DrawSquareAtPos(0.0f, 0.0f);
+    DrawSquareAtPos(0.0f, 1.0f);
+    DrawSquareAtPos(1.0f, 0.0f);
+    DrawSquareAtPos(1.0f, 1.0f);
+    DrawSquareAtPos(0.5f, 0.0f);
+    DrawSquareAtPos(0.0f, 0.5f);
+    DrawSquareAtPos(0.5f, 1.0f);
+    DrawSquareAtPos(1.0f, 0.5f);
 
     obs_sceneitem_crop crop;
     obs_sceneitem_get_crop(item, &crop);

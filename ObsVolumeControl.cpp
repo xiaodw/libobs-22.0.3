@@ -1,7 +1,7 @@
 #include "ObsVolumeControl.h"
 
-ObsVolumeControl::ObsVolumeControl(OBSSource source)
-    :m_source(source)
+ObsVolumeControl::ObsVolumeControl(OBSSource source, ObsVolumeControlObserver* obs)
+    :m_source(source), m_observer(obs)
 {
 
     m_obs_fader = obs_fader_create(OBS_FADER_CUBIC);
@@ -36,10 +36,10 @@ void ObsVolumeControl::SetVolume(int vol)
 
 void ObsVolumeControl::OBSVolumeChanged(void *data, float db)
 {
-
     ObsVolumeControl *volControl = static_cast<ObsVolumeControl*>(data);
 
-    QMetaObject::invokeMethod(volControl, "VolumeChanged");
+    if(volControl->m_observer)
+        volControl->m_observer->OnVolumeChanged(volControl,db);
 }
 
 void ObsVolumeControl::OBSVolumeLevel(void *data,
@@ -48,15 +48,14 @@ void ObsVolumeControl::OBSVolumeLevel(void *data,
     const float inputPeak[MAX_AUDIO_CHANNELS])
 {
     ObsVolumeControl *volControl = static_cast<ObsVolumeControl*>(data);
-
-    volControl->volMeter->setLevels(magnitude, peak, inputPeak);
+    if (volControl->m_observer)
+        volControl->m_observer->OnVolumeLevel(volControl,magnitude,peak,inputPeak);
 }
 
 void ObsVolumeControl::OBSVolumeMuted(void *data, calldata_t *calldata)
 {
     ObsVolumeControl *volControl = static_cast<ObsVolumeControl*>(data);
     bool muted = calldata_bool(calldata, "muted");
-
-    QMetaObject::invokeMethod(volControl, "VolumeMuted",
-        Q_ARG(bool, muted));
+    if (volControl->m_observer)
+        volControl->m_observer->OnVolumeMuted(volControl,muted);
 }
