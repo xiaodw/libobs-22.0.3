@@ -1,0 +1,2 @@
+.\swig.exe -lua "-I../../core" -DSWIG_TYPE_TABLE=obslua -DSWIG_LUA_INTERPRETE
+R_NO_DEBUG .\obslua\obslua.i

@@ -609,3 +609,26 @@ project "rtmp-services"
 		"jansson",
 	}	
 	
+project "obs-scripting"
+	kind "SharedLib"
+	language "C++"
+	targetdir "../obs-plugins/"
+	defines {
+
+	}
+	files{
+		"obs-scripting/*.h",
+		"obs-scripting/*.c",
+		"obs-scripting/*.cpp",
+	}
+
+	includedirs{
+		"../core/",
+	}
+
+	links{
+		"libobs",
+		"luajit",
+	}		
+	
+	
