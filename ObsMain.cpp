@@ -693,7 +693,6 @@ void ObsMain::Load(const char *file)
     
     if (curScene)
     {
-        obs_source_addref(curScene);
         SetCurrentScene(curScene, true);
         obs_source_release(curScene);
     }
