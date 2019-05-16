@@ -19,7 +19,7 @@ extern void get_window_class(struct dstr *class, HWND hwnd);
 extern bool is_uwp_window(HWND hwnd);
 extern HWND get_uwp_actual_window(HWND parent);
 
-typedef bool (*add_window_cb)(const char *title, const char *class,
+typedef bool (*add_window_cb)(const char *title, const char *_class,
 		const char *exe);
 
 extern void fill_window_list(obs_property_t *p, enum window_search_mode mode,

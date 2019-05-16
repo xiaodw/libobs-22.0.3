@@ -90,6 +90,7 @@ public:
     virtual void OnMouseReleaseEvent(ObsMouseEvent *event) {}
     virtual void OnMouseMoveEvent(ObsMouseEvent *event) {}
 
+    //°´¼ü×´Ì¬
     enum KeyState{
         StateShift = 1,
         StateControl = 2,

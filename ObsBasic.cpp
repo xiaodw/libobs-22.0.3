@@ -38,24 +38,37 @@ ObsBasic::~ObsBasic()
 	"Failed to initialize video.  Your GPU may not be supported, " \
 	"or your graphics drivers may need to be updated."
 
-void ObsBasic::InitObs()
+bool ObsBasic::InitObs()
 {
     if (!InitBasicConfig())
-        throw "Failed to load basic.ini";
+    {
+        blog(LOG_ERROR, "Failed to load basic.ini");
+        return false;
+    }
+
     if (!ResetAudio())
-        throw "Failed to initialize audio";
+    {
+        blog(LOG_ERROR, "Failed to initialize audio");
+        return false;
+    }
 
     int ret = ResetVideo();
     switch (ret) {
     case OBS_VIDEO_MODULE_NOT_FOUND:
-        throw "Failed to initialize video:  Graphics module not found";
+        blog(LOG_ERROR, "Failed to initialize video:  Graphics module not found");
+        return false;
     case OBS_VIDEO_NOT_SUPPORTED:
-        throw UNSUPPORTED_ERROR;
+        blog(LOG_ERROR, "Failed to initialize video:  video not supported");
+        return false;
     case OBS_VIDEO_INVALID_PARAM:
-        throw "Failed to initialize video:  Invalid parameters";
+        blog(LOG_ERROR, "Failed to initialize video:  Invalid parameters");
+        return false;
     default:
         if (ret != OBS_VIDEO_SUCCESS)
-            throw UNKNOWN_ERROR;
+        {
+            blog(LOG_ERROR, "Failed to initialize video:  unknow error:%d",ret);
+            return false;
+        }
     }
 
     /* load audio monitoring */
@@ -87,6 +100,8 @@ void ObsBasic::InitObs()
     InitService();
 
     InitDefaultTransitions();
+
+    return true;
 }
 
 bool ObsBasic::ResetAudio()

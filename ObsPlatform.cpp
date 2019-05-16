@@ -1,5 +1,4 @@
 #include "ObsPlatform.h"
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
@@ -8,6 +7,7 @@
 #include <mmdeviceapi.h>
 #include <audiopolicy.h>
 #include <util/platform.h>
+#include <obs.h>
 
 std::string GetDefaultVideoSavePath()
 {
@@ -56,4 +56,22 @@ bool GetScreenSize(int *cx, int *cy)
     *  cy = GetSystemMetrics(SM_CYSCREEN);
     return true;
 }
+
+void obs_log(int log_level, const char *msg, va_list args, void *param)
+{
+    char bla[4096];
+    int len = vsnprintf(bla, 4095, msg, args);
+    wchar_t* str;
+    os_utf8_to_wcs_ptr(bla, len, &str);
+
+    OutputDebugStringW(str);
+    OutputDebugStringW(L"\n");
+    bfree(str);
+
+    if (log_level < LOG_WARNING)
+        __debugbreak();
+
+    UNUSED_PARAMETER(param);
+}
+
 

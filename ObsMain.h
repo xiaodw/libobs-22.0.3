@@ -33,11 +33,11 @@ public:
     //全局实例
     static ObsMain* Instance();
 
-    void InitObs() override;
+    bool InitObs() override;
     bool InitGlobalConfig();
 
     //创建视频源
-    OBSSource CreateSource(const char *id, const char *name, ObsSourceConfig* config);
+    OBSSource CreateSource(const char *id, const char *name, obs_data_t* settings = NULL, obs_data_t* hotkey=NULL);
 
     //添加source到当前场景
     bool AddSource(OBSSource source);
@@ -69,6 +69,17 @@ public:
     }
     void FitToScreen();
     void StretchToScreen();
+
+    //添加屏幕捕捉
+    bool AddCaptureScreen(const char* name);
+
+    //name为 title:class:exe
+    //obs_properties_by_id("monitor_capture")
+    bool AddCaptureWindow(const char* name);
+
+    bool AddImage(const char* path);
+    bool AddVideo(const char* path);
+
 
 private:
     void OnAddScene(OBSScene scene);

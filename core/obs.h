@@ -854,6 +854,9 @@ EXPORT bool obs_source_configurable(const obs_source_t *source);
  */
 EXPORT obs_properties_t *obs_source_properties(const obs_source_t *source);
 
+//add by zentel
+EXPORT obs_properties_t *obs_properties_by_id(const char *id);
+
 /** Updates settings for this source */
 EXPORT void obs_source_update(obs_source_t *source, obs_data_t *settings);
 

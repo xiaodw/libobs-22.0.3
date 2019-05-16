@@ -774,3 +774,30 @@ void obs_register_modeless_ui_s(const struct obs_modeless_ui *info, size_t size)
 error:
 	HANDLE_ERROR(size, obs_modeless_ui, info);
 }
+
+obs_properties_t *_obs_source_properties(const struct obs_source_info *info)
+{
+    if (!info)
+        return NULL;
+
+    if (info->get_properties2) {
+        obs_properties_t *props;
+        props = info->get_properties2(NULL,info->type_data);
+        return props;
+    }
+    else if (info->get_properties) {
+        obs_properties_t *props;
+        props = info->get_properties(NULL);
+        return props;
+    }
+    return NULL;
+}
+
+obs_properties_t *obs_properties_by_id(const char *id)
+{
+    const struct obs_source_info *info = get_source_info(id);
+    if (info)
+        return _obs_source_properties(info);
+    else
+        return NULL;
+}

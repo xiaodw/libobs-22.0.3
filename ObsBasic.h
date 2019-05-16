@@ -56,7 +56,7 @@ public:
     ~ObsBasic();
 
     //≥ı ºªØobs
-    virtual void InitObs();
+    virtual bool InitObs();
 
     obs_service_t *GetService();
     void  SetService(obs_service_t *service);

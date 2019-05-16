@@ -2,12 +2,14 @@
 #include "ObsWindow.h"
 #include "ObsPlatform.h"
 #include "util/platform.h"
+#include "util/dstr.h"
 
 ObsMain* obsMain = NULL;
 
 ObsMain::ObsMain()
     :m_sceneItemList(this)
 {
+    base_set_log_handler(obs_log, nullptr);
     InitOBSCallbacks();
 }
 
@@ -142,16 +144,9 @@ void ObsMain::TransitionToScene(OBSSource source, bool force)
     obs_source_release(transition);
 }
 
-OBSSource ObsMain::CreateSource(const char *id, const char *name, ObsSourceConfig* config)
+OBSSource ObsMain::CreateSource(const char *id, const char *name, 
+    obs_data_t* settings, obs_data_t* hotkey)
 {
-    obs_data_t* settings = NULL;
-    obs_data_t* hotkey = NULL;
-    if (config)
-    {
-        settings = config->settings;
-        hotkey = config->hotkey;
-    }
-
     OBSSource source = obs_source_create(id, name, settings, hotkey);
     if (!source)
         return NULL;
@@ -435,9 +430,10 @@ if (found) \
     return found;
 }
 
-void ObsMain::InitObs()
+bool ObsMain::InitObs()
 {
-    ObsBasic::InitObs();
+    if (!ObsBasic::InitObs())
+        return false;
 
     char savePath[512];
     char fileName[512];
@@ -446,20 +442,28 @@ void ObsMain::InitObs()
         "Basic", "SceneCollectionFile");
 
     if (!sceneCollection)
-        throw "Failed to get scene collection name";
+    {
+        blog(LOG_ERROR, "Failed to get scene collection name");
+        return false;
+    }
 
     ret = snprintf(fileName, 512, "obs-studio/basic/scenes/%s.json",
         sceneCollection);
     if (ret <= 0)
-        throw "Failed to create scene collection file name";
+    {
+        blog(LOG_ERROR, "Failed to create scene collection file name");
+        return false;
+    }
 
    ret = GetConfigPath(savePath, sizeof(savePath), fileName);
     if (ret <= 0)
-        throw "Failed to get scene collection json file path";
+    {
+        blog(LOG_ERROR, "Failed to get scene collection json file path");
+        return false;
+    }
 
     Load(savePath);
-
-    //CreateDefaultScene(true);
+    return true;
 }
 
 bool ObsMain::InitGlobalConfig()
@@ -708,11 +712,6 @@ void ObsMain::Load(const char *file)
     obs_data_array_release(groups);
     obs_data_array_release(sceneOrder);
 
-    //bool fixedScaling = obs_data_get_bool(data, "scaling_enabled");
-    //int scalingLevel = (int)obs_data_get_int(data, "scaling_level");
-    //float scrollOffX = (float)obs_data_get_double(data, "scaling_off_x");
-    //float scrollOffY = (float)obs_data_get_double(data, "scaling_off_y");
-
     obs_data_release(data);
 }
 
@@ -930,3 +929,57 @@ void ObsMain::StretchToScreen()
         &boundsType);
 }
 
+static char *get_new_source_name(const char *name)
+{
+    struct dstr new_name = { 0 };
+    int inc = 0;
+
+    dstr_copy(&new_name, name);
+
+    for (;;) {
+        obs_source_t *existing_source = obs_get_source_by_name(
+            new_name.array);
+        if (!existing_source)
+            break;
+
+        obs_source_release(existing_source);
+
+        dstr_printf(&new_name, "%s %d", name, ++inc + 1);
+    }
+    return new_name.array;
+}
+
+bool ObsMain::AddCaptureScreen(const char* name)
+{
+    char* newName = get_new_source_name(name);
+    OBSSource source = CreateSource("monitor_capture", newName);
+    bfree(newName);
+    return AddSource(source);
+}
+
+bool ObsMain::AddCaptureWindow(const char* name)
+{
+    char* newName = get_new_source_name(name);
+    obs_data_t* data = obs_data_create();
+
+    obs_data_set_string(data, "capture_mode", "window");
+    obs_data_set_string(data, "window", name);
+    obs_data_set_bool(data, "capture_overlays", true);
+    obs_data_set_bool(data, "anti_cheat_hook", true);
+    obs_data_set_bool(data, "limit_framerate", true);
+    
+    OBSSource source = CreateSource("game_capture", newName, data);
+    obs_data_release(data);
+    bfree(newName);
+    return AddSource(source);
+}
+
+bool ObsMain::AddImage(const char* path)
+{
+    return AddDropSource(path, DropType_Image);
+}
+
+bool ObsMain::AddVideo(const char* path)
+{
+    return AddDropSource(path, DropType_Media);
+}
