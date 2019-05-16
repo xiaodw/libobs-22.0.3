@@ -1,8 +1,9 @@
 #pragma once
 #include <memory>
-#include "ObsOutputs.h"
 #include <util/util.hpp>
 
+#include "ObsOutputs.h"
+#include "ObsWindowBase.h"
 #define Str(s) s
 
 struct RtmpServer
@@ -20,6 +21,7 @@ public:
     virtual ~ObsObserver() {}
 
     virtual void OnReorderSources(OBSScene scene) = 0;
+
     virtual void OnAddSceneItem(OBSSceneItem item) = 0;
     virtual void OnSelectSceneItem(OBSScene scene,OBSSceneItem item,bool sel) = 0;
 
@@ -42,6 +44,9 @@ public:
     virtual void OnRecordingStart() = 0;
     virtual void OnRecordStopping() = 0;
     virtual void OnRecordingStop(int code) = 0;
+
+    //œ‘ æ≤Àµ•
+    virtual void OnMenu(const ObsPoint& point) = 0;
 };
 
 

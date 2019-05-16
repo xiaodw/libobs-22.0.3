@@ -318,6 +318,30 @@ window_handle_t ObsWin32Window::GetWndHandle()
     return m_hWnd;
 }
 
+#define  IsKeyPressed(nVirtKey)     ((GetKeyState(nVirtKey) & (1<<(sizeof(SHORT)*8-1))) != 0)
+
+bool ObsWin32Window::CheckKeyState(unsigned int state)
+{
+    if (state == 0)
+        return false;
+
+    if ((state & StateShift)!=0 && !IsKeyPressed(VK_SHIFT))
+    {
+        return false;
+    }
+
+    if ((state & StateControl) != 0 && !IsKeyPressed(VK_CONTROL))
+    {
+        return false;
+    }
+
+    if ((state & StateAlt) != 0 && !IsKeyPressed(VK_MENU))
+    {
+        return false;
+    }
+    return true;
+}
+
 LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)

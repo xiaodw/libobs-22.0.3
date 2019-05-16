@@ -863,3 +863,40 @@ void ObsMain::Save(const char *file)
     obs_data_release(saveData);
     obs_data_array_release(sceneOrder);
 }
+
+
+
+static bool get_selected_item(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+{
+    std::vector<OBSSceneItem> * items =
+        reinterpret_cast<std::vector<OBSSceneItem>*>(param);
+
+    if (obs_sceneitem_is_group(item))
+        obs_sceneitem_group_enum_items(item, get_selected_item, param);
+
+    if (obs_sceneitem_selected(item))
+    {
+        items->push_back(item);
+    }
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+std::vector<OBSSceneItem> ObsMain::GetSelectedSceneItem()
+{
+    std::vector<OBSSceneItem> items;
+    OBSScene scene = GetCurrentScene();
+    obs_scene_enum_items(scene, get_selected_item, &items);
+    return items;
+}
+
+
+void ObsMain::RemoveSelectedSceneItem()
+{
+    std::vector<OBSSceneItem> items = GetSelectedSceneItem();
+    for (auto item : items)
+    {
+        obs_sceneitem_remove(item);
+    }
+}
+

@@ -40,7 +40,7 @@ public:
     window_handle_t CreateWnd(window_handle_t parent, const ObsRect& pos) override;
     void SetWindowPos(const ObsRect& rc) override;
     window_handle_t GetWndHandle() override;
-
+    bool CheckKeyState(unsigned int state) override;
 protected:
     virtual LPCTSTR GetWindowClassName() const { return _T("ObsRenderWindow"); }
     virtual LPCTSTR GetSuperClassName() const;

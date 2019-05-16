@@ -23,11 +23,6 @@ public:
     gs_vertbuffer_t *boxTop = nullptr;
     gs_vertbuffer_t *boxRight = nullptr;
     gs_vertbuffer_t *boxBottom = nullptr;
-    gs_vertbuffer_t *circle = nullptr;
-
-    //ÒÆ³ý×é¼þ
-    void RemoveSelectedSceneItem();
-    std::vector<OBSSceneItem> GetSelectedSceneItem();
 
 protected:
     static void _RenderWindow(void* param,uint32_t cx, uint32_t cy);
@@ -69,6 +64,8 @@ protected:
     void ClampAspect(vec3 &tl, vec3 &br, vec2 &size,
         const vec2 &baseSize);
 
+    vec3 GetSnapOffset(const vec3 &tl, const vec3 &br);
+    void SnapItemMovement(vec2 &offset);
     void MoveItems(const vec2 &pos);
     void CropItem(const vec2 &pos);
     void StretchItem(const vec2 &pos);

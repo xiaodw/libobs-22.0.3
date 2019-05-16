@@ -63,7 +63,6 @@ ObsWindow::~ObsWindow()
     gs_vertexbuffer_destroy(boxTop);
     gs_vertexbuffer_destroy(boxRight);
     gs_vertexbuffer_destroy(boxBottom);
-    gs_vertexbuffer_destroy(circle);
     obs_leave_graphics();
 }
 
@@ -100,12 +99,6 @@ void ObsWindow::InitPrimitives()
     gs_vertex2f(1.0f, 1.0f);
     boxBottom = gs_render_save();
 
-    gs_render_start(true);
-    for (int i = 0; i <= 360; i += (360 / 20)) {
-        float pos = RAD(float(i));
-        gs_vertex2f(cosf(pos), sinf(pos));
-    }
-    circle = gs_render_save();
 
     obs_leave_graphics();
 }
@@ -818,6 +811,11 @@ void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
         mouseDown = false;
         mouseMoved = false;
         cropping = false;
+
+        if (event->button == RightButton)
+        {
+            ObsMain::Instance()->DoShowMenu(ObsPoint(event->x, event->y));
+        }
     }
 }
 
@@ -1101,6 +1099,244 @@ void ObsWindow::StretchItem(const vec2 &pos)
     obs_sceneitem_set_pos(stretchItem, &newPos);
 }
 
+struct SelectedItemBounds {
+    bool first = true;
+    vec3 tl, br;
+};
+
+static bool AddItemBounds(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    SelectedItemBounds *data = reinterpret_cast<SelectedItemBounds*>(param);
+    vec3 t[4];
+
+    auto add_bounds = [data, &t]()
+    {
+        for (const vec3 &v : t) {
+            if (data->first) {
+                vec3_copy(&data->tl, &v);
+                vec3_copy(&data->br, &v);
+                data->first = false;
+            }
+            else {
+                vec3_min(&data->tl, &data->tl, &v);
+                vec3_max(&data->br, &data->br, &v);
+            }
+        }
+    };
+
+    if (obs_sceneitem_is_group(item)) {
+        SelectedItemBounds sib;
+        obs_sceneitem_group_enum_items(item, AddItemBounds, &sib);
+
+        if (!sib.first) {
+            matrix4 xform;
+            obs_sceneitem_get_draw_transform(item, &xform);
+
+            vec3_set(&t[0], sib.tl.x, sib.tl.y, 0.0f);
+            vec3_set(&t[1], sib.tl.x, sib.br.y, 0.0f);
+            vec3_set(&t[2], sib.br.x, sib.tl.y, 0.0f);
+            vec3_set(&t[3], sib.br.x, sib.br.y, 0.0f);
+            vec3_transform(&t[0], &t[0], &xform);
+            vec3_transform(&t[1], &t[1], &xform);
+            vec3_transform(&t[2], &t[2], &xform);
+            vec3_transform(&t[3], &t[3], &xform);
+            add_bounds();
+        }
+    }
+    if (!obs_sceneitem_selected(item))
+        return true;
+
+    matrix4 boxTransform;
+    obs_sceneitem_get_box_transform(item, &boxTransform);
+
+    t[0] = GetTransformedPos(0.0f, 0.0f, boxTransform);
+    t[1] = GetTransformedPos(1.0f, 0.0f, boxTransform);
+    t[2] = GetTransformedPos(0.0f, 1.0f, boxTransform);
+    t[3] = GetTransformedPos(1.0f, 1.0f, boxTransform);
+    add_bounds();
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+struct OffsetData {
+    float clampDist;
+    vec3 tl, br, offset;
+};
+
+static bool GetSourceSnapOffset(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    OffsetData *data = reinterpret_cast<OffsetData*>(param);
+
+    if (obs_sceneitem_selected(item))
+        return true;
+
+    matrix4 boxTransform;
+    obs_sceneitem_get_box_transform(item, &boxTransform);
+
+    vec3 t[4] = {
+        GetTransformedPos(0.0f, 0.0f, boxTransform),
+        GetTransformedPos(1.0f, 0.0f, boxTransform),
+        GetTransformedPos(0.0f, 1.0f, boxTransform),
+        GetTransformedPos(1.0f, 1.0f, boxTransform)
+    };
+
+    bool first = true;
+    vec3 tl, br;
+    vec3_zero(&tl);
+    vec3_zero(&br);
+    for (const vec3 &v : t) {
+        if (first) {
+            vec3_copy(&tl, &v);
+            vec3_copy(&br, &v);
+            first = false;
+        }
+        else {
+            vec3_min(&tl, &tl, &v);
+            vec3_max(&br, &br, &v);
+        }
+    }
+
+    // Snap to other source edges
+#define EDGE_SNAP(l, r, x, y) \
+	do { \
+		double dist = fabsf(l.x - data->r.x); \
+		if (dist < data->clampDist && \
+		    fabsf(data->offset.x) < EPSILON && \
+		    data->tl.y < br.y && \
+		    data->br.y > tl.y && \
+		    (fabsf(data->offset.x) > dist || data->offset.x < EPSILON)) \
+			data->offset.x = l.x - data->r.x; \
+	} while (false)
+
+    EDGE_SNAP(tl, br, x, y);
+    EDGE_SNAP(tl, br, y, x);
+    EDGE_SNAP(br, tl, x, y);
+    EDGE_SNAP(br, tl, y, x);
+#undef EDGE_SNAP
+
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+
+void ObsWindow::SnapItemMovement(vec2 &offset)
+{
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+
+    SelectedItemBounds data;
+    obs_scene_enum_items(scene, AddItemBounds, &data);
+
+    data.tl.x += offset.x;
+    data.tl.y += offset.y;
+    data.br.x += offset.x;
+    data.br.y += offset.y;
+
+    vec3 snapOffset = GetSnapOffset(data.tl, data.br);
+
+    const bool snap = config_get_bool(GetGlobalConfig(),
+        "BasicWindow", "SnappingEnabled");
+    const bool sourcesSnap = config_get_bool(GetGlobalConfig(),
+        "BasicWindow", "SourceSnapping");
+    if (snap == false)
+        return;
+    if (sourcesSnap == false) {
+        offset.x += snapOffset.x;
+        offset.y += snapOffset.y;
+        return;
+    }
+
+    const float clampDist = config_get_double(GetGlobalConfig(),
+        "BasicWindow", "SnapDistance") / m_previewScale;
+
+    OffsetData offsetData;
+    offsetData.clampDist = clampDist;
+    offsetData.tl = data.tl;
+    offsetData.br = data.br;
+    vec3_copy(&offsetData.offset, &snapOffset);
+
+    obs_scene_enum_items(scene, GetSourceSnapOffset, &offsetData);
+
+    if (fabsf(offsetData.offset.x) > EPSILON ||
+        fabsf(offsetData.offset.y) > EPSILON) {
+        offset.x += offsetData.offset.x;
+        offset.y += offsetData.offset.y;
+    }
+    else {
+        offset.x += snapOffset.x;
+        offset.y += snapOffset.y;
+    }
+}
+
+static inline vec2 GetOBSScreenSize()
+{
+    obs_video_info ovi;
+    vec2 size;
+    vec2_zero(&size);
+
+    if (obs_get_video_info(&ovi)) {
+        size.x = float(ovi.base_width);
+        size.y = float(ovi.base_height);
+    }
+    return size;
+}
+
+vec3 ObsWindow::GetSnapOffset(const vec3 &tl, const vec3 &br)
+{
+    vec2 screenSize = GetOBSScreenSize();
+    vec3 clampOffset;
+
+    vec3_zero(&clampOffset);
+
+    const bool snap = config_get_bool(GetGlobalConfig(),
+        "BasicWindow", "SnappingEnabled");
+    if (snap == false)
+        return clampOffset;
+
+    const bool screenSnap = config_get_bool(GetGlobalConfig(),
+        "BasicWindow", "ScreenSnapping");
+    const bool centerSnap = config_get_bool(GetGlobalConfig(),
+        "BasicWindow", "CenterSnapping");
+
+    const float clampDist = config_get_double(GetGlobalConfig(),
+        "BasicWindow", "SnapDistance") / m_previewScale;
+    const float centerX = br.x - (br.x - tl.x) / 2.0f;
+    const float centerY = br.y - (br.y - tl.y) / 2.0f;
+
+    // Left screen edge.
+    if (screenSnap &&
+        fabsf(tl.x) < clampDist)
+        clampOffset.x = -tl.x;
+    // Right screen edge.
+    if (screenSnap &&
+        fabsf(clampOffset.x) < EPSILON &&
+        fabsf(screenSize.x - br.x) < clampDist)
+        clampOffset.x = screenSize.x - br.x;
+    // Horizontal center.
+    if (centerSnap &&
+        fabsf(screenSize.x - (br.x - tl.x)) > clampDist &&
+        fabsf(screenSize.x / 2.0f - centerX) < clampDist)
+        clampOffset.x = screenSize.x / 2.0f - centerX;
+
+    // Top screen edge.
+    if (screenSnap &&
+        fabsf(tl.y) < clampDist)
+        clampOffset.y = -tl.y;
+    // Bottom screen edge.
+    if (screenSnap &&
+        fabsf(clampOffset.y) < EPSILON &&
+        fabsf(screenSize.y - br.y) < clampDist)
+        clampOffset.y = screenSize.y - br.y;
+    // Vertical center.
+    if (centerSnap &&
+        fabsf(screenSize.y - (br.y - tl.y)) > clampDist &&
+        fabsf(screenSize.y / 2.0f - centerY) < clampDist)
+        clampOffset.y = screenSize.y / 2.0f - centerY;
+
+    return clampOffset;
+}
+
 static bool move_items(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
 {
     if (obs_sceneitem_locked(item))
@@ -1139,6 +1375,10 @@ void ObsWindow::MoveItems(const vec2 &pos)
     vec2 offset, moveOffset;
     vec2_sub(&offset, &pos, &startPos);
     vec2_sub(&moveOffset, &offset, &lastMoveOffset);
+
+    //如果吸附调用
+    if(!CheckKeyState(StateControl))
+        SnapItemMovement(moveOffset);
 
     vec2_add(&lastMoveOffset, &lastMoveOffset, &moveOffset);
 
@@ -1204,37 +1444,3 @@ void ObsWindow::OnDropFile(const char* file)
 }
 
 
-
-static bool get_selected_item(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
-{
-    std::vector<OBSSceneItem> * items =
-        reinterpret_cast<std::vector<OBSSceneItem>*>(param);
-
-    if (obs_sceneitem_is_group(item))
-        obs_sceneitem_group_enum_items(item, get_selected_item, param);
-
-    if (obs_sceneitem_selected(item))
-    {
-        items->push_back(item);
-    }
-    UNUSED_PARAMETER(scene);
-    return true;
-}
-
-std::vector<OBSSceneItem> ObsWindow::GetSelectedSceneItem()
-{
-    std::vector<OBSSceneItem> items;
-    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
-    obs_scene_enum_items(scene, get_selected_item,&items);
-    return items;
-}
-
-
-void ObsWindow::RemoveSelectedSceneItem()
-{
-    std::vector<OBSSceneItem> items = GetSelectedSceneItem();
-    for (auto item : items)
-    {
-        obs_sceneitem_remove(item);
-    }
-}

@@ -14,6 +14,19 @@ struct ObsSize {
     int height;
 };
 
+struct ObsPoint {
+    ObsPoint()
+        :x(0), y(0)
+    {
+    }
+    ObsPoint(int _x, int _y)
+        :x(_x), y(_y)
+    {
+    }
+    int x;
+    int y;
+};
+
 struct ObsRect {
     int x;
     int y;
@@ -77,5 +90,11 @@ public:
     virtual void OnMouseReleaseEvent(ObsMouseEvent *event) {}
     virtual void OnMouseMoveEvent(ObsMouseEvent *event) {}
 
+    enum KeyState{
+        StateShift = 1,
+        StateControl = 2,
+        StateAlt = 4
+    };
+    virtual bool CheckKeyState(unsigned int state) = 0;
 };
 
