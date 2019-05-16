@@ -100,6 +100,7 @@ void ObsMain::SetCurrentScene(OBSSource scene, bool force)
     if (_scene && m_currentScene!=_scene)
     {
         m_currentScene = _scene;
+        m_sceneItemList.SceneChanged();
     }
 
     if (m_curTransition)
@@ -192,16 +193,15 @@ void ObsMain::SceneReordered(void *data, calldata_t *params)
 
     obs_scene_t *scene = (obs_scene_t*)calldata_ptr(params, "scene");
 
-    if(pThis->m_observer)
-        pThis->m_observer->OnReorderSources(scene);
+    if (scene == pThis->m_currentScene)
+        pThis->m_sceneItemList.ReorderItems();
 }
 
 void ObsMain::SceneItemAdded(void *data, calldata_t *params)
 {
     ObsMain* pThis = (ObsMain*)data;
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
-    if (pThis->m_observer)
-        pThis->m_observer->OnAddSceneItem(item);
+    pThis->m_sceneItemList.Add(item);
 }
 
 void ObsMain::SceneItemSelected(void *data, calldata_t *params)
@@ -209,8 +209,9 @@ void ObsMain::SceneItemSelected(void *data, calldata_t *params)
     ObsMain* pThis = (ObsMain*)data;
     obs_scene_t     *scene = (obs_scene_t*)calldata_ptr(params, "scene");
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
-    if (pThis->m_observer)
-        pThis->m_observer->OnSelectSceneItem(scene,item,true);
+
+    if(scene == pThis->m_currentScene)
+        pThis->m_sceneItemList.Select(item,true);
 }
 
 void ObsMain::SceneItemDeselected(void *data, calldata_t *params)
@@ -218,8 +219,9 @@ void ObsMain::SceneItemDeselected(void *data, calldata_t *params)
     ObsMain* pThis = (ObsMain*)data;
     obs_scene_t     *scene = (obs_scene_t*)calldata_ptr(params, "scene");
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
-    if (pThis->m_observer)
-        pThis->m_observer->OnSelectSceneItem(scene, item, false);
+
+    if (scene == pThis->m_currentScene)
+        pThis->m_sceneItemList.Select(item, false);
 }
 
 void ObsMain::SourceCreated(void *data, calldata_t *params)
@@ -896,6 +898,7 @@ void ObsMain::RemoveSelectedSceneItem()
     std::vector<OBSSceneItem> items = GetSelectedSceneItem();
     for (auto item : items)
     {
+        m_sceneItemList.Remove(item);
         obs_sceneitem_remove(item);
     }
 }

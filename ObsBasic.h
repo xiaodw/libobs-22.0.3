@@ -20,11 +20,6 @@ class ObsObserver
 public:
     virtual ~ObsObserver() {}
 
-    virtual void OnReorderSources(OBSScene scene) = 0;
-
-    virtual void OnAddSceneItem(OBSSceneItem item) = 0;
-    virtual void OnSelectSceneItem(OBSScene scene,OBSSceneItem item,bool sel) = 0;
-
     virtual void OnAddScene(OBSSource source) =0;
     virtual void OnRemoveScene(OBSSource source) = 0;
     

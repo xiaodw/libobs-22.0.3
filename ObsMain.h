@@ -8,8 +8,9 @@
 #include <mutex>
 
 #include "ObsConfig.h"
-#include "ObsWindowBase.h"
 #include "ObsBasic.h"
+#include "ObsWindowBase.h"
+#include "ObsSceneItemList.h"
 
 class ObsWindow;
 
@@ -45,7 +46,6 @@ public:
     void RemoveSelectedSceneItem();
     std::vector<OBSSceneItem> GetSelectedSceneItem();
     
-
 
     //添加拖拽的文件
     bool AddDropSource(const char *data, DropType image);
@@ -111,8 +111,6 @@ private:
 
         ~SceneData()
         {
-            //obs_source_t* source = obs_scene_get_source(scene);
-            //obs_source_remove(source);
         }
 
         const char* name() {
@@ -132,6 +130,9 @@ private:
 
     bool m_loaded = false;
     bool m_projectChanged = false;
+
+    //场景item维护
+    ObsSceneItemList m_sceneItemList;
 };
 
 inline config_t *GetGlobalConfig() { return ObsMain::Instance()->globalConfig(); }
