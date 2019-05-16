@@ -6,8 +6,8 @@ static inline OBSScene GetCurrentScene()
     return ObsMain::Instance()->GetCurrentScene();
 }
 
-ObsSceneItemList::ObsSceneItemList()
-    :m_select(-1)
+ObsSceneItemList::ObsSceneItemList(ObsMain* obsMain)
+    :m_obsMain(obsMain),m_select(-1)
 {
 
 }
@@ -39,17 +39,20 @@ static bool enumItem(obs_scene_t*, obs_sceneitem_t *item, void *ptr)
     return true;
 }
 
-void ObsSceneItemList::SceneChanged()
+void ObsSceneItemList::OnSceneChanged()
 {
     OBSScene scene = GetCurrentScene();
     if (scene)
     {
         m_items.clear();
         obs_scene_enum_items(scene, enumItem, &m_items);
+
+        if (m_obsMain->observer())
+            m_obsMain->observer()->OnReloadSceneItemList();
     }
 }
 
-void ObsSceneItemList::ReorderItems()
+void ObsSceneItemList::OnReorderItems()
 {
     OBSScene scene = GetCurrentScene();
 
@@ -58,7 +61,7 @@ void ObsSceneItemList::ReorderItems()
 
     /* if item list has changed size, do full reset */
     if (newitems.size() != m_items.size()) {
-        SceneChanged();
+        OnSceneChanged();
         return;
     }
 
@@ -96,7 +99,7 @@ void ObsSceneItemList::ReorderItems()
 
         /* if item could not be found, do full reset */
         if (i == newitems.size()) {
-            SceneChanged();
+            OnSceneChanged();
             return;
         }
 
@@ -112,19 +115,25 @@ void ObsSceneItemList::ReorderItems()
                 break;
             }
         }
+
+        if (m_obsMain->observer())
+            m_obsMain->observer()->OnReloadSceneItemList();
     }
 }
 
-void ObsSceneItemList::Add(obs_sceneitem_t *item)
+void ObsSceneItemList::OnAdd(obs_sceneitem_t *item)
 {
     if (obs_sceneitem_is_group(item)) {
-        SceneChanged();
+        OnSceneChanged();
     }
     else {
         m_items.insert(m_items.begin(), item);
     }
+
+    if (m_obsMain->observer())
+        m_obsMain->observer()->OnReloadSceneItemList();
 }
-void ObsSceneItemList::Remove(obs_sceneitem_t *item)
+void ObsSceneItemList::OnRemove(obs_sceneitem_t *item)
 {
     int idx = -1;
     for (int i = 0; i < m_items.size(); i++) {
@@ -157,6 +166,8 @@ void ObsSceneItemList::Remove(obs_sceneitem_t *item)
     }
 
     m_items.erase(m_items.begin()+idx, m_items.begin() + endIdx + 1);
+    if (m_obsMain->observer())
+        m_obsMain->observer()->OnReloadSceneItemList();
 }
 
 size_t ObsSceneItemList::Count()
@@ -178,7 +189,7 @@ OBSSceneItem ObsSceneItemList::GetCurrentSceneItem()
     return m_items[m_select];
 }
 
-void ObsSceneItemList::Select(obs_sceneitem_t *item, bool bSel)
+void ObsSceneItemList::OnSelect(obs_sceneitem_t *item, bool bSel)
 {
     int index = -1;
     for (int i=0;i<m_items.size();++i)
@@ -190,8 +201,108 @@ void ObsSceneItemList::Select(obs_sceneitem_t *item, bool bSel)
         }
     }
 
-    if (index > 0 && bSel)
+    if (!bSel)
+    {
+        if (index != m_select)
+            return;
+        index = -1;
+    }
+
+    if (index != m_select)
+    {
         m_select = index;
-    else
-        m_select = -1;
+
+        blog(LOG_INFO, "select change %d\n",m_select);
+
+        if (m_obsMain->observer())
+            m_obsMain->observer()->OnSceneItemSelectChanged(m_select);
+    }
+
+}
+
+void ObsSceneItemList::MoveUp(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if(item)
+        obs_sceneitem_set_order(item, OBS_ORDER_MOVE_UP);
+}
+
+void ObsSceneItemList::MoveDowm(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+        obs_sceneitem_set_order(item, OBS_ORDER_MOVE_DOWN);
+}
+
+
+void ObsSceneItemList::MoveToTop(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+        obs_sceneitem_set_order(item, OBS_ORDER_MOVE_TOP);
+}
+
+void ObsSceneItemList::MoveToBottom(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+        obs_sceneitem_set_order(item, OBS_ORDER_MOVE_BOTTOM);
+}
+
+void ObsSceneItemList::Remove(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+    {
+        obs_sceneitem_remove(item);
+        OnRemove(item);
+    }
+}
+
+void ObsSceneItemList::SetVisible(int idx, bool visible)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+        obs_sceneitem_set_visible(item, visible);
+}
+
+void ObsSceneItemList::SetLocked(int idx, bool locked)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+        obs_sceneitem_set_locked(item, locked);
+}
+
+void ObsSceneItemList::SetName(int idx, const char* name)
+{
+    OBSSceneItem item = Get(idx);
+    if (item)
+    {
+        obs_source_t *source = obs_sceneitem_get_source(item);
+        obs_source_set_name(source, name);
+    }
+}
+
+void ObsSceneItemList::Select(int idx)
+{
+    for (int i = 0; i < m_items.size(); ++i)
+    {
+        obs_sceneitem_select(m_items[i], idx == i);
+    }
+}
+
+const char* ObsSceneItemList::itemName(OBSSceneItem item)
+{
+    obs_source_t *source = obs_sceneitem_get_source(item);
+    return obs_source_get_name(source);
+}
+
+bool ObsSceneItemList::itemVisible(OBSSceneItem item)
+{
+    return obs_sceneitem_visible(item);
+}
+
+bool ObsSceneItemList::itemLocked(OBSSceneItem item)
+{
+    return obs_sceneitem_locked(item);
 }

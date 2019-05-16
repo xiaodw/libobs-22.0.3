@@ -6,6 +6,7 @@
 ObsMain* obsMain = NULL;
 
 ObsMain::ObsMain()
+    :m_sceneItemList(this)
 {
     InitOBSCallbacks();
 }
@@ -100,7 +101,7 @@ void ObsMain::SetCurrentScene(OBSSource scene, bool force)
     if (_scene && m_currentScene!=_scene)
     {
         m_currentScene = _scene;
-        m_sceneItemList.SceneChanged();
+        m_sceneItemList.OnSceneChanged();
     }
 
     if (m_curTransition)
@@ -194,14 +195,14 @@ void ObsMain::SceneReordered(void *data, calldata_t *params)
     obs_scene_t *scene = (obs_scene_t*)calldata_ptr(params, "scene");
 
     if (scene == pThis->m_currentScene)
-        pThis->m_sceneItemList.ReorderItems();
+        pThis->m_sceneItemList.OnReorderItems();
 }
 
 void ObsMain::SceneItemAdded(void *data, calldata_t *params)
 {
     ObsMain* pThis = (ObsMain*)data;
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
-    pThis->m_sceneItemList.Add(item);
+    pThis->m_sceneItemList.OnAdd(item);
 }
 
 void ObsMain::SceneItemSelected(void *data, calldata_t *params)
@@ -211,7 +212,7 @@ void ObsMain::SceneItemSelected(void *data, calldata_t *params)
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
 
     if(scene == pThis->m_currentScene)
-        pThis->m_sceneItemList.Select(item,true);
+        pThis->m_sceneItemList.OnSelect(item,true);
 }
 
 void ObsMain::SceneItemDeselected(void *data, calldata_t *params)
@@ -221,7 +222,7 @@ void ObsMain::SceneItemDeselected(void *data, calldata_t *params)
     obs_sceneitem_t *item = (obs_sceneitem_t*)calldata_ptr(params, "item");
 
     if (scene == pThis->m_currentScene)
-        pThis->m_sceneItemList.Select(item, false);
+        pThis->m_sceneItemList.OnSelect(item, false);
 }
 
 void ObsMain::SourceCreated(void *data, calldata_t *params)
@@ -884,22 +885,48 @@ static bool get_selected_item(obs_scene_t *scene, obs_sceneitem_t *item, void *p
     return true;
 }
 
-std::vector<OBSSceneItem> ObsMain::GetSelectedSceneItem()
+static bool CenterAlignSelectedItems(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
 {
-    std::vector<OBSSceneItem> items;
-    OBSScene scene = GetCurrentScene();
-    obs_scene_enum_items(scene, get_selected_item, &items);
-    return items;
+    obs_bounds_type boundsType = *reinterpret_cast<obs_bounds_type*>(param);
+
+    if (obs_sceneitem_is_group(item))
+        obs_sceneitem_group_enum_items(item, CenterAlignSelectedItems,
+            param);
+    if (!obs_sceneitem_selected(item))
+        return true;
+
+    obs_video_info ovi;
+    obs_get_video_info(&ovi);
+
+    obs_transform_info itemInfo;
+    vec2_set(&itemInfo.pos, 0.0f, 0.0f);
+    vec2_set(&itemInfo.scale, 1.0f, 1.0f);
+    itemInfo.alignment = OBS_ALIGN_LEFT | OBS_ALIGN_TOP;
+    itemInfo.rot = 0.0f;
+
+    vec2_set(&itemInfo.bounds,
+        float(ovi.base_width), float(ovi.base_height));
+    itemInfo.bounds_type = boundsType;
+    itemInfo.bounds_alignment = OBS_ALIGN_CENTER;
+
+    obs_sceneitem_set_info(item, &itemInfo);
+
+    UNUSED_PARAMETER(scene);
+    return true;
 }
 
-
-void ObsMain::RemoveSelectedSceneItem()
+void ObsMain::FitToScreen()
 {
-    std::vector<OBSSceneItem> items = GetSelectedSceneItem();
-    for (auto item : items)
-    {
-        m_sceneItemList.Remove(item);
-        obs_sceneitem_remove(item);
-    }
+    obs_bounds_type boundsType = OBS_BOUNDS_SCALE_INNER;
+    obs_scene_enum_items(GetCurrentScene(), CenterAlignSelectedItems,
+        &boundsType);
+}
+
+void ObsMain::StretchToScreen()
+{
+    obs_bounds_type boundsType = OBS_BOUNDS_STRETCH;
+    obs_scene_enum_items(GetCurrentScene(), CenterAlignSelectedItems,
+        &boundsType);
 }
 

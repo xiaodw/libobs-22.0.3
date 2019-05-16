@@ -42,11 +42,6 @@ public:
     //添加source到当前场景
     bool AddSource(OBSSource source);
 
-    //组件操作接口
-    void RemoveSelectedSceneItem();
-    std::vector<OBSSceneItem> GetSelectedSceneItem();
-    
-
     //添加拖拽的文件
     bool AddDropSource(const char *data, DropType image);
 
@@ -72,6 +67,9 @@ public:
         if (m_observer)
             m_observer->OnMenu(pt);
     }
+    void FitToScreen();
+    void StretchToScreen();
+
 private:
     void OnAddScene(OBSScene scene);
     void OnRemoveScene(OBSScene scene);

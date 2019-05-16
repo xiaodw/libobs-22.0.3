@@ -30,6 +30,10 @@ public:
     virtual void OnRenameSources(OBSSource source,
         const char* oldName,const char* newName) = 0;
 
+    //重新加载sceneitem
+    virtual void OnReloadSceneItemList() = 0;
+    virtual void OnSceneItemSelectChanged(int index) = 0;
+
     //推流回调接口
     virtual void OnStreamStopping() = 0;
     virtual void OnStreamingStart() = 0;
@@ -97,6 +101,7 @@ public:
     int GetProfilePath(char *path, size_t size, const char *file);
     int GetConfigPath(char *path, size_t size, const char *name);
 
+    ObsObserver* observer() { return m_observer; }
 protected:
     const char *InputAudioSource();
     const char *OutputAudioSource();

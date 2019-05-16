@@ -3,14 +3,18 @@
 #include <windows.h>
 #include "ObsMain.h"
 #include "ObsWindow.h"
+#include <util/platform.h>
 
 static void do_log(int log_level, const char *msg, va_list args, void *param)
 {
 	char bla[4096];
-	vsnprintf(bla, 4095, msg, args);
+	int len = vsnprintf(bla, 4095, msg, args);
+    wchar_t* str;
+    os_utf8_to_wcs_ptr(bla, len, &str);
 
-	OutputDebugStringA(bla);
-	OutputDebugStringA("\n");
+	OutputDebugStringW(str);
+	OutputDebugStringW(L"\n");
+    bfree(str);
 
 	//if (log_level < LOG_WARNING)
 	//	__debugbreak();
