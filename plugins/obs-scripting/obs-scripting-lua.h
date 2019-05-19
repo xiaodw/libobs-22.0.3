@@ -32,7 +32,7 @@
 #endif
 
 #define SWIG_TYPE_TABLE obslua
-#include "swig/swigluarun.h"
+#include "swigluarun.h"
 
 #ifdef _MSC_VER
 #pragma warning(pop)

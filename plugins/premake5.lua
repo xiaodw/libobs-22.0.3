@@ -629,6 +629,7 @@ project "obs-scripting"
 	links{
 		"libobs",
 		"luajit",
+		"pthread",
 	}		
 	
 	
