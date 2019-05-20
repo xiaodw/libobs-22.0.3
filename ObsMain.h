@@ -73,13 +73,12 @@ public:
     //添加屏幕捕捉
     bool AddCaptureScreen(const char* name);
 
-    //name为 title:class:exe
-    //obs_properties_by_id("monitor_capture")
-    bool AddCaptureWindow(const char* name);
+    //name和window可以通过EnumGameProcess获取
+    bool AddGameCapture(const char* name,const char* window);
 
     bool AddImage(const char* path);
     bool AddVideo(const char* path);
-
+    bool AddText(const char* text);
 
 private:
     void OnAddScene(OBSScene scene);

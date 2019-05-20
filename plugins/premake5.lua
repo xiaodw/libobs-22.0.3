@@ -607,12 +607,35 @@ project "rtmp-services"
 	links{
 		"libobs",
 		"jansson",
-	}	
+	}
+	
+project "obslua"
+	kind "SharedLib"
+	language "C++"
+	defines {
+
+	}
+	files{
+		"obs-scripting/cstrcache.h",
+		"obs-scripting/cstrcache.cpp",
+		"obs-scripting/obslua/*.c",
+	}
+
+	includedirs{
+		"../core/",
+		"obs-scripting/",
+	}
+
+	links{
+		"libobs",
+		"luajit",
+		"pthread",
+	}		
+		
 	
 project "obs-scripting"
 	kind "SharedLib"
 	language "C++"
-	targetdir "../obs-plugins/"
 	defines {
 
 	}

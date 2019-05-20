@@ -957,13 +957,13 @@ bool ObsMain::AddCaptureScreen(const char* name)
     return AddSource(source);
 }
 
-bool ObsMain::AddCaptureWindow(const char* name)
+bool ObsMain::AddGameCapture(const char* name, const char* window)
 {
     char* newName = get_new_source_name(name);
     obs_data_t* data = obs_data_create();
 
     obs_data_set_string(data, "capture_mode", "window");
-    obs_data_set_string(data, "window", name);
+    obs_data_set_string(data, "window", window);
     obs_data_set_bool(data, "capture_overlays", true);
     obs_data_set_bool(data, "anti_cheat_hook", true);
     obs_data_set_bool(data, "limit_framerate", true);
@@ -982,4 +982,9 @@ bool ObsMain::AddImage(const char* path)
 bool ObsMain::AddVideo(const char* path)
 {
     return AddDropSource(path, DropType_Media);
+}
+
+bool ObsMain::AddText(const char* text)
+{
+    return AddDropSource(text, DropType_Text);
 }

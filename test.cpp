@@ -3,7 +3,7 @@
 #include <windows.h>
 #include "ObsMain.h"
 #include "ObsWindow.h"
-#include <util/platform.h>
+#include "ObsUtils.h"
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		int numCmd)
@@ -12,13 +12,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
     obsMain->InitGlobalConfig();
     obsMain->InitObs();
 
-    obs_properties_t* prop = obs_properties_by_id("game_capture");
-    if (prop)
-    {
-
-        obs_properties_destroy(prop);
-    }
-
+    EnumGameProcess(NULL,NULL);
 
 	try {
         ObsWindow * obsWindow = ObsWindow::Create();
