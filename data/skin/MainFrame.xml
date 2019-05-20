@@ -6,10 +6,9 @@
   <Default name="VScrollBar" value="thumbcolor=&quot;#FFFF0000&quot;" shared="true" />
   <VerticalLayout bkcolor="#FF2d2d30">
 
-    <HorizontalLayout name="header" height="40">
+    <HorizontalLayout height="35" bkcolor="#ff333333">
       <HorizontalLayout>
-        <Control width="10"/>
-        <Label name="apptitle" text="Menu Test" font="1" textcolor="#FFFFFFFF" />
+		<Option width="132" bkcolor="#ff252526"/>
       </HorizontalLayout>
       <HorizontalLayout height="25" width="81">
         <Button name="minbtn" tooltip="最小化" height="22" width="27" normalimage="file='image/sys_button_min2.png' source='0,0,27,22'" hotimage="file='image/sys_button_min2.png' source='27,0,54,22'"/>
@@ -19,11 +18,11 @@
       </HorizontalLayout>
     </HorizontalLayout>
 	<HorizontalLayout>
-		<VerticalLayout width="132">
+		<VerticalLayout width="132" bkcolor="#ff252526">
 			
 		</VerticalLayout>
-		<VerticalLayout inset="2,0,2,2">
-		  <ObsDisplay>
+		<VerticalLayout>
+		  <ObsDisplay visible="true">
 		  </ObsDisplay>
 		  <HorizontalLayout height="60">
 			
