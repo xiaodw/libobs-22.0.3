@@ -1,11 +1,11 @@
 #pragma once
 
 //obsÖ÷½çÃæ
-class ObsMainFrame : public WindowImplBase
+class CObsMainFrame : public WindowImplBase
 {
 public:
-    ObsMainFrame();
-    ~ObsMainFrame();
+    CObsMainFrame();
+    ~CObsMainFrame();
 
 public:
     LPCTSTR GetWindowClassName() const;

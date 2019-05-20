@@ -8,20 +8,20 @@ const TCHAR* const kMinButtonControlName = _T("minbtn");
 const TCHAR* const kMaxButtonControlName = _T("maxbtn");
 const TCHAR* const kRestoreButtonControlName = _T("restorebtn");
 
-ObsMainFrame::ObsMainFrame()
+CObsMainFrame::CObsMainFrame()
 {}
 
-ObsMainFrame::~ObsMainFrame()
+CObsMainFrame::~CObsMainFrame()
 {
     PostQuitMessage(0);
 }
 
-LPCTSTR ObsMainFrame::GetWindowClassName() const
+LPCTSTR CObsMainFrame::GetWindowClassName() const
 {
     return _T("ObsGuiFoundation");
 }
 
-CControlUI* ObsMainFrame::CreateControl(LPCTSTR pstrClass)
+CControlUI* CObsMainFrame::CreateControl(LPCTSTR pstrClass)
 {
     if (_tcscmp(pstrClass, _T("ObsDisplay")) == 0)
     {
@@ -30,28 +30,28 @@ CControlUI* ObsMainFrame::CreateControl(LPCTSTR pstrClass)
     return NULL;
 }
 
-void ObsMainFrame::OnFinalMessage(HWND hWnd)
+void CObsMainFrame::OnFinalMessage(HWND hWnd)
 {
     WindowImplBase::OnFinalMessage(hWnd);
     delete this;
 }
 
-CDuiString ObsMainFrame::GetSkinFile()
+CDuiString CObsMainFrame::GetSkinFile()
 {
     return _T("MainFrame.xml");
 }
 
-CDuiString ObsMainFrame::GetSkinFolder()
+CDuiString CObsMainFrame::GetSkinFolder()
 {
     return _T("");
 }
 
-UILIB_RESOURCETYPE ObsMainFrame::GetResourceType() const
+UILIB_RESOURCETYPE CObsMainFrame::GetResourceType() const
 {
     return UILIB_FILE;
 }
 
-LRESULT ObsMainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT CObsMainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 #if defined(WIN32) && !defined(UNDER_CE)
     BOOL bZoomed = ::IsZoomed(m_hWnd);
@@ -80,12 +80,12 @@ LRESULT ObsMainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     return 0;
 }
 
-LRESULT ObsMainFrame::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CObsMainFrame::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return __super::HandleMessage(uMsg, wParam, lParam);
 }
 
-LRESULT ObsMainFrame::ResponseDefaultKeyEvent(WPARAM wParam)
+LRESULT CObsMainFrame::ResponseDefaultKeyEvent(WPARAM wParam)
 {
     if (wParam == VK_RETURN)
     {
@@ -98,22 +98,22 @@ LRESULT ObsMainFrame::ResponseDefaultKeyEvent(WPARAM wParam)
     return FALSE;
 }
 
-void ObsMainFrame::OnTimer(TNotifyUI& msg)
+void CObsMainFrame::OnTimer(TNotifyUI& msg)
 {
 }
 
-void ObsMainFrame::OnExit(TNotifyUI& msg)
+void CObsMainFrame::OnExit(TNotifyUI& msg)
 {
     Close();
 }
 
-void ObsMainFrame::InitWindow()
+void CObsMainFrame::InitWindow()
 {}
 
-void ObsMainFrame::OnPrepare(TNotifyUI& msg)
+void CObsMainFrame::OnPrepare(TNotifyUI& msg)
 {}
 
-void ObsMainFrame::Notify(TNotifyUI& msg)
+void CObsMainFrame::Notify(TNotifyUI& msg)
 {
     if (_tcsicmp(msg.sType, DUI_MSGTYPE_WINDOWINIT) == 0)
     {
@@ -172,7 +172,7 @@ void ObsMainFrame::Notify(TNotifyUI& msg)
     }
 }
 
-LRESULT ObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     return 0;
 }

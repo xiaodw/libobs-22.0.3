@@ -22,7 +22,7 @@
 		<VerticalLayout width="132">
 			
 		</VerticalLayout>
-		<VerticalLayout name="body" inset="2,0,2,2">
+		<VerticalLayout inset="2,0,2,2">
 		  <ObsDisplay>
 		  </ObsDisplay>
 		  <HorizontalLayout height="60">
