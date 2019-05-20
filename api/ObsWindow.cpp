@@ -30,7 +30,7 @@ bool ObsWindow::CreateDisplay()
     info.zsformat = GS_ZS_NONE;
     info.window.hwnd = handle;
 
-    m_display = obs_display_create(&info, 0x333333);
+    m_display = obs_display_create(&info, 0x1f1f1f);
     obs_display_add_draw_callback(m_display, _RenderWindow, this);
 
     InitPrimitives();

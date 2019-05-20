@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window caption="0,0,0,36" roundcorner="5,5" size="1000,592" sizebox="6,6,6,6" mininfo="800,600">
+  <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="true" />
+  <Font id="1" name="微软雅黑" size="13" bold="true" shared="true" />  
+
+  <Default name="VScrollBar" value="thumbcolor=&quot;#FFFF0000&quot;" shared="true" />
+  <VerticalLayout bkcolor="#FF2d2d30">
+
+    <HorizontalLayout name="header" height="40">
+      <HorizontalLayout>
+        <Control width="10"/>
+        <Label name="apptitle" text="Menu Test" font="1" textcolor="#FFFFFFFF" />
+      </HorizontalLayout>
+      <HorizontalLayout height="25" width="81">
+        <Button name="minbtn" tooltip="最小化" height="22" width="27" normalimage="file='image/sys_button_min2.png' source='0,0,27,22'" hotimage="file='image/sys_button_min2.png' source='27,0,54,22'"/>
+        <Button name="maxbtn" tooltip="最大化" height="22" width="27" normalimage="file='image/sys_button_max.png' source='0,0,27,22'" hotimage="file='image/sys_button_max.png' source='27,0,54,22'"/>
+        <Button name="restorebtn" tooltip="恢复" height="22" width="27" visible="false" normalimage="file='image/sys_button_restore.png' source='0,0,27,22'" hotimage="file='image/sys_button_restore.png' source='27,0,54,22'"/>
+        <Button name="closebtn" tooltip="关闭" height="22" width="27" normalimage="file='image/sys_dlg_close.png' source='0,0,27,22'" hotimage="file='image/sys_dlg_close.png' source='27,0,54,22'"/>
+      </HorizontalLayout>
+    </HorizontalLayout>
+	<HorizontalLayout>
+		<VerticalLayout width="132">
+			
+		</VerticalLayout>
+		<VerticalLayout name="body" inset="2,0,2,2">
+		  <ObsDisplay>
+		  </ObsDisplay>
+		  <HorizontalLayout height="60">
+			
+		  </HorizontalLayout>
+		</VerticalLayout>
+	</HorizontalLayout>
+  </VerticalLayout>
+</Window>

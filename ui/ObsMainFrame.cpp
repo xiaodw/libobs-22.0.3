@@ -38,7 +38,7 @@ void ObsMainFrame::OnFinalMessage(HWND hWnd)
 
 CDuiString ObsMainFrame::GetSkinFile()
 {
-    return _T("ObsMainFrame.xml");
+    return _T("MainFrame.xml");
 }
 
 CDuiString ObsMainFrame::GetSkinFolder()
