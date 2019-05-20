@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <windows.h>
-#include "ObsMain.h"
-#include "ObsWindow.h"
-#include "ObsUtils.h"
+#include "api/ObsMain.h"
+#include "api/ObsWindow.h"
+#include "api/ObsUtils.h"
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
 		int numCmd)
@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine,
     obsMain->InitGlobalConfig();
     obsMain->InitObs();
 
-    EnumGameProcess(NULL,NULL);
+    EnumDevice(NULL,NULL);
 
 	try {
         ObsWindow * obsWindow = ObsWindow::Create();

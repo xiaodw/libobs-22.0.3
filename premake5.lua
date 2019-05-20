@@ -37,6 +37,7 @@ group "3dparty"
 include "3dparty/jansson"
 include "3dparty/mbedtls"
 include "3dparty/win_pthreads"
+include "3dparty/DuiLib"
 
 group "core"
 include "core"
@@ -44,8 +45,9 @@ include "core/render/opengl"
 include "core/render/d3d11"
 include "plugins"
 
+group "project"
 
-group "test"
+include "ui"
 
 project "test"
 	kind "WindowedApp"
@@ -57,7 +59,8 @@ project "test"
 		"core/"
 	}
 	files{
-		"*.h",
+		"api/*.h",
+		"api/*.cpp",
 		"*.cpp",
 	}
 	defines {
