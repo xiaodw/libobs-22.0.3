@@ -238,6 +238,7 @@ LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
     if (uMsg == MSG_HANDLE_MSG)
     {
         m_msgQueue.HandleMsg();
+        bHandled = TRUE;
     }
     return 0;
 }
@@ -274,7 +275,6 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
                 option->Selected(true, false);
             }
             m_sceneList->Add(option);
-
 
            option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
             option->EnableCloseBtn(m_sceneList->GetCount()>1);
@@ -328,6 +328,7 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
 {
     CDuiString name = ObsSceneItemList::itemName(item);
     bool bVisible = ObsSceneItemList::itemVisible(item);
+    bool bSelected = ObsSceneItemList::itemSelected(item);
 
     CListContainerElementUI* elem = new CListContainerElementUI();
     elem->SetFixedHeight(30);
@@ -359,5 +360,8 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
     elem->Add(hoz);
 
     m_sceneItemList->Add(elem);
+
+    if (bSelected)
+        elem->Select(true, false);
 }
 

@@ -14,6 +14,12 @@
 #include "controls/UIMenu.h"
 using namespace DuiLib;
 
+#ifdef UNICODE
+#define STRINGIZE(x) L#x
+#else
+#define STRINGIZE(x) #x
+#endif
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

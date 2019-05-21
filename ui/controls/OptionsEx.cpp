@@ -126,7 +126,7 @@ void COptionExUI::SetPos(RECT rc, bool bNeedInvalidate)
     int offset = ((m_rcItem.bottom - m_rcItem.top) - m_closeBtnWidth) / 2;
 
     m_rcCloseBtn.right  = m_rcItem.right - offset;
-    m_rcCloseBtn.left = m_rcItem.right - offset - m_closeBtnWidth;
+    m_rcCloseBtn.left = m_rcCloseBtn.right - m_closeBtnWidth;
     m_rcCloseBtn.top = m_rcItem.top;
     m_rcCloseBtn.bottom = m_rcItem.bottom;
 }

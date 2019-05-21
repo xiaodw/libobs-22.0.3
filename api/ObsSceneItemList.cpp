@@ -306,3 +306,8 @@ bool ObsSceneItemList::itemLocked(OBSSceneItem item)
 {
     return obs_sceneitem_locked(item);
 }
+
+bool ObsSceneItemList::itemSelected(OBSSceneItem item)
+{
+    return obs_sceneitem_selected(item);
+}

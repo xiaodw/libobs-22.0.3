@@ -42,6 +42,7 @@ public:
     static const char* itemName(OBSSceneItem item);
     static bool itemVisible(OBSSceneItem item);
     static bool itemLocked(OBSSceneItem item);
+    static bool itemSelected(OBSSceneItem item);
 private:
     ObsMain* m_obsMain;
     std::vector<OBSSceneItem> m_items;

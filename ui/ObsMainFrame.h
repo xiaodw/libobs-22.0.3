@@ -5,8 +5,6 @@
 #define MSG_HANDLE_MSG (WM_USER+12)
 
 
-#define STRINGIZE(x) L#x
-
 //obsÖ÷½çÃæ
 class CObsMainFrame : public WindowImplBase,public ObsObserver,public CMsgHandler
 {
