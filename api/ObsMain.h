@@ -33,8 +33,8 @@ public:
     //全局实例
     static ObsMain* Instance();
 
-    bool InitObs() override;
     bool InitGlobalConfig();
+    bool LoadScene();
 
     //创建视频源
     OBSSource CreateSource(const char *id, const char *name, obs_data_t* settings = NULL, obs_data_t* hotkey=NULL);
@@ -53,7 +53,8 @@ public:
     OBSScene GetCurrentScene();
 
     void AddScene(const char* name,bool setCurrent);
-    void SetCurrentScene(OBSScene scene);
+    void SetCurrentScene(obs_scene_t* scene);
+    void RemoveScene(obs_scene_t* scene);
 
     //设置当前场景
     void SetCurrentScene(OBSSource scene, bool force = false);
@@ -83,7 +84,10 @@ public:
     bool AddVideo(const char* path);
     bool AddText(const char* text);
 
+    ObsSceneItemList& sceneItemList() { return m_sceneItemList; }
 private:
+    OBSScene CheckScene(obs_scene_t* scene);
+
     void OnAddScene(OBSScene scene);
     void OnRemoveScene(OBSScene scene);
 

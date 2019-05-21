@@ -6,6 +6,10 @@ namespace DuiLib
     /////////////////////////////////////////////////////////////////////////////////////
     //
     //
+    UINT GetACP(void)
+    {
+        return CP_UTF8;
+    }
 
     STRINGorID::STRINGorID(LPCTSTR lpString) : m_lpstr(lpString)
     {
@@ -423,6 +427,15 @@ namespace DuiLib
 		m_szBuffer[1] = _T('\0');
 	}
 
+#ifdef _UNICODE
+    CDuiString::CDuiString(LPCSTR pstr)
+        : m_pstr(m_szBuffer)
+    {
+        m_szBuffer[0] = _T('\0');
+        *this = pstr;
+    }
+#endif
+
 	CDuiString::CDuiString(LPCTSTR lpsz, int nLen) : m_pstr(m_szBuffer)
 	{      
 		ASSERT(!::IsBadStringPtr(lpsz,-1) || lpsz==NULL);
@@ -552,8 +565,8 @@ namespace DuiLib
 		{
 			ASSERT(!::IsBadStringPtrA(lpStr,-1));
 			int cchStr = (int) strlen(lpStr) + 1;
-			LPWSTR pwstr = (LPWSTR) _alloca(cchStr);
-			if( pwstr != NULL ) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
+			LPWSTR pwstr = (LPWSTR) _alloca(cchStr * sizeof(WCHAR));
+			if( pwstr != NULL ) ::MultiByteToWideChar(GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
 			Assign(pwstr);
 		}
 		else
@@ -570,7 +583,7 @@ namespace DuiLib
 			ASSERT(!::IsBadStringPtrA(lpStr,-1));
 			int cchStr = (int) strlen(lpStr) + 1;
 			LPWSTR pwstr = (LPWSTR) _alloca(cchStr);
-			if( pwstr != NULL ) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
+			if( pwstr != NULL ) ::MultiByteToWideChar(GetACP(), 0, lpStr, -1, pwstr, cchStr) ;
 			Append(pwstr);
 		}
 		
@@ -586,7 +599,7 @@ namespace DuiLib
 			ASSERT(!::IsBadStringPtrW(lpwStr,-1));
 			int cchStr = ((int) wcslen(lpwStr) * 2) + 1;
 			LPSTR pstr = (LPSTR) _alloca(cchStr);
-			if( pstr != NULL ) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
+			if( pstr != NULL ) ::WideCharToMultiByte(GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
 			Assign(pstr);
 		}
 		else
@@ -604,7 +617,7 @@ namespace DuiLib
 			ASSERT(!::IsBadStringPtrW(lpwStr,-1));
 			int cchStr = ((int) wcslen(lpwStr) * 2) + 1;
 			LPSTR pstr = (LPSTR) _alloca(cchStr);
-			if( pstr != NULL ) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
+			if( pstr != NULL ) ::WideCharToMultiByte(GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
 			Append(pstr);
 		}
 		

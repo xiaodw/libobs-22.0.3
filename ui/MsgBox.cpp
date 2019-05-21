@@ -106,7 +106,7 @@ LRESULT CMsgBox::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
         && pt.y >= rcCaption.top && pt.y < rcCaption.bottom ) {
             CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(pt));
             if( pControl && _tcscmp(pControl->GetClass(), _T("ButtonUI")) != 0 && 
-                _tcscmp(pControl->GetClass(), _T("OptionUI")) != 0 &&
+                _tcscmp(pControl->GetClass(), _T("OptionUI")) != 0 && _tcscmp(pControl->GetClass(), _T("OptionExUI")) != 0 &&
                 _tcscmp(pControl->GetClass(), _T("TextUI")) != 0 )
                 return HTCAPTION;
     }

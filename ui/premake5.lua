@@ -12,8 +12,8 @@ project "ObsClient"
 	files{
 		"../api/*.h",
 		"../api/*.cpp",
-		"menu/*.h",
-		"menu/*.cpp",
+		"controls/*.h",
+		"controls/*.cpp",
 		"*.h",
 		"*.cpp",
 	}

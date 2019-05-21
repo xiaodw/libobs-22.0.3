@@ -5,6 +5,7 @@
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
     CPaintManagerUI::SetInstance(hInstance);
+    CWndShadow::Initialize(hInstance);
     CPaintManagerUI::SetResourcePath( _T("..\\data\\skin\\"));
 
     HRESULT Hr = ::CoInitialize(NULL);
@@ -13,7 +14,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
     ObsMain* obsMain = ObsMain::Instance();
     obsMain->InitGlobalConfig();
     obsMain->InitObs();
-
 
     CObsMainFrame* pFrame = new CObsMainFrame();
     if (pFrame == NULL) return 0;

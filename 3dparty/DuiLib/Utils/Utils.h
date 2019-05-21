@@ -7,6 +7,7 @@ namespace DuiLib
 {
 	/////////////////////////////////////////////////////////////////////////////////////
 	//
+    UINT DUILIB_API GetACP(void);
 
 	class DUILIB_API STRINGorID
 	{
@@ -82,6 +83,11 @@ namespace DuiLib
         CDuiString(const TCHAR ch);
         CDuiString(const CDuiString& src);
         CDuiString(LPCTSTR lpsz, int nLen = -1);
+
+#ifdef _UNICODE
+        CDuiString(LPCSTR pstr);
+#endif
+
         ~CDuiString();
         CDuiString ToString();
 

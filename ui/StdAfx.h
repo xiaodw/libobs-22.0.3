@@ -11,7 +11,7 @@
 #include <zmouse.h>
 
 #include "UIlib.h"
-#include "menu/UIMenu.h"
+#include "controls/UIMenu.h"
 using namespace DuiLib;
 
 //{{AFX_INSERT_LOCATION}}

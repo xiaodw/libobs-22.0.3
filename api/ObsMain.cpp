@@ -54,10 +54,39 @@ void ObsMain::AddScene(const char* name, bool setCurrent)
     obs_scene_release(scene);
 }
 
-void ObsMain::SetCurrentScene(OBSScene scene)
+void ObsMain::SetCurrentScene(obs_scene_t* scene)
 {
-    m_currentScene = scene;
-    SetCurrentScene(obs_scene_get_source(scene));
+    if (m_currentScene == scene)
+        return;
+
+    OBSScene s = CheckScene(scene);
+    if (s)
+    {
+        SetCurrentScene(obs_scene_get_source(s));
+    }
+}
+
+void ObsMain::RemoveScene(obs_scene_t* scene)
+{
+    OBSScene s = CheckScene(scene);
+    if (s)
+    {
+        obs_source_t* source = obs_scene_get_source(s);
+        obs_source_remove(source);
+    }
+}
+
+OBSScene ObsMain::CheckScene(obs_scene_t* scene)
+{
+    std::lock_guard<std::mutex> lock(m_lock);
+    for (auto i = m_scenes.begin(); i != m_scenes.end(); ++i)
+    {
+        if (scene == (*i)->scene)
+        {
+            return scene;
+        }
+    }
+    return nullptr;
 }
 
 void ObsMain::OnAddScene(OBSScene scene)
@@ -230,10 +259,12 @@ void ObsMain::SourceCreated(void *data, calldata_t *params)
     if (scene != NULL)
     {
         pThis->OnAddScene(scene);
+
+        if (pThis->m_observer)
+            pThis->m_observer->OnAddScene(scene);
     }
 
-    if (pThis->m_observer)
-        pThis->m_observer->OnAddScene(source);
+
 }
 
 void ObsMain::SourceRemoved(void *data, calldata_t *params)
@@ -245,10 +276,10 @@ void ObsMain::SourceRemoved(void *data, calldata_t *params)
     if (scene != NULL)
     {
         pThis->OnRemoveScene(scene);
-    }
 
-    if (pThis->m_observer)
-        pThis->m_observer->OnRemoveScene(source);
+        if (pThis->m_observer)
+            pThis->m_observer->OnRemoveScene(scene);
+    }
 }
 
 void ObsMain::SourceActivated(void *data, calldata_t *params)
@@ -330,7 +361,7 @@ bool ObsMain::AddDropSource(const char *data, DropType image)
 #ifdef _WIN32
         obs_data_set_bool(settings, "read_from_file", true);
         obs_data_set_string(settings, "file", data);
-        name = GetFileName(name);
+        name = GetFileName(data);
         type = "text_gdiplus";
 #else
         obs_data_set_bool(settings, "from_file", true);
@@ -340,12 +371,12 @@ bool ObsMain::AddDropSource(const char *data, DropType image)
         break;
     case DropType_Image:
         obs_data_set_string(settings, "file", data);
-        name = GetFileName(name);
+        name = GetFileName(data);
         type = "image_source";
         break;
     case DropType_Media:
         obs_data_set_string(settings, "local_file", data);
-        name = GetFileName(name);
+        name = GetFileName(data);
         type = "ffmpeg_source";
         break;
     }
@@ -431,11 +462,10 @@ if (found) \
     return found;
 }
 
-bool ObsMain::InitObs()
-{
-    if (!ObsBasic::InitObs())
-        return false;
 
+
+bool ObsMain::LoadScene()
+{
     char savePath[512];
     char fileName[512];
     int ret;
@@ -456,7 +486,7 @@ bool ObsMain::InitObs()
         return false;
     }
 
-   ret = GetConfigPath(savePath, sizeof(savePath), fileName);
+    ret = GetConfigPath(savePath, sizeof(savePath), fileName);
     if (ret <= 0)
     {
         blog(LOG_ERROR, "Failed to get scene collection json file path");

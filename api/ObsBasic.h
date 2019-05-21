@@ -20,8 +20,8 @@ class ObsObserver
 public:
     virtual ~ObsObserver() {}
 
-    virtual void OnAddScene(OBSSource source) =0;
-    virtual void OnRemoveScene(OBSSource source) = 0;
+    virtual void OnAddScene(OBSScene source) =0;
+    virtual void OnRemoveScene(OBSScene source) = 0;
     
     virtual void OnActivateAudioSource(OBSSource source) =0;
 
@@ -60,8 +60,7 @@ public:
 
     obs_service_t *GetService();
     void  SetService(obs_service_t *service);
-
-
+    void SetObserver(ObsObserver* obs) { m_observer = obs; }
     bool SetRtmpServer(const RtmpServer& server);
 
     bool StreamingActive() const;
