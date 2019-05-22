@@ -28,6 +28,6 @@ struct WindowInfo
 
 std::vector<WindowInfo> GetWindowInfo(bool isGame);
 
-
+std::string ToUtf8(const wchar_t* unicode,int len=-1);
 
 

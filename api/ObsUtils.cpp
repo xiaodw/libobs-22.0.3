@@ -1,5 +1,6 @@
 #include "ObsUtils.h"
 #include <obs.hpp>
+#include <util/platform.h>
 
 void EnumGameWindow(enum_window_callback callback, void * ptr)
 {
@@ -120,3 +121,14 @@ void EnumDevice(enum_device_callback callback, void * ptr)
     }
 }
 
+std::string ToUtf8(const wchar_t* unicode, int len)
+{
+    if (len <= 0)
+        len = wcslen(unicode);
+
+    char* utf8 = nullptr;
+    size_t utf8len = os_wcs_to_utf8_ptr(unicode, len, &utf8);
+    std::string data(utf8, utf8len);
+    bfree(utf8);
+    return data;
+}

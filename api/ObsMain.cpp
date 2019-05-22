@@ -1,6 +1,7 @@
 #include "ObsMain.h"
 #include "ObsWindow.h"
 #include "ObsPlatform.h"
+#include "ObsUtils.h"
 #include "util/platform.h"
 #include "util/dstr.h"
 
@@ -644,7 +645,7 @@ void ObsMain::CreateDefaultScene(bool firstStart)
     ClearSceneData();
     InitDefaultTransitions();
 
-    obs_scene_t  *scene = obs_scene_create(Str("Basic.Scene"));
+    obs_scene_t  *scene = obs_scene_create(ToUtf8(L"³¡¾°").c_str());
     if (firstStart)
         InitAudioSources();
 

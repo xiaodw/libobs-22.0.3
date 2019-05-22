@@ -3,7 +3,9 @@
 #include "controls/ObsDisplayControl.h"
 #include "controls/OptionsEx.h"
 #include "NewSceneDialog.h"
+#include "WindowSelectDialog.h"
 #include "MsgBox.h"
+#include "api/ObsUtils.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -246,6 +248,22 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             CNewSceneDialog* dialog = new CNewSceneDialog();
             dialog->ShowDialog(m_hWnd);
         }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BGame")) == 0)
+        {
+            CWindowSelectDialog* dialog = new CWindowSelectDialog(true);
+            dialog->ShowDialog(m_hWnd);
+        }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BWindow")) == 0)
+        {
+            CWindowSelectDialog* dialog = new CWindowSelectDialog(false);
+            dialog->ShowDialog(m_hWnd);
+        }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BScreen")) == 0)
+        {
+            ObsMain::Instance()->AddCaptureScreen(ToUtf8(L"ÏÔÊ¾Æ÷²¶»ñ").c_str());
+        }
+
+        
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)
     {

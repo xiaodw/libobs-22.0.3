@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="420,280" caption="0,0,0,36"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Include source="default.xml"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="选择直播源" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                    
+    </HorizontalLayout>
+
+	<VerticalLayout inset="36,10,36,0">
+		<HorizontalLayout height="25">
+			<Label name="LTip" text="请选择要直播的游戏:" height="25" width="168" textcolor="#666666"/>
+			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>
+		</HorizontalLayout>	
+		<Control height="16"/>
+		<List name="List" header="hidden" vscrollbar="true" bkimage="file='image/list_bg.png' corner='3,3,3,3'" itemhotbkcolor="#fff0f0f0" itemselectedbkcolor="#fff0f0f0" inset="1,1,1,1" itembkimage="file='image/radio.png' source='12,0,24,12' dest='5,5,17,17'" itemhotimage="file='image/radio.png' source='0,0,12,12' dest='5,5,17,17'" itemselectedimage="file='image/radio.png' source='60,0,72,12' dest='5,5,17,17'" itemtextpadding="23,0,0,0" itemtextcolor="#666666" itemhottextcolor="#666666" itemselectedtextcolor="#666666">
+			<ListLabelElement height="22" text="4324312432">
+			
+			</ListLabelElement>	
+			
+			<ListLabelElement height="22" text="测试">
+			
+			</ListLabelElement>	
+		</List>
+		<Control height="18"/>
+		<HorizontalLayout height="35" childpadding="25">
+		  <Control />
+		  
+		  <Button name="acceptbtn" width="140" height="35" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
+		  
+		  <Control />
+		</HorizontalLayout>
+		<Control height="24"/>
+	</VerticalLayout>
+  </VerticalLayout>  
+</Window>
+
+ 
