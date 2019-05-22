@@ -4,6 +4,7 @@
 #include "controls/OptionsEx.h"
 #include "NewSceneDialog.h"
 #include "WindowSelectDialog.h"
+#include "DeviceSelectDialog.h"
 #include "MsgBox.h"
 #include "api/ObsUtils.h"
 
@@ -262,7 +263,13 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         {
             ObsMain::Instance()->AddCaptureScreen(ToUtf8(L"ÏÔÊ¾Æ÷²¶»ñ").c_str());
         }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BCamera")) == 0)
+        {
+            CDeviceSelectDialog* dialog = new CDeviceSelectDialog(true);
+            dialog->ShowDialog(m_hWnd);
+        }
 
+        
         
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)

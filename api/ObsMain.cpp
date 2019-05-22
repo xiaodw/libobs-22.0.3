@@ -1049,26 +1049,35 @@ bool ObsMain::AddWindowCapture(const char* name, const char* window)
 bool ObsMain::AddCamera(const char* name, const char* deviceid)
 {
     char* newName = get_new_source_name(name);
-    OBSSource source = CreateSource("dshow_input", newName, NULL);
+    obs_data_t* data = obs_data_create();
+    obs_data_set_string(data, "video_device_id", deviceid);
+
+    OBSSource source = CreateSource("dshow_input", newName, data);
     bfree(newName);
 
     if (!source)
     {
         return false;
     }
-    obs_properties_t* prop =obs_source_properties(source);
-
-    //设置prop参数
-    obs_property_t *property = obs_properties_get(prop,"video_device_id");
-    obs_data_t* data = obs_data_create();
-
-    //设置data参数
-    obs_data_set_string(data, "video_device_id", deviceid);
-
-    obs_property_modified(property, data);
     obs_data_release(data);
-    obs_properties_destroy(prop);
-    return true;
+    return AddSource(source);
+}
+
+bool ObsMain::AddAudio(const char* name, const char* deviceid)
+{
+    char* newName = get_new_source_name(name);
+    obs_data_t* data = obs_data_create();
+    obs_data_set_string(data, "audio_device_id", deviceid);
+
+    OBSSource source = CreateSource("dshow_input", newName, data);
+    bfree(newName);
+
+    if (!source)
+    {
+        return false;
+    }
+    obs_data_release(data);
+    return AddSource(source);
 }
 
 bool ObsMain::AddImage(const char* path)

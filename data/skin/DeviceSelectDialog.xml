@@ -7,13 +7,13 @@
   
   <VerticalLayout bkcolor="#FFFFFFFF">
     <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
-        <Label text="选择直播源" textcolor="#ffffff" font="1"/>
+        <Label text="选择设备" textcolor="#ffffff" font="1"/>
         <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                    
     </HorizontalLayout>
 
 	<VerticalLayout inset="36,10,36,0">
 		<HorizontalLayout height="25">
-			<Label name="LTip" text="请选择要直播的游戏:" height="25" width="168" textcolor="#666666"/>
+			<Label name="LTip" text="请选择视频设备:" height="25" width="168" textcolor="#666666"/>
 			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>
 		</HorizontalLayout>	
 		<Control height="16"/>
