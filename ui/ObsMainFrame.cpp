@@ -251,32 +251,8 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
     case MSG_ADD_SCENE:
         {
             ObsSceneData* scene = static_cast<ObsSceneData*>(data);
-
-            COptionExUI* option = new COptionExUI();
-
-            option->SetName(_T("Scene"));
-            option->SetGroup(_T("SceneGroup"));
-            option->SetFixedWidth(132);
-
-            RECT padding = { 0,0,12,0 };
-            option->SetTextPadding(padding);
-            option->SetSelectedBkColor(0xff252526);
-            option->SetCloseBtnNormal(_T("file='image/side_close.png' source='0,0,12,12' dest='0,12,12,24'"));
-            option->SetCloseBtnHot(_T("file='image/side_close.png' source='24,0,36,12' dest='0,12,12,24'"));
-            option->SetTextColor(0xffffffff);
-
-            OBSSource source = obs_scene_get_source(scene->data);
-
-            option->SetTag((UINT_PTR)(obs_scene_t*)scene->data);
-            option->SetText(CDuiString(obs_source_get_name(source)));
-
-            if (ObsMain::Instance()->GetCurrentScene() == scene->data)
-            {
-                option->Selected(true, false);
-            }
-            m_sceneList->Add(option);
-
-           option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
+            AddScene(scene->data);
+            COptionExUI* option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
             option->EnableCloseBtn(m_sceneList->GetCount()>1);
         }
         break;
@@ -301,6 +277,16 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             }
         }
         break;
+    case MSG_REORDER_SCENE:
+        {
+            m_sceneList->RemoveAll();
+            auto& scenes = ObsMain::Instance()->scenes();
+            for (auto& scene : scenes)
+            {
+                AddScene(scene->scene);
+            }
+        }
+        break;
     case MSG_RELOAD_SCENE_ITEM:
         {
             m_sceneItemList->RemoveAll();
@@ -322,6 +308,33 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
         break;
     }
 
+}
+
+void CObsMainFrame::AddScene(OBSScene scene)
+{
+    COptionExUI* option = new COptionExUI();
+
+    option->SetName(_T("Scene"));
+    option->SetGroup(_T("SceneGroup"));
+    option->SetFixedWidth(132);
+
+    RECT padding = { 0,0,12,0 };
+    option->SetTextPadding(padding);
+    option->SetSelectedBkColor(0xff252526);
+    option->SetCloseBtnNormal(_T("file='image/side_close.png' source='0,0,12,12' dest='0,12,12,24'"));
+    option->SetCloseBtnHot(_T("file='image/side_close.png' source='24,0,36,12' dest='0,12,12,24'"));
+    option->SetTextColor(0xffffffff);
+
+    OBSSource source = obs_scene_get_source(scene);
+
+    option->SetTag((UINT_PTR)(obs_scene_t*)scene);
+    option->SetText(CDuiString(obs_source_get_name(source)));
+
+    if (ObsMain::Instance()->GetCurrentScene() == scene)
+    {
+        option->Selected(true, false);
+    }
+    m_sceneList->Add(option);
 }
 
 void CObsMainFrame::AddSceneItem(OBSSceneItem item)

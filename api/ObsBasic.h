@@ -22,7 +22,8 @@ public:
 
     virtual void OnAddScene(OBSScene source) =0;
     virtual void OnRemoveScene(OBSScene source) = 0;
-    
+    virtual void OnReorderScene() = 0;
+
     virtual void OnActivateAudioSource(OBSSource source) =0;
 
     virtual void OnDeactivateAudioSource(OBSSource source) = 0;

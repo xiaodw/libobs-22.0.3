@@ -27,6 +27,24 @@ enum DropType {
 class ObsMain:public ObsBasic
 {
 public:
+    struct SceneData {
+        SceneData(OBSScene s)
+            :scene(s)
+        {
+        }
+
+        ~SceneData()
+        {
+        }
+
+        const char* name() {
+            return obs_source_get_name(obs_scene_get_source(scene));
+        }
+
+        OBSScene scene;
+        std::vector<std::shared_ptr<OBSSignal>> handlers;
+    };
+
     ObsMain();
     ~ObsMain();
 
@@ -85,6 +103,8 @@ public:
     bool AddText(const char* text);
 
     ObsSceneItemList& sceneItemList() { return m_sceneItemList; }
+    std::vector<std::unique_ptr<SceneData>>& scenes() { return m_scenes; }
+
 private:
     OBSScene CheckScene(obs_scene_t* scene);
 
@@ -117,24 +137,6 @@ private:
     void InitOBSCallbacks();
 
     void TransitionToScene(OBSSource source, bool force = false);
-
-    struct SceneData {
-        SceneData(OBSScene s)
-            :scene(s)
-        {
-        }
-
-        ~SceneData()
-        {
-        }
-
-        const char* name() {
-            return obs_source_get_name(obs_scene_get_source(scene));
-        }
-
-        OBSScene scene;
-        std::vector<std::shared_ptr<OBSSignal>> handlers;
-    };
 
     std::mutex m_lock;
     std::vector<std::unique_ptr<SceneData>> m_scenes;

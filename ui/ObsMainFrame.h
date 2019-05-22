@@ -28,6 +28,7 @@ public:
     enum {
         MSG_ADD_SCENE,
         MSG_REMOVE_SCENE,
+        MSG_REORDER_SCENE,
         MSG_ACTIVATE_AUDIO_SOURCE,
         MSG_DEACTIVATE_AUDIO_SOURCE,
         MSG_RELOAD_SCENE_ITEM,
@@ -53,6 +54,11 @@ public:
     {
         PostMsg(MSG_REMOVE_SCENE, 
             std::make_shared<ObsSceneData>(source));
+    }
+
+    virtual void OnReorderScene()
+    {
+        PostMsg(MSG_REORDER_SCENE);
     }
 
     virtual void OnActivateAudioSource(OBSSource source)
@@ -133,6 +139,7 @@ protected:
     void OnExit(TNotifyUI& msg);
     void OnTimer(TNotifyUI& msg);
 
+    void AddScene(OBSScene scene);
     void AddSceneItem(OBSSceneItem item);
 private:
     CMsgQueue m_msgQueue;

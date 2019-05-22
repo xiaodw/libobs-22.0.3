@@ -671,13 +671,30 @@ void ObsMain::LoadSceneListOrder(obs_data_array_t *array)
 {
     size_t num = obs_data_array_count(array);
 
+    std::vector<std::unique_ptr<SceneData>> scenes;
+    for (auto& data : m_scenes)
+    {
+        scenes.push_back(std::move(data));
+    }
+    m_scenes.clear();
+
+    //…Ë÷√m_scenesµƒÀ≥–Ú
     for (size_t i = 0; i < num; i++) {
         obs_data_t *data = obs_data_array_item(array, i);
         const char *name = obs_data_get_string(data, "name");
-
-
+        for (auto& data : scenes)
+        {
+            if (data && strcmp(data->name(), name) == 0)
+            {
+                m_scenes.push_back(std::move(data));
+                break;
+            }
+        }
         obs_data_release(data);
     }
+    
+    if (m_observer)
+        m_observer->OnReorderScene();
 }
 
 
