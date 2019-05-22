@@ -89,17 +89,24 @@ void COptionExUI::DoEvent(TEventUI& event)
             }
         }
 
-        if (event.Type == UIEVENT_MOUSEMOVE)
+        if (event.Type == UIEVENT_MOUSEMOVE || 
+            event.Type == UIEVENT_MOUSEENTER ||
+            event.Type == UIEVENT_MOUSELEAVE)
         {
-            if ((m_closeBtnState & UISTATE_CAPTURED) != 0) {
                 if (::PtInRect(&m_rcCloseBtn, event.ptMouse))
-                    m_closeBtnState |= UISTATE_PUSHED;
+                {
+                    if ((m_closeBtnState & UISTATE_CAPTURED) != 0)
+                        m_closeBtnState |= UISTATE_PUSHED;
+                    m_closeBtnState |= UISTATE_HOT;
+                }
                 else
+                {
                     m_closeBtnState &= ~UISTATE_PUSHED;
+                    m_closeBtnState &= ~UISTATE_HOT;
+                }
                 Invalidate();
-            }
         }
-        if (event.Type == UIEVENT_BUTTONUP)
+        else if (event.Type == UIEVENT_BUTTONUP)
         {
             if ((m_closeBtnState & UISTATE_CAPTURED) != 0) {
                 if (::PtInRect(&m_rcCloseBtn, event.ptMouse) && IsEnabled())

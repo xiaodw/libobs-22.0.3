@@ -1153,4 +1153,20 @@ namespace DuiLib
 		return pSubControl;
 	}
 
+    CControlUI* CContainerUI::FindItem(LPCTSTR name)
+    {
+        if (!name)
+            return NULL;
+
+        for (int i = 0; i<GetCount(); ++i)
+        {
+            CControlUI* control = GetItemAt(i);
+            if (_tcscmp(control->GetName(), name) == 0)
+            {
+                return control;
+            }
+        }
+        return NULL;
+    }
+
 } // namespace DuiLib

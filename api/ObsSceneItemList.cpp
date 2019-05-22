@@ -212,8 +212,6 @@ void ObsSceneItemList::OnSelect(obs_sceneitem_t *item, bool bSel)
     {
         m_select = index;
 
-        blog(LOG_INFO, "select change %d\n",m_select);
-
         if (m_obsMain->observer())
             m_obsMain->observer()->OnSceneItemSelectChanged(m_select);
     }

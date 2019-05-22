@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+  
+  <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;" shared="true"/>
+  
+
+</xml>

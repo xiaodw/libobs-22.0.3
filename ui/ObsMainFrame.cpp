@@ -2,6 +2,8 @@
 #include "ObsMainFrame.h"
 #include "controls/ObsDisplayControl.h"
 #include "controls/OptionsEx.h"
+#include "NewSceneDialog.h"
+#include "MsgBox.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -141,12 +143,38 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_OPTIONCLOSED) == 0)
     {
-        //关闭option
-        CHorizontalLayoutUI* layout = (CHorizontalLayoutUI*)msg.pSender->GetParent();
-        layout->Remove(msg.pSender);
+        CDuiString name = msg.pSender->GetText();
+        CDuiString tip;
+        tip.Format(_T("您确定要删除场景\"%s\"?"), name.GetData());
 
-        obs_scene_t* scene = (obs_scene_t*)msg.pSender->GetTag();
-        ObsMain::Instance()->RemoveScene(scene);
+        //提示是否关闭
+        CMsgBox msgBox;
+        if (msgBox.DuiMessageBox(m_hWnd, tip,_T("提示")) == IDOK)
+        {
+            //关闭option
+            CHorizontalLayoutUI* layout = (CHorizontalLayoutUI*)msg.pSender->GetParent();
+            bool isSel = static_cast<COptionExUI*>(msg.pSender)->IsSelected();
+            int index = layout->GetItemIndex(msg.pSender);
+            layout->Remove(msg.pSender);
+
+            obs_scene_t* scene = (obs_scene_t*)msg.pSender->GetTag();
+            ObsMain::Instance()->RemoveScene(scene);
+
+            if (isSel)
+            {
+                //移除当前的选择其他的
+                CControlUI* ctrl = layout->GetItemAt(index);
+                if (!ctrl || _tcscmp(ctrl->GetClass(), kOptionExUIClassName) != 0)
+                {
+                    ctrl = layout->GetItemAt(index - 1);
+                }
+
+                if (ctrl &&  _tcscmp(ctrl->GetClass(), kOptionExUIClassName) == 0)
+                {
+                    static_cast<COptionExUI*>(ctrl)->Selected(true, true);
+                }
+            }
+        }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {
@@ -197,8 +225,26 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         else if (_tcsicmp(msg.pSender->GetName(), _T("SceneItemRemove")) == 0)
         {
             CListContainerElementUI* elem = static_cast<CListContainerElementUI*>(msg.pSender->GetParent()->GetParent());
-            ObsSceneItemList& itemList = ObsMain::Instance()->sceneItemList();
-            itemList.Remove(elem->GetIndex());
+
+            CControlUI* nameItem =  elem->FindSubControl(_T("SceneItemName"));
+            CDuiString name = nameItem->GetText();
+
+            CDuiString tip;
+            tip.Format(_T("您确定要删除\"%s\"?"), name.GetData());
+
+            //提示是否关闭
+            CMsgBox msgBox;
+            if (msgBox.DuiMessageBox(m_hWnd, tip, _T("提示")) == IDOK)
+            {
+                ObsSceneItemList& itemList = ObsMain::Instance()->sceneItemList();
+                itemList.Remove(elem->GetIndex());
+            }
+        }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BAddScene")) == 0)
+        {
+            //添加场景按钮
+            CNewSceneDialog* dialog = new CNewSceneDialog();
+            dialog->ShowDialog(m_hWnd);
         }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)
@@ -245,7 +291,6 @@ LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
 
 void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
 {
-    blog(LOG_INFO, "OnMsg %d", msgid);
     switch (msgid)
     {
     case MSG_ADD_SCENE:
@@ -254,6 +299,8 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             AddScene(scene->data);
             COptionExUI* option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
             option->EnableCloseBtn(m_sceneList->GetCount()>1);
+
+            AddNewSceneBtn();
         }
         break;
     case MSG_REMOVE_SCENE:
@@ -285,6 +332,8 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             {
                 AddScene(scene->scene);
             }
+
+            AddNewSceneBtn();
         }
         break;
     case MSG_RELOAD_SCENE_ITEM:
@@ -321,20 +370,38 @@ void CObsMainFrame::AddScene(OBSScene scene)
     RECT padding = { 0,0,12,0 };
     option->SetTextPadding(padding);
     option->SetSelectedBkColor(0xff252526);
-    option->SetCloseBtnNormal(_T("file='image/side_close.png' source='0,0,12,12' dest='0,12,12,24'"));
-    option->SetCloseBtnHot(_T("file='image/side_close.png' source='24,0,36,12' dest='0,12,12,24'"));
+    option->SetCloseBtnWidth(25);
+    option->SetCloseBtnNormal(_T("file='image/close.png' source='0,0,25,25' dest='0,5,25,30'"));
+    option->SetCloseBtnHot(_T("file='image/close.png' source='25,0,50,25' dest='0,5,25,30'"));
+    option->SetCloseBtnPushed(_T("file='image/close.png' source='50,0,75,25' dest='0,5,25,30'"));
     option->SetTextColor(0xffffffff);
 
     OBSSource source = obs_scene_get_source(scene);
 
     option->SetTag((UINT_PTR)(obs_scene_t*)scene);
     option->SetText(CDuiString(obs_source_get_name(source)));
+    m_sceneList->Add(option);
 
     if (ObsMain::Instance()->GetCurrentScene() == scene)
     {
         option->Selected(true, false);
     }
-    m_sceneList->Add(option);
+
+}
+
+void CObsMainFrame::AddNewSceneBtn()
+{
+    CButtonUI* btn = (CButtonUI*)m_sceneList->FindItem(_T("BAddScene"));
+    if (btn)
+    {
+        m_sceneList->SetItemIndex(btn, m_sceneList->GetCount()-1);
+    }
+    else
+    {
+        btn = new CButtonUI();
+        btn->SetAttributeList(STRINGIZE(name="BAddScene" tooltip="添加场景" height="36" width="36" normalimage="file='image/add.png' source='0,0,16,16' dest='10,10,26,26'" hotimage="file='image/add.png' source='16,0,32,16' dest='10,10,26,26'" pushedimage="file='image/add.png' source='32,0,48,16' dest='10,10,26,26'"));
+        m_sceneList->Add(btn);
+    }
 }
 
 void CObsMainFrame::AddSceneItem(OBSSceneItem item)
@@ -358,6 +425,7 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
        opt->Selected(true, false);
 
     CLabelUI* label = new CLabelUI();
+    label->SetName(_T("SceneItemName"));
     label->SetText(name);
     label->SetTextColor(0xffffff);
     label->SetFont(1);

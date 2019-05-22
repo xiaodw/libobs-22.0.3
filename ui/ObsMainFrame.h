@@ -141,6 +141,8 @@ protected:
 
     void AddScene(OBSScene scene);
     void AddSceneItem(OBSSceneItem item);
+    void AddNewSceneBtn();
+
 private:
     CMsgQueue m_msgQueue;
     CHorizontalLayoutUI* m_sceneList;

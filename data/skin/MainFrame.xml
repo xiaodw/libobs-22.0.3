@@ -3,21 +3,24 @@
   <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="true" />
   <Font id="1" name="微软雅黑" size="12" bold="false" default="true" shared="true" />
   
-  <Default name="VScrollBar" value="thumbcolor=&quot;#FFFF0000&quot;" shared="true" />
+  <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb2.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;" shared="true"/>
+  
+  
   <VerticalLayout bkcolor="#FF2d2d30">
 
     <HorizontalLayout height="36" bkcolor="#ff333333">
       <HorizontalLayout delaydestroy="true" name="SceneList">
-      </HorizontalLayout>
+      </HorizontalLayout> 
+	  
       <HorizontalLayout height="25" width="81">
-        <Button name="minbtn" tooltip="最小化" height="22" width="27" normalimage="file='image/sys_button_min2.png' source='0,0,27,22'" hotimage="file='image/sys_button_min2.png' source='27,0,54,22'"/>
-        <Button name="maxbtn" tooltip="最大化" height="22" width="27" normalimage="file='image/sys_button_max.png' source='0,0,27,22'" hotimage="file='image/sys_button_max.png' source='27,0,54,22'"/>
-        <Button name="restorebtn" tooltip="恢复" height="22" width="27" visible="false" normalimage="file='image/sys_button_restore.png' source='0,0,27,22'" hotimage="file='image/sys_button_restore.png' source='27,0,54,22'"/>
-        <Button name="closebtn" tooltip="关闭" height="22" width="27" normalimage="file='image/sys_dlg_close.png' source='0,0,27,22'" hotimage="file='image/sys_dlg_close.png' source='27,0,54,22'"/>
+        <Button name="minbtn" tooltip="最小化" height="22" width="27" normalimage="file='image/sys_button_min2.png' source='0,0,27,22'" hotimage="file='image/sys_button_min2.png' source='27,0,54,22'" pushedimage="file='image/sys_button_min2.png' source='54,0,81,22'"/>
+        <Button name="maxbtn" tooltip="最大化" height="22" width="27" normalimage="file='image/sys_button_max.png' source='0,0,27,22'" hotimage="file='image/sys_button_max.png' source='27,0,54,22'" pushedimage="file='image/sys_button_max.png' source='54,0,81,22'"/>
+        <Button name="restorebtn" tooltip="恢复" height="22" width="27" visible="false" normalimage="file='image/sys_button_restore.png' source='0,0,27,22'" hotimage="file='image/sys_button_restore.png' source='27,0,54,22'" pushedimage="file='image/sys_button_restore.png' source='54,0,81,22'"/>
+        <Button name="closebtn" tooltip="关闭" height="22" width="27" normalimage="file='image/sys_dlg_close.png' source='0,0,27,22'" hotimage="file='image/sys_dlg_close.png' source='27,0,54,22'" pushedimage="file='image/sys_dlg_close.png' source='54,0,81,22'"/>
       </HorizontalLayout>
     </HorizontalLayout>
 	<HorizontalLayout>
-		<List name="SceneItemList" width="132" header="hidden" bkcolor="#ff252526" itemselectedbkcolor="#ff161616" itemhotbkcolor="#ff242424">
+		<List name="SceneItemList" width="132" header="hidden" bkcolor="#ff252526" itemselectedbkcolor="#ff161616" itemhotbkcolor="#ff242424" vscrollbar="true">
 			<ListContainerElement height="30" inset="10,0,10,0">
 				<HorizontalLayout>
 					<Option width="14" hotimage="file='image/checkbox.png' source='0,0,14,14' dest='0,8,14,22'" normalimage="file='image/checkbox.png' source='14,0,28,14' dest='0,8,14,22'" selectedhotimage="file='image/checkbox.png' source='56,0,70,14' dest='0,8,14,22'" selectedimage="file='image/checkbox.png' source='70,0,84,14' dest='0,8,14,22'"/>
@@ -30,7 +33,18 @@
 		<VerticalLayout>
 		  <ObsDisplay visible="true">
 		  </ObsDisplay>
-		  <HorizontalLayout height="60">
+		  <HorizontalLayout height="63" bkcolor="#ff161616">
+			<Button name="BGame" width="72" normalimage="file='image/btn/live_game.png' source='0,0,72,63'" hotimage="file='image/btn/live_game.png' source='72,0,144,63'" pushedimage="file='image/btn/live_game.png' source='144,0,216,63'" text="游戏" textcolor="#949494" textpadding="24,30,0,0" align="left"/>
+			
+			<Button name="BScreen" width="72" normalimage="file='image/btn/live_screen.png' source='0,0,72,63'" hotimage="file='image/btn/live_screen.png' source='72,0,144,63'" pushedimage="file='image/btn/live_screen.png' source='144,0,216,63'" text="屏幕" textcolor="#949494" textpadding="24,30,0,0" align="left"/>			
+			
+			<Button name="BWindow" width="72" normalimage="file='image/btn/live_window.png' source='0,0,72,63'" hotimage="file='image/btn/live_window.png' source='72,0,144,63'" pushedimage="file='image/btn/live_window.png' source='144,0,216,63'" text="窗口" textcolor="#949494" textpadding="24,30,0,0" align="left"/>
+
+			<Button name="BCamera" width="72" normalimage="file='image/btn/live_camera.png' source='0,0,72,63'" hotimage="file='image/btn/live_camera.png' source='72,0,144,63'" pushedimage="file='image/btn/live_camera.png' source='144,0,216,63'" text="摄像头" textcolor="#949494" textpadding="18,30,0,0" align="left"/>
+
+			<Button name="BMedia" width="72" normalimage="file='image/btn/live_video.png' source='0,0,72,63'" hotimage="file='image/btn/live_video.png' source='72,0,144,63'" pushedimage="file='image/btn/live_video.png' source='144,0,216,63'" text="媒体" textcolor="#949494" textpadding="24,30,0,0" align="left"/>			
+			
+			<Button width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
 			
 		  </HorizontalLayout>
 		</VerticalLayout>

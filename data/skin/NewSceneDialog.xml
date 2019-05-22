@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="400,200" caption="0,0,0,36"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="创建场景" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                    
+    </HorizontalLayout>
+
+	<VerticalLayout inset="36,22,36,0">
+		<HorizontalLayout height="30">
+			<Label text="输入名称:" width="65"/>
+			<Edit name="edit" bkimage="file='image/verify_edit_bg.png' corner='4,4,4,4'" nativebkcolor="#fff0f0f0" maxchar="30"/>
+		</HorizontalLayout>
+		<Label name="tiptext" height="30" textcolor="#ff0000" textpadding="65,0,0,0"/>
+
+		<HorizontalLayout height="40" childpadding="25">
+		  <Control />
+		  <Button name="acceptbtn" width="75" height="35" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
+		  
+		  <Button name="closebtn" width="75" height="35" text="取消" normalimage="file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'" hotimage="file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'" pushedimage="file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'" textcolor="#636363"/>   
+		</HorizontalLayout>
+	</VerticalLayout >
+  </VerticalLayout >  
+</Window>
+
+ 

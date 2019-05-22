@@ -91,6 +91,9 @@ public:
 	const CDuiString GetSubControlUserData(LPCTSTR pstrSubControlName);
 	CControlUI* FindSubControl(LPCTSTR pstrSubControlName);
 
+    //²éÕÒ×Ó¿Ø¼þ
+    CControlUI* FindItem(LPCTSTR name);
+
     virtual SIZE GetScrollPos() const;
     virtual SIZE GetScrollRange() const;
     virtual void SetScrollPos(SIZE szPos);

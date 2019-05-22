@@ -24,7 +24,7 @@ public:
     void SetCloseBtnNormal(LPCTSTR str) { m_closeBtnNormal = str; }
     void SetCloseBtnHot(LPCTSTR str) { m_closeBtnHot = str; }
     void SetCloseBtnPushed(LPCTSTR str) { m_closeBtnPushed = str; }
-
+    void SetCloseBtnWidth(int width) { m_closeBtnWidth = width; }
     void EnableCloseBtn(bool enable);
 private:
     bool DrawCloseImage(HDC hDC, TDrawInfo& drawInfo)

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window size="355,166" sizebox="4,4,4,4" caption="0,0,0,126" minsize="355,166"> 
-  <Font name="微软雅黑" size="13" default="true"/>
+<Window size="400,200" sizebox="4,4,4,4" caption="0,0,0,126" minsize="355,166"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  <VerticalLayout>
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39">
+        <Label name="MessageBox_Caption" font="1" textcolor="#ffffff" textpadding="10,0,0,0"/>
 
-  <VerticalLayout  bordercolor="#FF47484B" bordersize="1" inset="1,1,1,1">
-    <HorizontalLayout name="background" height="30" bkcolor="#FF4B78B8" bkcolor2="#FF274F8A" bkcolor3="#FF0F3672"><!-- 标题栏 -->
-        <Label name="MessageBox_Caption" autocalcwidth="false"/>
-        <Control />
-        <Button name="closebtn" text="关闭" width="24" height="18" padding="0,10,0,0"/>                    
+        <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                      
     </HorizontalLayout>
     <Control height="10" bkcolor="#FFFFFFFF"/>
     <HorizontalLayout bkcolor="#FFFFFFFF" >
@@ -18,11 +18,13 @@
       </VerticalLayout>
       <Control width="4" />
       <VerticalLayout name="MessageBox_TextLayout"> 
-        <Text name="MessageBox_Text" />      
-        <HorizontalLayout height="28" >
+        <Text name="MessageBox_Text" />
+		<Control height="15"/>
+        <HorizontalLayout height="30" >
           <Control />
-          <Button name="closebtn" width="75" height="28" text="确定" /> 
-          <Button name="cancelbtn" width="75" height="28" text="取消" />   
+		  <Button name="acceptbtn" width="75" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
+		  <Control width="15"/>
+		  <Button name="closebtn" width="75" text="取消" normalimage="file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'" hotimage="file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'" pushedimage="file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'" textcolor="#636363"/> 
           <Control width="1" /> 
         </HorizontalLayout >          
       </VerticalLayout >
