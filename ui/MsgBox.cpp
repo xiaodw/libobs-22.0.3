@@ -51,7 +51,7 @@ void CMsgBox::Notify(TNotifyUI& msg)
             Close(IDOK);
             return; 
         }
-        else if( msg.pSender->GetName() == _T("closebtn")) {
+        else {
             Close(IDCANCEL);
             return; 
         }
@@ -63,7 +63,7 @@ UINT CMsgBox::DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption, UIN
 {
     Create(hParent, _T(""), UI_WNDSTYLE_DIALOG, WS_EX_WINDOWEDGE);
 
-    if (bOk && m_pButtonCancel != NULL)  m_pButtonCancel->SetVisible(false);
+    if (!bOk && m_pButtonCancel != NULL)  m_pButtonCancel->SetVisible(false);
 
     CButtonUI *pButton = static_cast<CButtonUI*>(m_PaintManager.FindControl(wMessageBoxIcon));;
     CContainerUI* pIconLayout = static_cast<CContainerUI*>(m_PaintManager.FindControl(wMessageBoxIconLayout));

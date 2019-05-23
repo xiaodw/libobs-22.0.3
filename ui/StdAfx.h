@@ -12,6 +12,9 @@
 
 #include "UIlib.h"
 #include "controls/UIMenu.h"
+#include "api/ObsUtils.h"
+#include <util/platform.h>
+
 using namespace DuiLib;
 
 #ifdef UNICODE

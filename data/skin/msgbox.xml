@@ -24,7 +24,7 @@
           <Control />
 		  <Button name="acceptbtn" width="75" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
 		  <Control width="15"/>
-		  <Button name="closebtn" width="75" text="取消" normalimage="file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'" hotimage="file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'" pushedimage="file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'" textcolor="#636363"/> 
+		  <Button name="cancelbtn" width="75" text="取消" normalimage="file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'" hotimage="file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'" pushedimage="file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'" textcolor="#636363"/> 
           <Control width="1" /> 
         </HorizontalLayout >          
       </VerticalLayout >

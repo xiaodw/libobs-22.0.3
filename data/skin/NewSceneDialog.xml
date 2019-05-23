@@ -12,7 +12,7 @@
 	<VerticalLayout inset="36,22,36,0">
 		<HorizontalLayout height="30">
 			<Label text="输入名称:" width="65"/>
-			<Edit name="edit" bkimage="file='image/verify_edit_bg.png' corner='4,4,4,4'" nativebkcolor="#fff0f0f0" maxchar="30"/>
+			<Edit name="edit" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="30"/>
 		</HorizontalLayout>
 		<Label name="tiptext" height="30" textcolor="#ff0000" textpadding="65,0,0,0"/>
 

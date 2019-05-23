@@ -37,6 +37,7 @@ void CDeviceSelectDialog::Notify(TNotifyUI& msg)
 
         if (m_isVideo)
         {
+            m_PaintManager.FindControl(_T("OGreenBkg"))->SetVisible(true);
             m_PaintManager.FindControl(_T("LTip"))->SetText(_T("请选择摄像头:"));
         }
         else
@@ -72,8 +73,11 @@ void CDeviceSelectDialog::Notify(TNotifyUI& msg)
                  os_wcs_to_utf8_ptr(deviceid, deviceid.GetLength(), &deviceidUtf);
 
                  //添加音视频设备
-                 if(m_isVideo)
-                    ObsMain::Instance()->AddCamera(nameUtf, deviceidUtf);
+                 if (m_isVideo)
+                 {
+                     COptionUI* opt =(COptionUI*) m_PaintManager.FindControl(_T("OGreenBkg"));
+                     ObsMain::Instance()->AddCamera(nameUtf, deviceidUtf, opt->IsSelected());
+                 }
                  else
                      ObsMain::Instance()->AddAudio(nameUtf, deviceidUtf);
 

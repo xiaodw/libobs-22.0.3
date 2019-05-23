@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="420,280" caption="0,0,0,36"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Default name="Option" value="height=&quot;25&quot; textcolor=&quot;#666666&quot; normalimage=&quot;file='image/side_checkbox1.png' source='0,0,14,14' dest='0,6,14,20'&quot; hotimage=&quot;file='image/side_checkbox1.png' source='14,0,28,14' dest='0,6,14,20'&quot; pushedimage=&quot;file='image/side_checkbox1.png' source='28,0,42,14' dest='0,6,14,20'&quot; selectedimage=&quot;file='image/side_checkbox2.png' source='0,0,14,14' dest='0,6,14,20'&quot; selectedhotimage=&quot;file='image/side_checkbox2.png' source='14,0,28,14' dest='0,6,14,20'&quot;"/>
+  
+  <Default name="Button" value="normalimage=&quot;file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'&quot; hotimage=&quot;file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'&quot; pushedimage=&quot;file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'&quot; textcolor=&quot;#636363&quot;"/>
+  
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="添加视频" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                    
+    </HorizontalLayout>
+
+	<VerticalLayout inset="36,20,36,0">
+		<Option name="OLocal" text="本地文件" width="90" selected="true"/>
+		
+		<Control height="8"/>
+		
+		<HorizontalLayout height="25">
+			<Label name="LTip" text="视频源:" height="25" width="52" textcolor="#666666"/>
+			<Edit name="edit" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
+			
+			<Control width="12"/>
+			<Button name="BSelect" text="选择" width="60"/>
+		</HorizontalLayout>
+		
+		<Control height="8"/>
+		
+		<Option name="OLoop" text="循环播放" width="90"/>
+		
+		<Control height="8"/>
+		<Option name="OAvtive" text="当源变为活动状态时，重新播放" width="220"/>
+		<Control />
+
+		<Control height="18"/>
+		<HorizontalLayout height="35" childpadding="25">
+		  <Control />
+		  
+		  <Button name="acceptbtn" width="140" height="35" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
+		  
+		  <Control />
+		</HorizontalLayout>
+		<Control height="24"/>
+	</VerticalLayout>
+  </VerticalLayout>  
+</Window>
+
+ 

@@ -59,6 +59,10 @@ protected:
     static LRESULT CALLBACK __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK __ControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+
+    void SetCapture();
+    void ReleaseCapture();
+
 protected:
     HWND m_hWnd;
     WNDPROC m_OldWndProc;

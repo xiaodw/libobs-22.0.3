@@ -96,7 +96,7 @@ public:
     bool AddGameCapture(const char* name,const char* window);
     bool AddWindowCapture(const char* name, const char* window);
 
-    bool AddCamera(const char* name, const char* deviceid);
+    bool AddCamera(const char* name, const char* deviceid,bool enableGreeenBkg);
     bool AddAudio(const char* name, const char* deviceid);
 
     bool AddImage(const char* path);

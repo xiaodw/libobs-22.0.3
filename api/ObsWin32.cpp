@@ -371,6 +371,7 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_LBUTTONDOWN:
         {
+            SetCapture();
             ObsMouseEvent event;
             event.x = GET_X_LPARAM(lParam);
             event.y = GET_Y_LPARAM(lParam);
@@ -398,6 +399,7 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_LBUTTONUP:
         {
+            ReleaseCapture();
             ObsMouseEvent event;
             event.x = GET_X_LPARAM(lParam);
             event.y = GET_Y_LPARAM(lParam);
@@ -456,8 +458,13 @@ LRESULT ObsWin32Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
+void ObsWin32Window::SetCapture()
+{
+    ::SetCapture(m_hWnd);
+}
 
-
-
-
+void ObsWin32Window::ReleaseCapture()
+{
+    ::ReleaseCapture();
+}
 

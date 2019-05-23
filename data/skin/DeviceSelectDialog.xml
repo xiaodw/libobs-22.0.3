@@ -15,7 +15,9 @@
 		<HorizontalLayout height="25">
 			<Label name="LTip" text="请选择视频设备:" height="25" width="168" textcolor="#666666"/>
 			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>
-		</HorizontalLayout>	
+			<Control width="10"/>
+			<Option name="OGreenBkg" visible="false" text="开启绿幕" width="90" textcolor="#666666" normalimage="file='image/side_checkbox1.png' source='0,0,14,14' dest='0,6,14,20'" hotimage="file='image/side_checkbox1.png' source='14,0,28,14' dest='0,6,14,20'" pushedimage="file='image/side_checkbox1.png' source='28,0,42,14' dest='0,6,14,20'" selectedimage="file='image/side_checkbox2.png' source='0,0,14,14' dest='0,6,14,20'" selectedhotimage="file='image/side_checkbox2.png' source='14,0,28,14' dest='0,6,14,20'"/>
+		</HorizontalLayout>
 		<Control height="16"/>
 		<List name="List" header="hidden" vscrollbar="true" bkimage="file='image/list_bg.png' corner='3,3,3,3'" itemhotbkcolor="#fff0f0f0" itemselectedbkcolor="#fff0f0f0" inset="1,1,1,1" itembkimage="file='image/radio.png' source='12,0,24,12' dest='5,5,17,17'" itemhotimage="file='image/radio.png' source='0,0,12,12' dest='5,5,17,17'" itemselectedimage="file='image/radio.png' source='60,0,72,12' dest='5,5,17,17'" itemtextpadding="23,0,0,0" itemtextcolor="#666666" itemhottextcolor="#666666" itemselectedtextcolor="#666666">
 

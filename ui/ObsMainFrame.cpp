@@ -2,11 +2,14 @@
 #include "ObsMainFrame.h"
 #include "controls/ObsDisplayControl.h"
 #include "controls/OptionsEx.h"
+#include "api/ObsUtils.h"
+
 #include "NewSceneDialog.h"
 #include "WindowSelectDialog.h"
 #include "DeviceSelectDialog.h"
 #include "MsgBox.h"
-#include "api/ObsUtils.h"
+#include "PopupList.h"
+#include "AddVideoDialog.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -268,9 +271,36 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             CDeviceSelectDialog* dialog = new CDeviceSelectDialog(true);
             dialog->ShowDialog(m_hWnd);
         }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("BMedia")) == 0)
+        {
+            RECT rc = msg.pSender->GetPos();
 
-        
-        
+            POINT pt = { rc.left,rc.top };
+            ClientToScreen(m_hWnd,&pt);
+
+            RECT dest = { pt.x,pt.y - 96,pt.x + 72,pt.y };
+
+            std::vector<CDuiString> items = { _T("ÊÓÆµ"),_T("Í¼Æ¬"),_T("ÎÄ×Ö") };
+
+            CPopupList* dialog = new CPopupList(items, [this](int index) {
+                switch (index)
+                {
+                case 0:
+                    {
+                        CAddVideoDialog* dialog = new CAddVideoDialog();
+                        dialog->ShowDialog(this->GetHWND());
+                    }
+                    break;
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                }
+            });
+            dialog->ShowDialog(m_hWnd, dest);
+        }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)
     {
