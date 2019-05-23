@@ -1156,9 +1156,9 @@ bool ObsMain::AddVideo(const VideoData* video)
     const char *type = "ffmpeg_source";
     std::string name;
 
+    obs_data_set_bool(settings, "is_local_file", video->isFile);
     if (video->isFile)
     {
-        obs_data_set_bool(settings, "is_local_file", true);
         obs_data_set_string(settings, "local_file", video->url.c_str());
     }
     else
@@ -1168,6 +1168,7 @@ bool ObsMain::AddVideo(const VideoData* video)
 
     obs_data_set_bool(settings, "looping", video->isLoop);
     obs_data_set_bool(settings, "restart_on_activate", video->isActiveReplay);
+    obs_data_set_bool(settings, "close_when_inactive", true);
 
     if (video->name.empty())
         name = GetFileName(video->url);

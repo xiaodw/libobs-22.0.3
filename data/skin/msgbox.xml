@@ -2,11 +2,12 @@
 <Window size="400,200" sizebox="4,4,4,4" caption="0,0,0,126" minsize="355,166"> 
   <Font name="微软雅黑" id="0" size="13" default="true"/>
   <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Include source="default.xml"/>
   <VerticalLayout>
     <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39">
         <Label name="MessageBox_Caption" font="1" textcolor="#ffffff" textpadding="10,0,0,0"/>
-
-        <Button name="closebtn" width="23" height="23" normalimage="file='image/dialog_close.png' source='0,0,23,23'" hotimage="file='image/dialog_close.png' source='23,0,46,23'" pushedimage="file='image/dialog_close.png' source='46,0,69,23'" padding="0,7,7,0"/>                      
+        <Button name="closebtn" default="DlgCloseBtn"/>                      
     </HorizontalLayout>
     <Control height="10" bkcolor="#FFFFFFFF"/>
     <HorizontalLayout bkcolor="#FFFFFFFF" >
@@ -22,9 +23,9 @@
 		<Control height="15"/>
         <HorizontalLayout height="30" >
           <Control />
-		  <Button name="acceptbtn" width="75" text="确定" normalimage="file='image/button.png' source='0,0,38,38' corner='3,3,3,3'" hotimage="file='image/button.png' source='38,0,76,38' corner='3,3,3,3'" pushedimage="file='image/button.png' source='76,0,114,38' corner='3,3,3,3'" textcolor="#ffffff"/>
+		  <Button name="acceptbtn" width="75" text="确定" default="AcceptBtn"/>
 		  <Control width="15"/>
-		  <Button name="cancelbtn" width="75" text="取消" normalimage="file='image/button_cancel.png' source='0,0,59,24' corner='3,3,3,3'" hotimage="file='image/button_cancel.png' source='59,0,118,24' corner='3,3,3,3'" pushedimage="file='image/button_cancel.png' source='118,0,177,24' corner='3,3,3,3'" textcolor="#636363"/> 
+		  <Button name="cancelbtn" width="75" text="取消" default="NormalBtn"/> 
           <Control width="1" /> 
         </HorizontalLayout >          
       </VerticalLayout >

@@ -39,7 +39,13 @@ namespace DuiLib
 	{
 		m_pOwner = pOwner;
 		RECT rcPos = CalPos();
-		UINT uStyle = WS_CHILD | ES_AUTOHSCROLL | pOwner->GetWindowStyls();
+		UINT uStyle = WS_CHILD | pOwner->GetWindowStyls();
+
+        if (pOwner->m_bMultiLine)
+            uStyle |= ES_MULTILINE | ES_AUTOVSCROLL;
+        else
+            uStyle |= ES_AUTOHSCROLL;
+
         UINT uTextStyle = m_pOwner->GetTextStyle();
         if(uTextStyle & DT_LEFT) uStyle |= ES_LEFT;
         else if(uTextStyle & DT_CENTER) uStyle |= ES_CENTER;
@@ -81,6 +87,17 @@ namespace DuiLib
 
 	RECT CEditWnd::CalPos()
 	{
+        if (m_pOwner->m_bMultiLine)
+        {
+            CDuiRect rcPos = m_pOwner->GetPos();
+            RECT rcInset = m_pOwner->GetTextPadding();
+            rcPos.left += rcInset.left;
+            rcPos.top += rcInset.top;
+            rcPos.right -= rcInset.right;
+            rcPos.bottom -= rcInset.bottom;
+            return rcPos;
+        }
+
 		CDuiRect rcPos = m_pOwner->GetPos();
 		RECT rcInset = m_pOwner->GetTextPadding();
 		rcPos.left += rcInset.left;
@@ -143,11 +160,14 @@ namespace DuiLib
 		}
 		else if( uMsg == WM_KILLFOCUS ) lRes = OnKillFocus(uMsg, wParam, lParam, bHandled);
 		else if( uMsg == OCM_COMMAND ) {
-			if( GET_WM_COMMAND_CMD(wParam, lParam) == EN_CHANGE ) lRes = OnEditChanged(uMsg, wParam, lParam, bHandled);
+            if (GET_WM_COMMAND_CMD(wParam, lParam) == EN_CHANGE)
+            {
+                lRes = OnEditChanged(uMsg, wParam, lParam, bHandled);
+            }
 			else if( GET_WM_COMMAND_CMD(wParam, lParam) == EN_UPDATE ) {
 				RECT rcClient;
 				::GetClientRect(m_hWnd, &rcClient);
-				::InvalidateRect(m_hWnd, &rcClient, FALSE);
+				::InvalidateRect(m_hWnd, &rcClient, TRUE);
 			}
 		}
 		else if( uMsg == WM_KEYDOWN && TCHAR(wParam) == VK_RETURN ) {
@@ -197,6 +217,18 @@ namespace DuiLib
 			}
 			bHandled = FALSE;
 		}
+        else if (uMsg == WM_MOUSEWHEEL && m_pOwner->m_bMultiLine)
+        {
+            short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+            if (zDelta<0)//向上滚动
+            {
+                Edit_Scroll(m_hWnd, 1, 0);
+            }
+            else//向下滚动
+            {
+                Edit_Scroll(m_hWnd, -1, 0);
+            }
+        }
 		else if( uMsg == WM_TIMER ) {
 			if (wParam == DEFAULT_TIMERID) {
 				m_bDrawCaret = !m_bDrawCaret;
@@ -245,7 +277,7 @@ namespace DuiLib
 
 	CEditUI::CEditUI() : m_pWindow(NULL), m_uMaxChar(255), m_bReadOnly(false), 
 		m_bPasswordMode(false), m_cPasswordChar(_T('*')), m_bAutoSelAll(false), m_uButtonState(0), 
-		m_dwEditbkColor(0xFFFFFFFF), m_iWindowStyls(0)
+		m_dwEditbkColor(0xFFFFFFFF), m_iWindowStyls(0), m_bMultiLine(false)
 	{
 		SetTextPadding(CDuiRect(4, 3, 4, 3));
 		SetBkColor(0xFFFFFFFF);
@@ -607,6 +639,7 @@ namespace DuiLib
 		else if( _tcscmp(pstrName, _T("hotimage")) == 0 ) SetHotImage(pstrValue);
 		else if( _tcscmp(pstrName, _T("focusedimage")) == 0 ) SetFocusedImage(pstrValue);
 		else if( _tcscmp(pstrName, _T("disabledimage")) == 0 ) SetDisabledImage(pstrValue);
+        else if (_tcscmp(pstrName, _T("multiline")) == 0) m_bMultiLine = (_tcscmp(pstrValue, _T("true")) == 0);
 		else if( _tcscmp(pstrName, _T("nativebkcolor")) == 0 ) {
 			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
 			LPTSTR pstr = NULL;
@@ -659,13 +692,27 @@ namespace DuiLib
 		rc.top += m_rcTextPadding.top;
 		rc.bottom -= m_rcTextPadding.bottom;
 		if( IsEnabled() ) {
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
-				m_iFont, DT_SINGLELINE | m_uTextStyle);
+
+            if (!m_bMultiLine)
+            {
+                CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
+                    m_iFont, DT_SINGLELINE | m_uTextStyle);
+            }
+            else
+            {
+                CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
+                    m_iFont,   DT_WORDBREAK | DT_EDITCONTROL);
+            }
 		}
 		else {
-			CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
+            if (!m_bMultiLine)
+			    CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
-
+            else
+            {
+                CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
+                    m_iFont, DT_WORDBREAK | DT_EDITCONTROL);
+            }
 		}
 	}
 }

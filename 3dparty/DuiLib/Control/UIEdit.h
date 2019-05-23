@@ -77,6 +77,8 @@ namespace DuiLib
 		TDrawInfo m_diHot;
 		TDrawInfo m_diFocused;
 		TDrawInfo m_diDisabled;
+
+        bool m_bMultiLine;
 	};
 }
 #endif // __UIEDIT_H__

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Window size="420,200" caption="0,0,0,36"> 
+<Window size="570,400" caption="0,0,0,36"> 
   <Font name="微软雅黑" id="0" size="13" default="true"/>
   <Font name="微软雅黑" id="1" size="14"/>
   
@@ -7,25 +7,19 @@
   
   <VerticalLayout bkcolor="#FFFFFFFF">
     <HorizontalLayout height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
-        <Label text="添加图片" textcolor="#ffffff" font="1"/>
+        <Label text="添加文字" textcolor="#ffffff" font="1"/>
         <Button name="closebtn" default="DlgCloseBtn"/>            
     </HorizontalLayout>
 
 	<VerticalLayout inset="36,20,36,0">
-
-		<Control height="8"/>
+		<Edit name="edit" height="90" multiline="true" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
 		
-		<HorizontalLayout height="25">
-			<Label name="LTip" text="添加图片:" height="25" width="62" textcolor="#666666"/>
-			<Edit name="edit" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
-			
-			<Control width="12"/>
-			<Button name="BSelect" text="选择" width="60"/>
-		</HorizontalLayout>
 		<Control height="16"/>
+		
 		<HorizontalLayout height="24">
-			<Label text="图片透明:" width="62" textcolor="#666666"/>
-			<Slider name="SAlpha" padding="0,7,0,7" min="0" max="100" value="100"/>
+			<Label text="字体:" width="45" textcolor="#666666"/>
+			<Combo normalimage="file='image/combox.png' source='0,0,84,26' corner='3,3,15,3'" hotimage="file='image/combox.png' source='84,0,168,26' corner='3,3,15,3'" pushedimage="file='image/combox.png' source='168,0,252,26' corner='3,3,15,3'" dropbox="file=&quot;image/&quot;"/>
+			
 		</HorizontalLayout>
 
 		<Control height="15"/>
