@@ -1048,6 +1048,13 @@ void CControlUI::SetAttributeList(LPCTSTR pstrList)
     }
 }
 
+void CControlUI::UseDefaultAttribute(CPaintManagerUI* mgr, LPCTSTR defaultName) {
+    LPCTSTR  pDefaultAttributes = mgr->GetDefaultAttributeList(defaultName);
+    if (pDefaultAttributes) {
+        SetAttributeList(pDefaultAttributes);
+    }
+}
+
 SIZE CControlUI::EstimateSize(SIZE szAvailable)
 {
     return m_cxyFixed;

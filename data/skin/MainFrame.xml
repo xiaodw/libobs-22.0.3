@@ -3,8 +3,17 @@
   <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="true" />
   <Font id="1" name="微软雅黑" size="12" bold="false" default="true" shared="true" />
   
+  
+  <Include source="default.xml"/>
+  
   <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb2.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;" shared="true"/>
   
+  <Default name="NewSceneBtn" value="name=&quot;BAddScene&quot; tooltip=&quot;添加场景&quot; height=&quot;36&quot; width=&quot;36&quot; normalimage=&quot;file='image/add.png' source='0,0,16,16' dest='10,10,26,26'&quot; hotimage=&quot;file='image/add.png' source='16,0,32,16' dest='10,10,26,26'&quot; pushedimage=&quot;file='image/add.png' source='32,0,48,16' dest='10,10,26,26'&quot;"/>
+  
+  
+  <Default name="SceneItemVisibleOpt" value="name=&quot;SceneItemVisible&quot; width=&quot;14&quot; hotimage=&quot;file='image/checkbox.png' source='0,0,14,14' dest='0,8,14,22'&quot; normalimage=&quot;file='image/checkbox.png' source='14,0,28,14' dest='0,8,14,22'&quot; selectedhotimage=&quot;file='image/checkbox.png' source='56,0,70,14' dest='0,8,14,22'&quot; selectedimage=&quot;file='image/checkbox.png' source='70,0,84,14' dest='0,8,14,22'&quot;"/> 
+  
+  <Default name="SceneItemRemoveBtn" value="name=&quot;SceneItemRemove&quot; width=&quot;12&quot; normalimage=&quot;file='image/side_close.png' source='0,0,12,12' dest='0,9,12,21'&quot; hotimage=&quot;file='image/side_close.png' source='24,0,36,12' dest='0,9,12,21'&quot;"/> 
   
   <VerticalLayout bkcolor="#FF2d2d30">
 
@@ -23,10 +32,10 @@
 		<List name="SceneItemList" width="132" header="hidden" bkcolor="#ff252526" itemselectedbkcolor="#ff161616" itemhotbkcolor="#ff242424" vscrollbar="true">
 			<ListContainerElement height="30" inset="10,0,10,0">
 				<HorizontalLayout>
-					<Option width="14" hotimage="file='image/checkbox.png' source='0,0,14,14' dest='0,8,14,22'" normalimage="file='image/checkbox.png' source='14,0,28,14' dest='0,8,14,22'" selectedhotimage="file='image/checkbox.png' source='56,0,70,14' dest='0,8,14,22'" selectedimage="file='image/checkbox.png' source='70,0,84,14' dest='0,8,14,22'"/>
+					<Option default="SceneItemVisibleOpt"/>
 					<Control width="5"/>
 					<Label text="测试" textcolor="#ffffff"/>
-					<Button width="12" normalimage="file='image/side_close.png' source='0,0,12,12' dest='0,9,12,21'" hotimage="file='image/side_close.png' source='24,0,36,12' dest='0,9,12,21'"/>
+					<Button default="SceneItemRemoveBtn"/>
 				</HorizontalLayout>
 			</ListContainerElement>
 		</List>

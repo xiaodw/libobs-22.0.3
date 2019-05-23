@@ -1,7 +1,8 @@
 #include "StdAfx.h"
 #include "AddVideoDialog.h"
 #include "MsgBox.h"
-#include <commdlg.h>
+#include "api/ObsMain.h"
+#include "Utils.h"
 
 CAddVideoDialog::CAddVideoDialog()
 {
@@ -12,42 +13,6 @@ CAddVideoDialog::~CAddVideoDialog()
 
 }
 
-
-CDuiString OpenSingleFileDialog(HWND hwnd, LPCTSTR filter = NULL)
-{
-    OPENFILENAME ofn;       // common dialog box structure
-    TCHAR szFile[MAX_PATH] = { 0 };       // buffer for file name
-
-    // Initialize OPENFILENAME
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hwnd;
-    ofn.lpstrFile = szFile;
-    //
-    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-    // use the contents of szFile to initialize itself.
-    //
-    ofn.lpstrFile[0] = _T('\0');
-    ofn.nMaxFile = sizeof(szFile);
-    if (filter)
-        ofn.lpstrFilter = filter;
-    else
-        ofn.lpstrFilter = _T("All Files(*.*)\0*.*\0");
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NODEREFERENCELINKS;
-
-    // Display the Open dialog box. 
-    CDuiString fileName;
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        fileName = ofn.lpstrFile;
-    }
-    return fileName;
-}
 
 
 void CAddVideoDialog::Notify(TNotifyUI& msg)
@@ -66,6 +31,8 @@ void CAddVideoDialog::Notify(TNotifyUI& msg)
          {
             //添加视频
             CDuiString url = m_PaintManager.FindControl(_T("edit"))->GetText();
+            ObsMain::VideoData data;
+            data.url = ToUtf8(url);
 
             if (url.GetLength() == 0)
             {
@@ -78,7 +45,7 @@ void CAddVideoDialog::Notify(TNotifyUI& msg)
             if (localFile->IsSelected())
             {
                 // 检测文件是否存在
-                if (!os_file_exists(ToUtf8(url).c_str()))
+                if (!os_file_exists(data.url.c_str()))
                 {
                     CMsgBox msgBox;
                     msgBox.DuiMessageBox(m_hWnd, _T("视频文件不存在"), _T("提示"), MESSAGE_INFO, FALSE);
@@ -86,17 +53,17 @@ void CAddVideoDialog::Notify(TNotifyUI& msg)
                 }
             }
 
-            bool loop = ((COptionUI*)m_PaintManager.FindControl(_T("OLoop")))->IsSelected();
-            bool active = ((COptionUI*)m_PaintManager.FindControl(_T("OAvtive")))->IsSelected();
+            data.isFile = localFile->IsSelected();
+            data.isLoop = ((COptionUI*)m_PaintManager.FindControl(_T("OLoop")))->IsSelected();
+            data.isActiveReplay = ((COptionUI*)m_PaintManager.FindControl(_T("OAvtive")))->IsSelected();
 
-
-
+            ObsMain::Instance()->AddVideo(&data);
             Close();
          }
          else if (msg.pSender->GetName() == _T("BSelect"))
          {
              //选择文件
-             CDuiString path = OpenSingleFileDialog(m_hWnd);
+             CDuiString path = OpenSingleFileDialog(m_hWnd, _T("All Formats(*.mp4,*.mkv,*.rmvb,*.3gp,*.avi,*.flv,*.mpg,*.mov)\0*.mp4;*.mkv;*.rmvb;*.3gp;*.avi;*.flv;*.mpg;*.mov\0"));
              if(!path.IsEmpty())
                 m_PaintManager.FindControl(_T("edit"))->SetText(path);
          }
@@ -107,7 +74,6 @@ void CAddVideoDialog::Notify(TNotifyUI& msg)
         {
                m_PaintManager.FindControl(_T("BSelect"))->SetVisible(msg.wParam);
         }
-
     }
 }
 

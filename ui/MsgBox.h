@@ -31,9 +31,6 @@ public:
  
     int GetStringLines(CDuiString st, CDuiString &stMax);
 protected:
-    CButtonUI *m_pButtonOK;
     CButtonUI *m_pButtonCancel;
-    DWORD m_dwBKColor;
-    CDuiString m_stBKImage;
     CWndShadow m_shadow;
 };

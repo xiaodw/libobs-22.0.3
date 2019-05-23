@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="420,200" caption="0,0,0,36"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Include source="default.xml"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="添加图片" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" default="DlgCloseBtn"/>            
+    </HorizontalLayout>
+
+	<VerticalLayout inset="36,20,36,0">
+
+		<Control height="8"/>
+		
+		<HorizontalLayout height="25">
+			<Label name="LTip" text="添加图片:" height="25" width="62" textcolor="#666666"/>
+			<Edit name="edit" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
+			
+			<Control width="12"/>
+			<Button name="BSelect" text="选择" width="60"/>
+		</HorizontalLayout>
+		<Control height="16"/>
+		<HorizontalLayout height="24">
+			<Label text="图片透明:" width="62" textcolor="#666666"/>
+			<Slider name="SAlpha" padding="0,7,0,7" min="0" max="100" value="100"/>
+		</HorizontalLayout>
+
+		<Control height="15"/>
+		<HorizontalLayout height="35" childpadding="25">
+		  <Control />
+		  
+		  <Button name="acceptbtn" width="140" height="35" text="确定" default="AcceptBtn"/>
+		  
+		  <Control />
+		</HorizontalLayout>
+		<Control height="24"/>
+	</VerticalLayout>
+  </VerticalLayout>  
+</Window>
+
+ 

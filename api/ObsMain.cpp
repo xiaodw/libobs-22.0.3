@@ -1099,14 +1099,99 @@ bool ObsMain::AddAudio(const char* name, const char* deviceid)
     return AddSource(source);
 }
 
-bool ObsMain::AddImage(const char* path)
+bool ObsMain::AddImage(const char* path, int alpha)
 {
-    return AddDropSource(path, DropType_Image);
+    obs_data_t *settings = obs_data_create();
+    obs_source_t *source = nullptr;
+    const char *type = "image_source";
+    std::string name= GetFileName(path);
+
+    obs_data_set_string(settings, "file", path);
+
+    if (!obs_source_get_display_name(type)) {
+        obs_data_release(settings);
+        return false;
+    }
+
+    source = obs_source_create(type,
+        GenerateSourceName(name).c_str(),
+        settings, nullptr);
+
+    if (source) {
+        OBSScene scene = GetCurrentScene();
+        obs_scene_add(scene, source);
+        obs_source_release(source);
+    }
+    obs_data_release(settings);
+
+
+    if (alpha < 100 && alpha >= 0)
+    {
+        char* newName = get_new_source_name(ToUtf8(L"É«¶ÈÖµ").c_str());
+
+        obs_data_t *filterSettings = obs_data_create();
+
+        obs_data_set_int(filterSettings, "opacity", alpha);
+
+        obs_source_t *filter = obs_source_create("color_key_filter", newName,
+            filterSettings, nullptr);
+
+        obs_data_release(filterSettings);
+        bfree(newName);
+
+        if (filter)
+        {
+            obs_source_filter_add(source, filter);
+            obs_source_release(filter);
+        }
+    }
+
+    return source != nullptr;
 }
 
-bool ObsMain::AddVideo(const char* path)
+bool ObsMain::AddVideo(const VideoData* video)
 {
-    return AddDropSource(path, DropType_Media);
+    obs_data_t *settings = obs_data_create();
+    obs_source_t *source = nullptr;
+    const char *type = "ffmpeg_source";
+    std::string name;
+
+    if (video->isFile)
+    {
+        obs_data_set_bool(settings, "is_local_file", true);
+        obs_data_set_string(settings, "local_file", video->url.c_str());
+    }
+    else
+    {
+        obs_data_set_string(settings, "input", video->url.c_str());
+    }
+
+    obs_data_set_bool(settings, "looping", video->isLoop);
+    obs_data_set_bool(settings, "restart_on_activate", video->isActiveReplay);
+
+    if (video->name.empty())
+        name = GetFileName(video->url);
+    else
+        name = video->name;
+
+    if (!obs_source_get_display_name(type)) {
+        obs_data_release(settings);
+        return false;
+    }
+
+    source = obs_source_create(type,
+        GenerateSourceName(name).c_str(),
+        settings, nullptr);
+
+    if (source) {
+        OBSScene scene = GetCurrentScene();
+        obs_scene_add(scene, source);
+        obs_source_release(source);
+    }
+
+    obs_data_release(settings);
+
+    return source != nullptr;
 }
 
 bool ObsMain::AddText(const char* text)

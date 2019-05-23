@@ -10,6 +10,8 @@
 #include "MsgBox.h"
 #include "PopupList.h"
 #include "AddVideoDialog.h"
+#include "AddImageDialog.h"
+#include "AddTextDialog.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -292,10 +294,16 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
                     }
                     break;
                 case 1:
-
+                    {
+                        CAddImageDialog* dialog = new CAddImageDialog();
+                        dialog->ShowDialog(this->GetHWND());
+                    }
                     break;
                 case 2:
-
+                    {
+                        CAddTextDialog* dialog = new CAddTextDialog();
+                        dialog->ShowDialog(this->GetHWND());
+                    }
                     break;
                 }
             });
@@ -454,7 +462,7 @@ void CObsMainFrame::AddNewSceneBtn()
     else
     {
         btn = new CButtonUI();
-        btn->SetAttributeList(STRINGIZE(name="BAddScene" tooltip="Ìí¼Ó³¡¾°" height="36" width="36" normalimage="file='image/add.png' source='0,0,16,16' dest='10,10,26,26'" hotimage="file='image/add.png' source='16,0,32,16' dest='10,10,26,26'" pushedimage="file='image/add.png' source='32,0,48,16' dest='10,10,26,26'"));
+        btn->UseDefaultAttribute(&m_PaintManager,_T("NewSceneBtn"));
         m_sceneList->Add(btn);
     }
 }
@@ -474,7 +482,7 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
     hoz->SetChildPadding(5);
 
     COptionUI* opt = new COptionUI();
-   opt->SetAttributeList(STRINGIZE(name="SceneItemVisible" width="14" hotimage="file='image/checkbox.png' source='0,0,14,14' dest='0,8,14,22'" normalimage="file='image/checkbox.png' source='14,0,28,14' dest='0,8,14,22'" selectedhotimage="file='image/checkbox.png' source='56,0,70,14' dest='0,8,14,22'" selectedimage="file='image/checkbox.png' source='70,0,84,14' dest='0,8,14,22'" ));
+    opt->UseDefaultAttribute(&m_PaintManager,_T("SceneItemVisibleOpt"));
 
    if (bVisible)
        opt->Selected(true, false);
@@ -487,8 +495,7 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
     label->SetTextStyle(DT_END_ELLIPSIS | DT_VCENTER | DT_SINGLELINE);
     label->SetToolTip(name);
     CButtonUI* btn = new CButtonUI();
-    btn->SetAttributeList(STRINGIZE(name="SceneItemRemove" width="12" normalimage="file='image/side_close.png' source='0,0,12,12' dest='0,9,12,21'" hotimage="file='image/side_close.png' source='24,0,36,12' dest='0,9,12,21'"));
-
+    btn->UseDefaultAttribute(&m_PaintManager,_T("SceneItemRemoveBtn"));
     hoz->Add(opt);
     hoz->Add(label);
     hoz->Add(btn);

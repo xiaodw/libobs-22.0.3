@@ -99,8 +99,16 @@ public:
     bool AddCamera(const char* name, const char* deviceid,bool enableGreeenBkg);
     bool AddAudio(const char* name, const char* deviceid);
 
-    bool AddImage(const char* path);
-    bool AddVideo(const char* path);
+    bool AddImage(const char* path,int alpha);
+
+    struct VideoData {
+        std::string name;
+        std::string url;
+        bool isFile;
+        bool isLoop;
+        bool isActiveReplay;
+    };
+    bool AddVideo(const VideoData* video);
     bool AddText(const char* text);
 
     ObsSceneItemList& sceneItemList() { return m_sceneItemList; }

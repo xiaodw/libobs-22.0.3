@@ -153,6 +153,7 @@ public:
     virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 	virtual CDuiString GetAttributeList(bool bIgnoreDefault = true);
     virtual void SetAttributeList(LPCTSTR pstrList);
+    void UseDefaultAttribute(CPaintManagerUI* mgr, LPCTSTR defaultName);
 
     virtual SIZE EstimateSize(SIZE szAvailable);
 

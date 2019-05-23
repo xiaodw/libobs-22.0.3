@@ -411,7 +411,14 @@ CControlUI* CDialogBuilder::_Parse(CMarkupNode* pRoot, CControlUI* pParent, CPai
         // Init default attributes
         if( pManager ) {
             pControl->SetManager(pManager, NULL, false);
-            LPCTSTR pDefaultAttributes = pManager->GetDefaultAttributeList(pstrClass);
+
+            LPCTSTR skin = node.GetAttributeValue(_T("default"));
+            LPCTSTR pDefaultAttributes = NULL;
+            if(skin && skin[0])
+                pDefaultAttributes = pManager->GetDefaultAttributeList(skin);
+            else
+                pDefaultAttributes = pManager->GetDefaultAttributeList(pstrClass);
+
             if( pDefaultAttributes ) {
                 pControl->SetAttributeList(pDefaultAttributes);
             }

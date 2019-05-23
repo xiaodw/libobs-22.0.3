@@ -319,13 +319,14 @@ LRESULT WindowImplBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	}
 
 	CControlUI* pRoot=NULL;
+    CDuiString skin = GetSkinFile();
 	if (GetResourceType()==UILIB_RESOURCE)
 	{
-		STRINGorID xml(_ttoi(GetSkinFile().GetData()));
+		STRINGorID xml(_ttoi(skin.GetData()));
 		pRoot = builder.Create(xml, _T("xml"), this, &m_PaintManager);
 	}
 	else
-		pRoot = builder.Create(GetSkinFile().GetData(), (UINT)0, this, &m_PaintManager);
+		pRoot = builder.Create(skin.GetData(), (UINT)0, this, &m_PaintManager);
 	ASSERT(pRoot);
 	if (pRoot==NULL)
 	{
