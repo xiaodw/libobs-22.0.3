@@ -143,6 +143,42 @@ void CObsMainFrame::OnPrepare(TNotifyUI& msg)
     ObsMain::Instance()->LoadScene();
 }
 
+void CObsMainFrame::RemoveScene(COptionExUI* opt)
+{
+    CDuiString name = opt->GetText();
+    CDuiString tip;
+    tip.Format(_T("您确定要删除场景\"%s\"?"), name.GetData());
+
+    //提示是否关闭
+    CMsgBox msgBox;
+    if (msgBox.DuiMessageBox(m_hWnd, tip, _T("提示")) == IDOK)
+    {
+        //关闭option
+        CHorizontalLayoutUI* layout = (CHorizontalLayoutUI*)opt->GetParent();
+        bool isSel = static_cast<COptionExUI*>(opt)->IsSelected();
+        int index = layout->GetItemIndex(opt);
+        layout->Remove(opt);
+
+        obs_scene_t* scene = (obs_scene_t*)opt->GetTag();
+        ObsMain::Instance()->RemoveScene(scene);
+
+        if (isSel)
+        {
+            //移除当前的选择其他的
+            CControlUI* ctrl = layout->GetItemAt(index);
+            if (!ctrl || _tcscmp(ctrl->GetClass(), kOptionExUIClassName) != 0)
+            {
+                ctrl = layout->GetItemAt(index - 1);
+            }
+
+            if (ctrl &&  _tcscmp(ctrl->GetClass(), kOptionExUIClassName) == 0)
+            {
+                static_cast<COptionExUI*>(ctrl)->Selected(true, true);
+            }
+        }
+    }
+}
+
 void CObsMainFrame::Notify(TNotifyUI& msg)
 {
     if (_tcsicmp(msg.sType, DUI_MSGTYPE_WINDOWINIT) == 0)
@@ -151,38 +187,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_OPTIONCLOSED) == 0)
     {
-        CDuiString name = msg.pSender->GetText();
-        CDuiString tip;
-        tip.Format(_T("您确定要删除场景\"%s\"?"), name.GetData());
-
-        //提示是否关闭
-        CMsgBox msgBox;
-        if (msgBox.DuiMessageBox(m_hWnd, tip,_T("提示")) == IDOK)
-        {
-            //关闭option
-            CHorizontalLayoutUI* layout = (CHorizontalLayoutUI*)msg.pSender->GetParent();
-            bool isSel = static_cast<COptionExUI*>(msg.pSender)->IsSelected();
-            int index = layout->GetItemIndex(msg.pSender);
-            layout->Remove(msg.pSender);
-
-            obs_scene_t* scene = (obs_scene_t*)msg.pSender->GetTag();
-            ObsMain::Instance()->RemoveScene(scene);
-
-            if (isSel)
-            {
-                //移除当前的选择其他的
-                CControlUI* ctrl = layout->GetItemAt(index);
-                if (!ctrl || _tcscmp(ctrl->GetClass(), kOptionExUIClassName) != 0)
-                {
-                    ctrl = layout->GetItemAt(index - 1);
-                }
-
-                if (ctrl &&  _tcscmp(ctrl->GetClass(), kOptionExUIClassName) == 0)
-                {
-                    static_cast<COptionExUI*>(ctrl)->Selected(true, true);
-                }
-            }
-        }
+        RemoveScene((COptionExUI*)msg.pSender);
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {
@@ -263,6 +268,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
 
                     if (!nameUsed)
                     {
+                        utf8 = GenerateSourceName(utf8);
                         ObsMain::Instance()->AddScene(utf8.c_str(), true);
                         return true;
                     }
@@ -349,14 +355,21 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_MENU) == 0)
     {
+        CDuiString name = msg.pSender->GetName();
         //list item选中
-        if (_tcsicmp(msg.pSender->GetName(), _T("SceneItemList")) == 0)
+        if (name ==  _T("SceneItemList"))
         {
+            //场景item菜单
             int index = m_sceneItemList->FindItemByPos(msg.ptMouse);
             if (index>=0)
             {
                 ShowSceneItemMenu(m_hWnd, msg.ptMouse, index);
             }
+        }
+        else if (name == _T("Scene"))
+        {
+            //场景菜单
+            ShowSceneMenu((COptionExUI*)msg.pSender, msg.ptMouse);
         }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_SELECTCHANGED) == 0)
@@ -378,9 +391,69 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
     }
 }
 
+void CObsMainFrame::ShowSceneMenu(COptionExUI* opt, POINT pt)
+{
+    CMenuWnd* menu = CMenuWnd::ShowMenu(m_hWnd, _T("ScenMenu.xml"), pt, [opt, this](CMenuElementUI* elem) {
+        CDuiString name = elem->GetName();
+        if (name == _T("Rename"))
+        {
+            CRenameDialog* dialog = new CRenameDialog();
+            dialog->ShowDialog(m_hWnd, _T("重命名"), name = opt->GetText(), [opt,this](CRenameDialog* dialog) {
+                ObsSceneItemList& list = ObsMain::Instance()->sceneItemList();
+                CDuiString text = dialog->GetText();
+                if (text == opt->GetText())
+                    return true;
+
+                if (text.GetLength() > 0)
+                {
+                    std::string utf8 = ToUtf8(text);
+
+                    bool nameUsed = false;
+
+                    //名称不能重复
+                    auto& scenes = ObsMain::Instance()->scenes();
+                    for (auto& data : scenes)
+                    {
+                        if (strcmp(data->name(), utf8.c_str()) == 0)
+                        {
+                            nameUsed = true;
+                            break;
+                        }
+                    }
+
+                    //名称不能重复
+                    if (nameUsed)
+                    {
+                        dialog->ShowTip(_T("名称不能重复"));
+                    }
+                    else
+                    {
+                        //重命名场景
+                        obs_scene_t* scene = (obs_scene_t*)opt->GetTag();
+                        utf8 = GenerateSourceName(utf8);
+                        ObsMain::Instance()->RenameScene(scene,utf8.c_str());
+
+                        opt->SetText(CDuiString(utf8.c_str()));
+                        return true;
+                    }
+                }
+                else
+                {
+                    dialog->ShowTip(_T("名称不能为空"));
+                }
+                return false;
+            });
+        }
+        else if (name == _T("Delete"))
+        {
+            this->PostMsg(MSG_DELETE_SCENE, std::make_shared<CTypedMsgData<COptionExUI*>>(opt));
+        }
+    });
+}
+
 void CObsMainFrame::ShowSceneItemMenu(HWND hParent,POINT pt,int index)
 {
-    CMenuWnd::ShowMenu(hParent, _T("SceneItemMenu.xml"), pt, [index, this](CMenuElementUI* elem) {
+    CMenuWnd* menu = CMenuWnd::ShowMenu(hParent, _T("SceneItemMenu.xml"), pt, [index, this](CMenuElementUI* elem) {
         CDuiString name = elem->GetName();
         if (name == _T("FitScreen"))
         {
@@ -419,7 +492,6 @@ void CObsMainFrame::ShowSceneItemMenu(HWND hParent,POINT pt,int index)
                     bool nameUsed = false;
 
                     //名称不能重复
-                    auto& scenes = ObsMain::Instance()->scenes();
                     if (obs_get_source_by_name(utf8.c_str()))
                     {
                         dialog->ShowTip(_T("名称不能重复"));
@@ -443,8 +515,21 @@ void CObsMainFrame::ShowSceneItemMenu(HWND hParent,POINT pt,int index)
             PostMsg(MSG_DELETE_ELEM,
                 std::make_shared<CTypedMsgData<int>>(index));
         }
+        else if (name == _T("Show"))
+        {
+             bool bVisible = elem->GetTag() != 1;
+             ObsMain::Instance()->sceneItemList().SetVisible(index, bVisible);
+             UpdateSceneItemVisible(index, bVisible);
+        }
     });
 
+
+    if (ObsMain::Instance()->sceneItemList().itemVisible(index))
+    {
+        CMenuElementUI* elem = (CMenuElementUI*)menu->m_pm.FindControl(_T("Show"));
+        elem->SetText(_T("隐藏"));
+        elem->SetTag(1);
+    }
 }
 
 LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -537,6 +622,12 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             }
         }
         break;
+    case MSG_DELETE_SCENE:
+        {
+            CTypedMsgData<COptionExUI*>*option = static_cast<CTypedMsgData<COptionExUI*>*>(data);
+            RemoveScene(option->data);
+        }
+        break;
     default:
 
         break;
@@ -560,6 +651,7 @@ void CObsMainFrame::AddScene(OBSScene scene)
     option->SetCloseBtnHot(_T("file='image/close.png' source='25,0,50,25' dest='0,5,25,30'"));
     option->SetCloseBtnPushed(_T("file='image/close.png' source='50,0,75,25' dest='0,5,25,30'"));
     option->SetTextColor(0xffffffff);
+    option->SetContextMenuUsed(true);
 
     OBSSource source = obs_scene_get_source(scene);
 
@@ -594,6 +686,13 @@ void CObsMainFrame::UpdateSceneItemName(int index, const CDuiString& name)
     CListContainerElementUI* elem = (CListContainerElementUI*)m_sceneItemList->GetItemAt(index);
     if (elem)
         elem->FindSubControl(_T("SceneItemName"))->SetText(name);
+}
+
+void CObsMainFrame::UpdateSceneItemVisible(int index, bool bVisible)
+{
+    CListContainerElementUI* elem = (CListContainerElementUI*)m_sceneItemList->GetItemAt(index);
+    if (elem)
+        ((COptionUI*)elem->FindSubControl(_T("SceneItemVisible")))->Selected(bVisible,false);
 }
 
 void CObsMainFrame::AddSceneItem(OBSSceneItem item)

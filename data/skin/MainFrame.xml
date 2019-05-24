@@ -55,6 +55,11 @@
 			
 			<Button width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
 			
+			<Control width="14"/>
+			<Option default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="78" padding="0,18,0,0"/>
+
+			
+			
 		  </HorizontalLayout>
 		</VerticalLayout>
 	</HorizontalLayout>

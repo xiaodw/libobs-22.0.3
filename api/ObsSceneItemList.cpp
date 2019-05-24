@@ -339,6 +339,14 @@ const char* ObsSceneItemList::itemName(int idx)
     return obs_source_get_name(source);
 }
 
+bool ObsSceneItemList::itemVisible(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (!item)
+        return false;
+    return obs_sceneitem_visible(item);
+}
+
 const char* ObsSceneItemList::itemName(OBSSceneItem item)
 {
     obs_source_t *source = obs_sceneitem_get_source(item);

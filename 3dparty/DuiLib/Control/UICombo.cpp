@@ -166,7 +166,8 @@ void CComboWnd::Init(CComboUI* pOwner)
         SIZE sz = pControl->EstimateSize(szAvailable);
         cyFixed += sz.cy;
     }
-    cyFixed += 4; // CVerticalLayoutUI 默认的Inset 调整
+    RECT inset = pOwner->GetInset();
+    cyFixed += inset.top + inset.bottom; // CVerticalLayoutUI 默认的Inset 调整
     rc.bottom = rc.top + MIN(cyFixed, szDrop.cy);
 
     ::MapWindowRect(pOwner->GetManager()->GetPaintWindow(), HWND_DESKTOP, &rc);
@@ -210,6 +211,14 @@ LRESULT CComboWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     if( uMsg == WM_CREATE ) {
 		m_pm.SetForceUseSharedRes(true);
         m_pm.Init(m_hWnd);
+
+        CPaintManagerUI* mgr = m_pOwner->GetManager();
+        if (mgr)
+        {
+            TFontInfo*  info=mgr->GetDefaultFontInfo();
+            m_pm.SetDefaultFont(info->sFontName,info->iSize,info->bBold,info->bUnderline,info->bItalic);
+        }
+
         // The trick is to add the items to the new container. Their owner gets
         // reassigned by this operation - which is why it is important to reassign
         // the items back to the righfull owner/manager when the window closes.

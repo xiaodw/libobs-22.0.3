@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Font id="0" name="微软雅黑" size="12" bold="false" default="true" />
+
+  <Menu>
+	<MenuElement name="Rename" text="重命名" height="32"/>
+	<MenuElement name="Delete" text="删除" height="32"/>
+  </Menu>
+</Window>

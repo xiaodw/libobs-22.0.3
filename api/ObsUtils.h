@@ -30,4 +30,4 @@ std::vector<WindowInfo> GetWindowInfo(bool isGame);
 
 std::string ToUtf8(const wchar_t* unicode,int len=-1);
 
-
+std::string GenerateSourceName(const  std::string &base);

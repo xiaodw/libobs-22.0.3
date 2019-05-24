@@ -39,6 +39,7 @@ public:
     void Select(int idx);
 
     const char* itemName(int idx);
+    bool itemVisible(int idx);
 
     //ªÒ»°item Ù–‘
     static const char* itemName(OBSSceneItem item);

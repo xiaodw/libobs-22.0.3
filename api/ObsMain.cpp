@@ -77,6 +77,16 @@ void ObsMain::RemoveScene(obs_scene_t* scene)
     }
 }
 
+void ObsMain::RenameScene(obs_scene_t* scene, const char* newName)
+{
+    OBSScene s = CheckScene(scene);
+    if (s)
+    {
+        obs_source_t* source = obs_scene_get_source(s);
+        obs_source_set_name(source,newName);
+    }
+}
+
 OBSScene ObsMain::CheckScene(obs_scene_t* scene)
 {
     std::lock_guard<std::mutex> lock(m_lock);
@@ -318,27 +328,6 @@ void ObsMain::SourceRenamed(void *data, calldata_t *params)
         pThis->m_observer->OnRenameSources(source, prevName, newName);
 
     blog(LOG_INFO, "Source '%s' renamed to '%s'", prevName, newName);
-}
-
-
-static std::string GenerateSourceName(const  std::string &base)
-{
-    std::string name;
-    int inc = 0;
-
-    for (;; inc++) {
-        name = base;
-
-        if (inc) {
-            name += " (";
-            name += std::to_string(inc + 1);
-            name += ")";
-        }
-
-        obs_source_t *source = obs_get_source_by_name(name.c_str());
-        if (!source)
-            return name;
-    }
 }
 
 

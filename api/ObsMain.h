@@ -73,6 +73,7 @@ public:
     void AddScene(const char* name,bool setCurrent);
     void SetCurrentScene(obs_scene_t* scene);
     void RemoveScene(obs_scene_t* scene);
+    void RenameScene(obs_scene_t* scene,const char* newName);
 
     //设置当前场景
     void SetCurrentScene(OBSSource scene, bool force = false);

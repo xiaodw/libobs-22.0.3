@@ -12,6 +12,7 @@
 
 #include <functional>
 #include "UIlib.h"
+#include "controls/OptionsEx.h"
 #include "controls/UIMenu.h"
 #include "api/ObsUtils.h"
 #include <util/platform.h>

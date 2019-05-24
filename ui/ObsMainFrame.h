@@ -42,6 +42,7 @@ public:
         MSG_RECORD_START,
 
         MSG_DELETE_ELEM,
+        MSG_DELETE_SCENE,
     };
     typedef CTypedMsgData<OBSSource> ObsSourceData;
     typedef CTypedMsgData<OBSScene> ObsSceneData;
@@ -151,8 +152,12 @@ protected:
     void AddSceneItem(OBSSceneItem item);
     void AddNewSceneBtn();
     void UpdateSceneItemName(int index,const CDuiString& name);
+    void UpdateSceneItemVisible(int index, bool bVisible);
+
+    void RemoveScene(COptionExUI* opt);
 
     void ShowSceneItemMenu(HWND hParent,POINT pt,int index);
+    void ShowSceneMenu(COptionExUI* opt,POINT pt);
 private:
     CMsgQueue m_msgQueue;
     CHorizontalLayoutUI* m_sceneList;

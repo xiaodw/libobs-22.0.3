@@ -132,3 +132,23 @@ std::string ToUtf8(const wchar_t* unicode, int len)
     bfree(utf8);
     return data;
 }
+
+std::string GenerateSourceName(const  std::string &base)
+{
+    std::string name;
+    int inc = 0;
+
+    for (;; inc++) {
+        name = base;
+
+        if (inc) {
+            name += " (";
+            name += std::to_string(inc + 1);
+            name += ")";
+        }
+
+        obs_source_t *source = obs_get_source_by_name(name.c_str());
+        if (!source)
+            return name;
+    }
+}
