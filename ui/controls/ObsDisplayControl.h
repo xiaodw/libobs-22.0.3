@@ -1,5 +1,6 @@
 #pragma once
-#include "api/ObsWindow.h"
+
+class ObsWindow;
 
 class CObsDisplayControl : public CControlUI
 {

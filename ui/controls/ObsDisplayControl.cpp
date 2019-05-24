@@ -1,4 +1,5 @@
 #include "../StdAfx.h"
+#include "api/ObsWindow.h"
 #include "ObsDisplayControl.h"
 
 CObsDisplayControl::CObsDisplayControl()

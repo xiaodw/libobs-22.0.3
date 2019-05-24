@@ -23,8 +23,7 @@ void CRenameDialog::Notify(TNotifyUI& msg)
         m_editor->SetAutoSelAll(true);
         m_PaintManager.FindControl(_T("title"))->SetText(m_title);
 
-
-        m_editor->SetFocus();
+        //m_editor->SetFocus();
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {
