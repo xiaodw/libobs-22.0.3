@@ -11,8 +11,13 @@
 #define DL_D3D11 "obs_d3d11"
 
 ObsBasic::ObsBasic()
-    :m_context("en-US", nullptr, nullptr)
 {
+    char path[512];
+    int ret = GetConfigPath(path, 512, "obs-studio/plugin_config");
+    if (ret <= 0)
+        path[0]='\0';
+
+    obs_startup("en-US", path, nullptr);
 }
 
 ObsBasic::~ObsBasic()
@@ -22,7 +27,7 @@ ObsBasic::~ObsBasic()
     m_globalConfig.Close();
     m_outputHandler.reset();
     m_curTransition = NULL;
-    m_context = NULL;
+    obs_shutdown();
 }
 
 #define STARTUP_SEPARATOR \

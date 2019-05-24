@@ -130,7 +130,6 @@ protected:
 
     void CheckForSimpleModeX264Fallback();
 
-    OBSContext  m_context;
     OBSService m_service;
     ConfigFile  m_basicConfig;
     ConfigFile  m_globalConfig;
