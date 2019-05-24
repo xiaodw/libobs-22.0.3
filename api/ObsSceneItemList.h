@@ -27,7 +27,7 @@ public:
 
     //item²Ù×÷½Ó¿Ú
     void MoveUp(int idx);
-    void MoveDowm(int idx);
+    void MoveDown(int idx);
 
     void MoveToTop(int idx);
     void MoveToBottom(int idx);

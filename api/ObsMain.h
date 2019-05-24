@@ -82,9 +82,9 @@ public:
     void SaveProject();
 
     //ÏÔÊ¾²Ëµ¥
-    void DoShowMenu(const ObsPoint &pt) {
+    void DoShowMenu(window_handle_t handle, const ObsPoint &pt) {
         if (m_observer)
-            m_observer->OnMenu(pt);
+            m_observer->OnMenu(handle,pt);
     }
     void FitToScreen();
 

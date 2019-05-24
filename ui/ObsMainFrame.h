@@ -78,6 +78,7 @@ public:
     virtual void OnRenameSources(OBSSource source,
         const char* oldName, const char* newName)
     {
+
     }
 
     //重新加载sceneitem
@@ -123,10 +124,7 @@ public:
     }
 
     //显示菜单
-    virtual void OnMenu(const ObsPoint& point)
-    {
-
-    }
+    virtual void OnMenu(window_handle_t handle,const ObsPoint& point);
 
     void PostMsg(unsigned int msgid, std::shared_ptr<CMsgData> data = nullptr)
     {
@@ -152,7 +150,9 @@ protected:
     void AddScene(OBSScene scene);
     void AddSceneItem(OBSSceneItem item);
     void AddNewSceneBtn();
+    void UpdateSceneItemName(int index,const CDuiString& name);
 
+    void ShowSceneItemMenu(HWND hParent,POINT pt,int index);
 private:
     CMsgQueue m_msgQueue;
     CHorizontalLayoutUI* m_sceneList;

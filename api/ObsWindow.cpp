@@ -678,6 +678,8 @@ void ObsWindow::OnMousePressEvent(ObsMouseEvent *event)
 
     if (event->button == LeftButton)
         mouseDown = true;
+    else
+        rmouseDown = true;
 
 
     vec2_set(&startPos, x, y);
@@ -796,7 +798,7 @@ void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
         return;
     }
 
-    if (mouseDown) {
+    if (mouseDown || rmouseDown) {
         vec2 pos = GetMouseEventPos(event);
 
         if (!mouseMoved)
@@ -809,12 +811,13 @@ void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
         stretchItem = nullptr;
         stretchGroup = nullptr;
         mouseDown = false;
+        rmouseDown = false;
         mouseMoved = false;
         cropping = false;
 
         if (event->button == RightButton)
         {
-            ObsMain::Instance()->DoShowMenu(ObsPoint(event->x, event->y));
+            ObsMain::Instance()->DoShowMenu(GetWndHandle(),ObsPoint(event->x, event->y));
         }
     }
 }

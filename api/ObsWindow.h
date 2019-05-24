@@ -89,6 +89,7 @@ protected:
     vec2         lastMoveOffset;
     bool         cropping = false;
     bool         mouseDown = false;
+    bool         rmouseDown = false;
     bool         mouseMoved = false;
     bool         mouseOverItems = false;
 };

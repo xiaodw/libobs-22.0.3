@@ -4,7 +4,6 @@
 #include "controls/OptionsEx.h"
 #include "api/ObsUtils.h"
 
-#include "NewSceneDialog.h"
 #include "WindowSelectDialog.h"
 #include "DeviceSelectDialog.h"
 #include "MsgBox.h"
@@ -243,10 +242,6 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BAddScene")) == 0)
         {
-            //添加场景按钮
-            //CNewSceneDialog* dialog = new CNewSceneDialog();
-            //dialog->ShowDialog(m_hWnd);
-
             CRenameDialog* dialog = new CRenameDialog();
             dialog->ShowDialog(m_hWnd, _T("创建场景"), _T(""), [](CRenameDialog* dialog) {
                 CDuiString text = dialog->GetText();
@@ -269,7 +264,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
                     if (!nameUsed)
                     {
                         ObsMain::Instance()->AddScene(utf8.c_str(), true);
-                        return false;
+                        return true;
                     }
                     else
                     {
@@ -280,7 +275,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
                 {
                     dialog->ShowTip(_T("名称不能为空"));
                 }
-                return true;
+                return false;
             });
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BGame")) == 0)
@@ -360,38 +355,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             int index = m_sceneItemList->FindItemByPos(msg.ptMouse);
             if (index>=0)
             {
-                CMenuWnd::ShowMenu(m_hWnd, _T("SceneItemMenu.xml"), msg.ptMouse, [index,this](CMenuElementUI* elem) {
-                    CDuiString name = elem->GetName();
-                    if (name == _T("FitScreen"))
-                    {
-                        ObsMain::Instance()->FitToScreen();
-                    }
-                    else if (name == _T("MoveTop"))
-                    {
-                        ObsMain::Instance()->sceneItemList().MoveToTop(index);
-                    }
-                    else if (name == _T("MoveUp"))
-                    {
-                        ObsMain::Instance()->sceneItemList().MoveUp(index);
-                    }
-                    else if (name == _T("MoveDown"))
-                    {
-                        ObsMain::Instance()->sceneItemList().MoveDowm(index);
-                    }
-                    else if (name == _T("MoveBottom"))
-                    {
-                        ObsMain::Instance()->sceneItemList().MoveToBottom(index);
-                    }
-                    else if (name == _T("Rename"))
-                    {
-                        
-                    }
-                    else if (name == _T("Delete"))
-                    {
-                        PostMsg(MSG_DELETE_ELEM,
-                            std::make_shared<CTypedMsgData<int>>(index));
-                    }
-                });
+                ShowSceneItemMenu(m_hWnd, msg.ptMouse, index);
             }
         }
     }
@@ -412,6 +376,75 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             ObsMain::Instance()->SetCurrentScene(scene);
         }
     }
+}
+
+void CObsMainFrame::ShowSceneItemMenu(HWND hParent,POINT pt,int index)
+{
+    CMenuWnd::ShowMenu(hParent, _T("SceneItemMenu.xml"), pt, [index, this](CMenuElementUI* elem) {
+        CDuiString name = elem->GetName();
+        if (name == _T("FitScreen"))
+        {
+            ObsMain::Instance()->FitToScreen();
+        }
+        else if (name == _T("MoveTop"))
+        {
+            ObsMain::Instance()->sceneItemList().MoveToTop(index);
+        }
+        else if (name == _T("MoveUp"))
+        {
+            ObsMain::Instance()->sceneItemList().MoveUp(index);
+        }
+        else if (name == _T("MoveDown"))
+        {
+            ObsMain::Instance()->sceneItemList().MoveDown(index);
+        }
+        else if (name == _T("MoveBottom"))
+        {
+            ObsMain::Instance()->sceneItemList().MoveToBottom(index);
+        }
+        else if (name == _T("Rename"))
+        {
+            name = ObsMain::Instance()->sceneItemList().itemName(index);
+            CRenameDialog* dialog = new CRenameDialog();
+            dialog->ShowDialog(m_hWnd, _T("重命名"), name, [index, this](CRenameDialog* dialog) {
+                ObsSceneItemList& list = ObsMain::Instance()->sceneItemList();
+                CDuiString text = dialog->GetText();
+                CDuiString name = list.itemName(index);
+                if (text == name)
+                    return true;
+
+                if (text.GetLength() > 0)
+                {
+                    std::string utf8 = ToUtf8(text);
+                    bool nameUsed = false;
+
+                    //名称不能重复
+                    auto& scenes = ObsMain::Instance()->scenes();
+                    if (obs_get_source_by_name(utf8.c_str()))
+                    {
+                        dialog->ShowTip(_T("名称不能重复"));
+                    }
+                    else
+                    {
+                        ObsMain::Instance()->sceneItemList().SetName(index, utf8.c_str());
+                        UpdateSceneItemName(index, text);
+                        return true;
+                    }
+                }
+                else
+                {
+                    dialog->ShowTip(_T("名称不能为空"));
+                }
+                return false;
+            });
+        }
+        else if (name == _T("Delete"))
+        {
+            PostMsg(MSG_DELETE_ELEM,
+                std::make_shared<CTypedMsgData<int>>(index));
+        }
+    });
+
 }
 
 LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -556,6 +589,13 @@ void CObsMainFrame::AddNewSceneBtn()
     }
 }
 
+void CObsMainFrame::UpdateSceneItemName(int index, const CDuiString& name)
+{
+    CListContainerElementUI* elem = (CListContainerElementUI*)m_sceneItemList->GetItemAt(index);
+    if (elem)
+        elem->FindSubControl(_T("SceneItemName"))->SetText(name);
+}
+
 void CObsMainFrame::AddSceneItem(OBSSceneItem item)
 {
     CDuiString name = ObsSceneItemList::itemName(item);
@@ -595,5 +635,16 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
 
     if (bSelected)
         elem->Select(true, false);
+}
+
+void CObsMainFrame::OnMenu(window_handle_t handle, const ObsPoint& point)
+{
+    int index = ObsMain::Instance()->sceneItemList().GetCurrentIndex();
+
+    if (index >= 0)
+    {
+        POINT pt = { point.x,point.y };
+        ShowSceneItemMenu((HWND)handle, pt, index);
+    }
 }
 

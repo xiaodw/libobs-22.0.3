@@ -43,7 +43,7 @@ protected:
     }
 
 private:
-    //返回true表示不关闭窗口
+    //返回true表示关闭窗口
     std::function<bool(CRenameDialog*)> m_callback;
 
     CEditUI* m_editor;

@@ -240,15 +240,24 @@ void ObsSceneItemList::OnSelect(obs_sceneitem_t *item, bool bSel)
 void ObsSceneItemList::MoveUp(int idx)
 {
     OBSSceneItem item = Get(idx);
-    if(item)
+    if (item)
+    {
         obs_sceneitem_set_order(item, OBS_ORDER_MOVE_UP);
+        if (idx == m_select && idx > 0)
+            m_select = m_select - 1;
+    }
+
 }
 
-void ObsSceneItemList::MoveDowm(int idx)
+void ObsSceneItemList::MoveDown(int idx)
 {
     OBSSceneItem item = Get(idx);
     if (item)
+    {
         obs_sceneitem_set_order(item, OBS_ORDER_MOVE_DOWN);
+        if (idx == m_select && idx < m_items.size() -1)
+            m_select = m_select + 1;
+    }
 }
 
 
@@ -256,14 +265,23 @@ void ObsSceneItemList::MoveToTop(int idx)
 {
     OBSSceneItem item = Get(idx);
     if (item)
+    {
         obs_sceneitem_set_order(item, OBS_ORDER_MOVE_TOP);
+        if (idx == m_select)
+            m_select = 0;
+    }
+
 }
 
 void ObsSceneItemList::MoveToBottom(int idx)
 {
     OBSSceneItem item = Get(idx);
     if (item)
+    {
         obs_sceneitem_set_order(item, OBS_ORDER_MOVE_BOTTOM);
+        if (idx == m_select)
+            m_select = m_items.size() - 1;
+    }
 }
 
 void ObsSceneItemList::Remove(int idx)
@@ -273,6 +291,10 @@ void ObsSceneItemList::Remove(int idx)
     {
         obs_sceneitem_remove(item);
         OnRemove(item);
+        if (idx == m_select)
+        {
+            m_select = -1;
+        }
     }
 }
 

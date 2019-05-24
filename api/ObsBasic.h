@@ -46,7 +46,7 @@ public:
     virtual void OnRecordingStop(int code) = 0;
 
     //œ‘ æ≤Àµ•
-    virtual void OnMenu(const ObsPoint& point) = 0;
+    virtual void OnMenu(window_handle_t handle,const ObsPoint& point) = 0;
 };
 
 
