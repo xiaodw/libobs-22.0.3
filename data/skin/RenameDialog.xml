@@ -7,7 +7,7 @@
   
   <VerticalLayout bkcolor="#FFFFFFFF">
     <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
-        <Label text="创建场景" textcolor="#ffffff" font="1"/>
+        <Label name="title" text="创建场景" textcolor="#ffffff" font="1"/>
         <Button name="closebtn" default="DlgCloseBtn"/>                    
     </HorizontalLayout>
 

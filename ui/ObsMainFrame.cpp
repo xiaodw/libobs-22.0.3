@@ -12,6 +12,7 @@
 #include "AddVideoDialog.h"
 #include "AddImageDialog.h"
 #include "AddTextDialog.h"
+#include "RenameDialog.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -243,8 +244,44 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         else if (_tcsicmp(msg.pSender->GetName(), _T("BAddScene")) == 0)
         {
             //添加场景按钮
-            CNewSceneDialog* dialog = new CNewSceneDialog();
-            dialog->ShowDialog(m_hWnd);
+            //CNewSceneDialog* dialog = new CNewSceneDialog();
+            //dialog->ShowDialog(m_hWnd);
+
+            CRenameDialog* dialog = new CRenameDialog();
+            dialog->ShowDialog(m_hWnd, _T("创建场景"), _T(""), [](CRenameDialog* dialog) {
+                CDuiString text = dialog->GetText();
+                if (text.GetLength() > 0)
+                {
+                    std::string utf8 = ToUtf8(text);
+                    bool nameUsed = false;
+
+                    //名称不能重复
+                    auto& scenes = ObsMain::Instance()->scenes();
+                    for (auto& data : scenes)
+                    {
+                        if (strcmp(data->name(), utf8.c_str()) == 0)
+                        {
+                            nameUsed = true;
+                            break;
+                        }
+                    }
+
+                    if (!nameUsed)
+                    {
+                        ObsMain::Instance()->AddScene(utf8.c_str(), true);
+                        return false;
+                    }
+                    else
+                    {
+                        dialog->ShowTip(_T("名称不能重复"));
+                    }
+                }
+                else
+                {
+                    dialog->ShowTip(_T("名称不能为空"));
+                }
+                return true;
+            });
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BGame")) == 0)
         {

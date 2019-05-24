@@ -10,6 +10,7 @@
 #include <objbase.h>
 #include <zmouse.h>
 
+#include <functional>
 #include "UIlib.h"
 #include "controls/UIMenu.h"
 #include "api/ObsUtils.h"
