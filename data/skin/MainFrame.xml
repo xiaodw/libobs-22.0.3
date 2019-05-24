@@ -6,7 +6,7 @@
   
   <Include source="default.xml"/>
   
-  <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb2.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;" shared="true"/>
+  <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb2.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;"/>
   
   <Default name="NewSceneBtn" value="name=&quot;BAddScene&quot; tooltip=&quot;添加场景&quot; height=&quot;36&quot; width=&quot;36&quot; normalimage=&quot;file='image/add.png' source='0,0,16,16' dest='10,10,26,26'&quot; hotimage=&quot;file='image/add.png' source='16,0,32,16' dest='10,10,26,26'&quot; pushedimage=&quot;file='image/add.png' source='32,0,48,16' dest='10,10,26,26'&quot;"/>
   
@@ -29,7 +29,7 @@
       </HorizontalLayout>
     </HorizontalLayout>
 	<HorizontalLayout>
-		<List name="SceneItemList" width="132" header="hidden" bkcolor="#ff252526" itemselectedbkcolor="#ff161616" itemhotbkcolor="#ff242424" vscrollbar="true">
+		<List name="SceneItemList" width="132" header="hidden" bkcolor="#ff252526" itemselectedbkcolor="#ff161616" itemhotbkcolor="#ff242424" vscrollbar="true" menu="true">
 			<ListContainerElement height="30" inset="10,0,10,0">
 				<HorizontalLayout>
 					<Option default="SceneItemVisibleOpt"/>

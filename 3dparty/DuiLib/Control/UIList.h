@@ -111,6 +111,7 @@ public:
     int GetCurSel() const;
     bool SelectItem(int iIndex, bool bTakeFocus = false, bool bTriggerEvent=true);
 
+    int FindItemByPos(POINT pt)const;
     CControlUI* GetItemAt(int iIndex) const;
     int GetItemIndex(CControlUI* pControl) const;
     bool SetItemIndex(CControlUI* pControl, int iIndex);

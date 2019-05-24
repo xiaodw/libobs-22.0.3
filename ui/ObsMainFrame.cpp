@@ -222,14 +222,6 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             SendMessage(WM_SYSCOMMAND, SC_RESTORE, 0);
 #endif
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("btn_menu")) == 0)
-        {
-            //CMenuWnd* pMenu = new CMenuWnd(m_hWnd);
-            //CDuiPoint point = msg.ptMouse;
-            //ClientToScreen(m_hWnd, &point);
-            //STRINGorID xml(IDR_XML_MENU);
-            //pMenu->Init(NULL, xml, _T("xml"), point);
-        }
         else if (_tcsicmp(msg.pSender->GetName(), _T("SceneItemRemove")) == 0)
         {
             CListContainerElementUI* elem = static_cast<CListContainerElementUI*>(msg.pSender->GetParent()->GetParent());
@@ -323,6 +315,49 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             itemList.Select(msg.wParam);
         }
     }
+    else if (_tcsicmp(msg.sType, DUI_MSGTYPE_MENU) == 0)
+    {
+        //list item选中
+        if (_tcsicmp(msg.pSender->GetName(), _T("SceneItemList")) == 0)
+        {
+            int index = m_sceneItemList->FindItemByPos(msg.ptMouse);
+            if (index>=0)
+            {
+                CMenuWnd::ShowMenu(m_hWnd, _T("SceneItemMenu.xml"), msg.ptMouse, [index,this](CMenuElementUI* elem) {
+                    CDuiString name = elem->GetName();
+                    if (name == _T("FitScreen"))
+                    {
+                        ObsMain::Instance()->FitToScreen();
+                    }
+                    else if (name == _T("MoveTop"))
+                    {
+                        ObsMain::Instance()->sceneItemList().MoveToTop(index);
+                    }
+                    else if (name == _T("MoveUp"))
+                    {
+                        ObsMain::Instance()->sceneItemList().MoveUp(index);
+                    }
+                    else if (name == _T("MoveDown"))
+                    {
+                        ObsMain::Instance()->sceneItemList().MoveDowm(index);
+                    }
+                    else if (name == _T("MoveBottom"))
+                    {
+                        ObsMain::Instance()->sceneItemList().MoveToBottom(index);
+                    }
+                    else if (name == _T("Rename"))
+                    {
+                        
+                    }
+                    else if (name == _T("Delete"))
+                    {
+                        PostMsg(MSG_DELETE_ELEM,
+                            std::make_shared<CTypedMsgData<int>>(index));
+                    }
+                });
+            }
+        }
+    }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_SELECTCHANGED) == 0)
     {
         //option事件
@@ -413,6 +448,23 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
         {
             CTypedMsgData<int>*index = static_cast<CTypedMsgData<int>*>(data);
             m_sceneItemList->SelectItem(index->data, false, false);
+        }
+        break;
+    case MSG_DELETE_ELEM:
+        {
+            CTypedMsgData<int>*index = static_cast<CTypedMsgData<int>*>(data);
+            ObsSceneItemList& itemList = ObsMain::Instance()->sceneItemList();
+            const char* nameUtf8 = itemList.itemName(index->data);
+            CDuiString tip;
+            CDuiString name(nameUtf8);
+            tip.Format(_T("您确定要删除\"%s\"?"), name.GetData());
+
+            //提示是否关闭
+            CMsgBox msgBox;
+            if (msgBox.DuiMessageBox(m_hWnd, tip, _T("提示")) == IDOK)
+            {
+                itemList.Remove(index->data);
+            }
         }
         break;
     default:

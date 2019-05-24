@@ -40,6 +40,8 @@ public:
         MSG_RECORD_STOPPING,
         MSG_RECORD_STOP,
         MSG_RECORD_START,
+
+        MSG_DELETE_ELEM,
     };
     typedef CTypedMsgData<OBSSource> ObsSourceData;
     typedef CTypedMsgData<OBSScene> ObsSceneData;
@@ -58,7 +60,7 @@ public:
 
     virtual void OnReorderScene()
     {
-        PostMsg(MSG_REORDER_SCENE);
+        PostOnce(MSG_REORDER_SCENE);
     }
 
     virtual void OnActivateAudioSource(OBSSource source)
@@ -81,7 +83,7 @@ public:
     //÷ÿ–¬º”‘ÿsceneitem
     virtual void OnReloadSceneItemList()
     {
-        PostMsg(MSG_RELOAD_SCENE_ITEM);
+        PostOnce(MSG_RELOAD_SCENE_ITEM);
     }
 
     virtual void OnSceneItemSelectChanged(int index)
@@ -128,6 +130,14 @@ public:
 
     void PostMsg(unsigned int msgid, std::shared_ptr<CMsgData> data = nullptr)
     {
+        m_msgQueue.PostMsg(msgid, this, data);
+        PostMessage(MSG_HANDLE_MSG);
+    }
+
+    void PostOnce(unsigned int msgid, std::shared_ptr<CMsgData> data = nullptr)
+    {
+        if (m_msgQueue.CheckMsg(msgid, this))
+            return;
         m_msgQueue.PostMsg(msgid, this, data);
         PostMessage(MSG_HANDLE_MSG);
     }

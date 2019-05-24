@@ -87,7 +87,6 @@ public:
             m_observer->OnMenu(pt);
     }
     void FitToScreen();
-    void StretchToScreen();
 
     //Ìí¼ÓÆÁÄ»²¶×½
     bool AddCaptureScreen(const char* name);

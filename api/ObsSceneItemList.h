@@ -38,6 +38,8 @@ public:
     void Remove(int idx);
     void Select(int idx);
 
+    const char* itemName(int idx);
+
     //ªÒ»°item Ù–‘
     static const char* itemName(OBSSceneItem item);
     static bool itemVisible(OBSSceneItem item);

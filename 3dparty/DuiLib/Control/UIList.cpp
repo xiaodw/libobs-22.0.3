@@ -85,6 +85,19 @@ CControlUI* CListUI::GetItemAt(int iIndex) const
     return m_pList->GetItemAt(iIndex);
 }
 
+int CListUI::FindItemByPos(POINT pt) const
+{
+    for (int i = 0; i < m_pList->GetCount(); ++i)
+    {
+        CControlUI* pctrl = m_pList->GetItemAt(i);
+        if (PtInRect(&pctrl->GetPos(), pt))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 int CListUI::GetItemIndex(CControlUI* pControl) const
 {
     if( pControl->GetInterface(DUI_CTR_LISTHEADER) != NULL ) return CVerticalLayoutUI::GetItemIndex(pControl);

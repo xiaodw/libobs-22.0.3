@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Font id="0" name="微软雅黑" size="12" bold="false" default="true" />
+
+  <Menu>
+	<MenuElement name="FitScreen" text="适配屏幕" height="32"/>
+	<MenuElement name="MoveTop" text="置于顶层" height="32"/>
+	<MenuElement name="MoveUp" text="上移一层" height="32"/>
+	<MenuElement name="MoveDown" text="下移一层" height="32"/>
+	<MenuElement name="MoveBottom" text="置于底层" height="32"/>
+		<MenuElement name="Rename" text="重命名" height="32"/>
+	<MenuElement name="Delete" text="删除" height="32"/>
+
+	
+  </Menu>
+</Window>

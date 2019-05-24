@@ -936,29 +936,47 @@ static bool get_selected_item(obs_scene_t *scene, obs_sceneitem_t *item, void *p
 static bool CenterAlignSelectedItems(obs_scene_t *scene, obs_sceneitem_t *item,
     void *param)
 {
-    obs_bounds_type boundsType = *reinterpret_cast<obs_bounds_type*>(param);
-
     if (obs_sceneitem_is_group(item))
         obs_sceneitem_group_enum_items(item, CenterAlignSelectedItems,
             param);
     if (!obs_sceneitem_selected(item))
         return true;
 
-    obs_video_info ovi;
-    obs_get_video_info(&ovi);
+    obs_source_t* source = obs_sceneitem_get_source(item);
+    uint32_t     flags = obs_source_get_output_flags(source);
 
-    obs_transform_info itemInfo;
-    vec2_set(&itemInfo.pos, 0.0f, 0.0f);
-    vec2_set(&itemInfo.scale, 1.0f, 1.0f);
-    itemInfo.alignment = OBS_ALIGN_LEFT | OBS_ALIGN_TOP;
-    itemInfo.rot = 0.0f;
+    if (flags & OBS_SOURCE_VIDEO)
+    {
+        obs_transform_info itemInfo;
+        obs_video_info ovi;
+        obs_get_video_info(&ovi);
 
-    vec2_set(&itemInfo.bounds,
-        float(ovi.base_width), float(ovi.base_height));
-    itemInfo.bounds_type = boundsType;
-    itemInfo.bounds_alignment = OBS_ALIGN_CENTER;
+        uint32_t width = obs_source_get_width(source);
+        uint32_t height = obs_source_get_height(source);
 
-    obs_sceneitem_set_info(item, &itemInfo);
+        obs_sceneitem_get_info(item, &itemInfo);
+
+        float ratio = (float)width / (float)height;
+
+        if (ovi.base_width > ratio* ovi.base_height)
+        {
+            //  ≈‰∏ﬂ∂»
+            itemInfo.scale.x = itemInfo.scale.y = (float)ovi.base_height/ (float)height;
+            itemInfo.pos.x = (ovi.base_width - ovi.base_height*ratio)/2.0;
+            itemInfo.pos.y = 0;
+        }
+        else
+        {
+            //  ≈‰øÌ∂»
+            itemInfo.scale.x = itemInfo.scale.y = (float)ovi.base_width / (float)width;
+
+            itemInfo.pos.x = 0;
+            itemInfo.pos.y = (ovi.base_height - ovi.base_width/ratio) / 2.0;
+        }
+
+        obs_sceneitem_set_info(item, &itemInfo);
+    }
+
 
     UNUSED_PARAMETER(scene);
     return true;
@@ -966,16 +984,7 @@ static bool CenterAlignSelectedItems(obs_scene_t *scene, obs_sceneitem_t *item,
 
 void ObsMain::FitToScreen()
 {
-    obs_bounds_type boundsType = OBS_BOUNDS_SCALE_INNER;
-    obs_scene_enum_items(GetCurrentScene(), CenterAlignSelectedItems,
-        &boundsType);
-}
-
-void ObsMain::StretchToScreen()
-{
-    obs_bounds_type boundsType = OBS_BOUNDS_STRETCH;
-    obs_scene_enum_items(GetCurrentScene(), CenterAlignSelectedItems,
-        &boundsType);
+    obs_scene_enum_items(GetCurrentScene(), CenterAlignSelectedItems,NULL);
 }
 
 static char *get_new_source_name(const char *name)

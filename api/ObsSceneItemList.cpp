@@ -52,6 +52,15 @@ void ObsSceneItemList::OnSceneChanged()
     }
 }
 
+static inline void MoveItem(std::vector<OBSSceneItem> &items, int oldIdx, int newIdx)
+{
+    OBSSceneItem item = items[oldIdx];
+    items.erase(items.begin()+oldIdx);
+    items.insert(items.begin()+newIdx, item);
+}
+
+
+
 void ObsSceneItemList::OnReorderItems()
 {
     OBSScene scene = GetCurrentScene();
@@ -116,8 +125,18 @@ void ObsSceneItemList::OnReorderItems()
             }
         }
 
+        //Ìø×ªitemsµÄË³Ðò
+        for (i = 0; i < count; i++) {
+            int to = idx1New + count;
+            if (to > idx1Old)
+                to--;
+            MoveItem(m_items, idx1Old, to);
+        }
+
         if (m_obsMain->observer())
             m_obsMain->observer()->OnReloadSceneItemList();
+
+        break;
     }
 }
 
@@ -287,6 +306,15 @@ void ObsSceneItemList::Select(int idx)
     {
         obs_sceneitem_select(m_items[i], idx == i);
     }
+}
+
+const char* ObsSceneItemList::itemName(int idx)
+{
+    OBSSceneItem item = Get(idx);
+    if (!item)
+        return "";
+    obs_source_t *source = obs_sceneitem_get_source(item);
+    return obs_source_get_name(source);
 }
 
 const char* ObsSceneItemList::itemName(OBSSceneItem item)

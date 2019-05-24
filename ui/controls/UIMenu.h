@@ -6,8 +6,12 @@
 #endif
 
 #include "observer_impl_base.hpp"
+#include <functional>
 
 namespace DuiLib {
+
+
+class CMenuElementUI;
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -15,6 +19,7 @@ struct ContextMenuParam
 {
 	// 1: remove all
 	// 2: remove the sub menu
+    CMenuElementUI* pSender;
 	WPARAM wParam;
 	HWND hWnd;
 };
@@ -67,12 +72,16 @@ public:
 extern const TCHAR* const kMenuElementUIClassName;// = _T("MenuElement");
 extern const TCHAR* const kMenuElementUIInterfaceName;// = _T("MenuElement);
 
-class CMenuElementUI;
+
 class CMenuWnd : public CWindowWnd, public ContextMenuReceiver
 {
 public:
+    static CMenuWnd* ShowMenu(HWND hParent, STRINGorID xml,
+        POINT point, std::function<void(CMenuElementUI*)> func);
+
 	CMenuWnd(HWND hParent = NULL);
     void Init(CMenuElementUI* pOwner, STRINGorID xml, LPCTSTR pSkinType, POINT point);
+
     LPCTSTR GetWindowClassName() const;
     void OnFinalMessage(HWND hWnd);
 
@@ -88,6 +97,7 @@ public:
     CPaintManagerUI m_pm;
     CMenuElementUI* m_pOwner;
     CMenuUI* m_pLayout;
+    std::function<void(CMenuElementUI*)> m_clickEvent;
 };
 
 class CListContainerElementUI;
@@ -118,6 +128,27 @@ public:
 
 protected:
 	CMenuWnd* m_pWindow;
+};
+
+class CMenuSeparateUI :public CListElementUI
+{
+public:
+    LPCTSTR GetClass() const { return _T("MenuSeparateUI"); }
+    LPVOID GetInterface(LPCTSTR pstrName) { return _T("MenuSeparate"); }
+
+    CMenuSeparateUI() :m_lineColor(0xffb7c3cc) {
+        memset(&m_lineInset, 0, sizeof(RECT));
+        m_bMouseEnabled = false;
+        m_bKeyboardEnabled = false;
+    }
+
+    void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+    void DoPaint(HDC hDC, const RECT& rcPaint);
+    void DrawItemText(HDC hDC, const RECT& rcItem) {}
+
+private:
+    RECT m_lineInset;
+    DWORD m_lineColor;
 };
 
 } // namespace DuiLib

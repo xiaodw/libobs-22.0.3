@@ -1,5 +1,5 @@
 #pragma once
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <memory>
 
@@ -40,13 +40,18 @@ public:
     CMsgQueue();
     ~CMsgQueue();
 
+    bool CheckMsg(unsigned int msgid, CMsgHandler* handler);
     void PostMsg(unsigned int msgid, CMsgHandler* handler,
+        std::shared_ptr<CMsgData> data);
+
+    void PostOnce(unsigned int msgid, CMsgHandler* handler,
         std::shared_ptr<CMsgData> data);
     void HandleMsg();
 private:
     bool PopMsg(Msg* msg);
 
-    std::queue<Msg> m_queue;
+
+    std::deque<Msg> m_queue;
     std::mutex m_lock;
 };
 

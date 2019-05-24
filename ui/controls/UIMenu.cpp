@@ -11,6 +11,7 @@ ContextMenuObserver s_context_menu_observer;
 // MenuUI
 const TCHAR* const kMenuUIClassName = _T("MenuUI");
 const TCHAR* const kMenuUIInterfaceName = _T("Menu");
+const TCHAR* const kMenuSeparateUIInterfaceName = _T("MenuSeparate");
 
 CMenuUI::CMenuUI()
 {
@@ -130,6 +131,10 @@ class CMenuBuilderCallback: public IDialogBuilderCallback
 		{
 			return new CMenuElementUI();
 		}
+        else if (_tcsicmp(pstrClass, kMenuSeparateUIInterfaceName) == 0)
+        {
+            return new CMenuSeparateUI();
+        }
 		return NULL;
 	}
 };
@@ -141,11 +146,29 @@ m_pLayout(),
 m_xml(_T(""))
 {}
 
+CMenuWnd* CMenuWnd::ShowMenu(HWND hParent, STRINGorID xml,
+    POINT point, std::function<void(CMenuElementUI*)> func)
+{
+    CMenuWnd* pMenu = new CMenuWnd(hParent);
+    if (pMenu == NULL) { return NULL; }
+
+    pMenu->m_clickEvent = func;
+    if(hParent)
+        ::ClientToScreen(hParent, &point);
+
+    pMenu->Init(NULL, xml, _T("xml"), point);
+    return pMenu;
+}
+
 BOOL CMenuWnd::Receive(ContextMenuParam param)
 {
 	switch (param.wParam)
 	{
 	case 1:
+        if(m_clickEvent && param.pSender)
+        {
+            m_clickEvent(param.pSender);
+        }
 		Close();
 		break;
 	case 2:
@@ -427,7 +450,7 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		BOOL bInMenuWindowList = FALSE;
 		ContextMenuParam param;
 		param.hWnd = GetHWND();
-
+        param.pSender = NULL;
 		ContextMenuObserver::Iterator<BOOL, ContextMenuParam> iterator(s_context_menu_observer);
 		ReceiverImplBase<BOOL, ContextMenuParam>* pReceiver = iterator.next();
 		while( pReceiver != NULL ) {
@@ -465,6 +488,7 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 // MenuElementUI
 const TCHAR* const kMenuElementUIClassName = _T("MenuElement");
 const TCHAR* const kMenuElementUIInterfaceName = _T("MenuElement");
+
 
 CMenuElementUI::CMenuElementUI():
 m_pWindow(NULL)
@@ -666,6 +690,7 @@ void CMenuElementUI::DoEvent(TEventUI& event)
 			ContextMenuParam param;
 			param.hWnd = m_pManager->GetPaintWindow();
 			param.wParam = 2;
+            param.pSender = this;
 			s_context_menu_observer.RBroadcast(param);
 			m_pOwner->SelectItem(GetIndex(), true);
 		}
@@ -696,6 +721,7 @@ void CMenuElementUI::DoEvent(TEventUI& event)
 				ContextMenuParam param;
 				param.hWnd = m_pManager->GetPaintWindow();
 				param.wParam = 1;
+                param.pSender = this;
 				s_context_menu_observer.RBroadcast(param);
 			}
         }
@@ -730,6 +756,7 @@ bool CMenuElementUI::Activate()
 			ContextMenuParam param;
 			param.hWnd = m_pManager->GetPaintWindow();
 			param.wParam = 1;
+            param.pSender = this;
 			s_context_menu_observer.RBroadcast(param);
 		}
 
@@ -753,10 +780,43 @@ void CMenuElementUI::CreateMenuWnd()
 	ContextMenuParam param;
 	param.hWnd = m_pManager->GetPaintWindow();
 	param.wParam = 2;
+    param.pSender = this;
 	s_context_menu_observer.RBroadcast(param);
 
 	m_pWindow->Init(static_cast<CMenuElementUI*>(this), _T(""), _T(""), CDuiPoint());
 }
 
+
+void CMenuSeparateUI::DoPaint(HDC hDC, const RECT& rcPaint)
+{
+    RECT rc = m_rcItem;
+    rc.left += m_lineInset.left;
+    rc.top += m_lineInset.top;
+    rc.right -= m_lineInset.right;
+    rc.bottom -= m_lineInset.bottom;
+
+    CRenderEngine::DrawColor(hDC, rc, m_lineColor);
+}
+
+void CMenuSeparateUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
+{
+    if (_tcscmp(pstrName,_T("inset")) == 0)
+    {
+        LPTSTR pstr = NULL;
+        m_lineInset.left = _tcstol(pstrValue, &pstr, 10);  ASSERT(pstr);
+        m_lineInset.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
+        m_lineInset.right = _tcstol(pstr + 1, &pstr, 10);  ASSERT(pstr);
+        m_lineInset.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);
+    }
+    else  if (_tcscmp(pstrName, _T("color")) == 0)
+    {
+        while (*pstrValue > _T('\0') && *pstrValue <= _T(' ')) pstrValue = ::CharNext(pstrValue);
+        if (*pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
+        LPTSTR pstr = NULL;
+        m_lineColor = _tcstoul(pstrValue, &pstr, 16);
+    }
+    else
+        CListElementUI::SetAttribute(pstrName, pstrValue);
+}
 
 } // namespace DuiLib

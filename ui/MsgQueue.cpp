@@ -17,7 +17,26 @@ void CMsgQueue::PostMsg(unsigned int msgid, CMsgHandler* handler, std::shared_pt
     msg.data = data;
     msg.handler = handler;
     msg.msgid = msgid;
-    m_queue.push(msg);
+    m_queue.push_back(msg);
+}
+
+void CMsgQueue::PostOnce(unsigned int msgid, CMsgHandler* handler,
+    std::shared_ptr<CMsgData> data)
+{
+    if (CheckMsg(msgid, handler))
+        return;
+    PostMsg(msgid, handler, data);
+}
+
+bool CMsgQueue::CheckMsg(unsigned int msgid, CMsgHandler* handler)
+{
+    std::lock_guard<std::mutex> lock(m_lock);
+    for (auto& data : m_queue)
+    {
+        if (data.msgid == msgid && data.handler == handler)
+            return true;
+    }
+    return false;
 }
 
 bool CMsgQueue::PopMsg(Msg* msg)
@@ -26,7 +45,7 @@ bool CMsgQueue::PopMsg(Msg* msg)
     if (!m_queue.empty())
     {
         *msg = m_queue.front();
-        m_queue.pop();
+        m_queue.pop_front();
         return true;
     }
     return false;
