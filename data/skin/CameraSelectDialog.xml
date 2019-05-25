@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="420,280" caption="0,0,0,36" defaultfontcolor="#666666"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Include source="default.xml"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="选择设备" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" default="DlgCloseBtn"/>                    
+    </HorizontalLayout>
+
+	<VerticalLayout inset="36,10,36,0">
+		<HorizontalLayout height="25">
+			<Label name="LTip" text="请选择视频设备:" height="25" textcolor="#666666"/>
+
+			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>						
+		</HorizontalLayout>
+		<Control height="14"/>
+		<List name="List" default="SelectList">
+
+		</List>
+		
+		<Control height="18"/>	
+		
+		<HorizontalLayout height="24">
+			<Label text="分辨率:" width="60"/>
+			<Combo name="CResolution" width="150" itemtextcolor="#333333">
+				<ListLabelElement text="设备默认" height="24" selected="true"/>
+			</Combo>
+			
+			<Control width="25"/>
+			<Option name="OGreenBkg" text="开启绿幕" width="80" default="CheckBox"/>
+
+		</HorizontalLayout>
+		
+		<Control height="18"/>
+		<HorizontalLayout height="35" childpadding="25">
+		  <Control />
+		  
+		  <Button name="acceptbtn" width="140" height="35" text="确定" default="AcceptBtn"/>
+		  
+		  <Control />
+		</HorizontalLayout>
+		<Control height="20"/>
+	</VerticalLayout>
+  </VerticalLayout>  
+</Window>
+
+ 

@@ -76,7 +76,12 @@ void CDeviceSelectDialog::Notify(TNotifyUI& msg)
                  if (m_isVideo)
                  {
                      COptionUI* opt =(COptionUI*) m_PaintManager.FindControl(_T("OGreenBkg"));
-                     ObsMain::Instance()->AddCamera(nameUtf, deviceidUtf, opt->IsSelected());
+
+                     ObsMain::CameraInfo info;
+                     info.greeenBkg = opt->IsSelected();
+                     info.deviceid = deviceidUtf;
+
+                     ObsMain::Instance()->AddCamera(nameUtf, &info);
                  }
                  else
                      ObsMain::Instance()->AddAudio(nameUtf, deviceidUtf);

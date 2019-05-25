@@ -96,7 +96,12 @@ public:
     bool AddGameCapture(const char* name,const char* window);
     bool AddWindowCapture(const char* name, const char* window);
 
-    bool AddCamera(const char* name, const char* deviceid,bool enableGreeenBkg);
+    struct CameraInfo {
+        std::string deviceid;
+        std::string resolution;
+        bool greeenBkg;
+    };
+    bool AddCamera(const char* name,const CameraInfo* info);
     bool AddAudio(const char* name, const char* deviceid);
 
     bool AddImage(const char* path,int alpha);

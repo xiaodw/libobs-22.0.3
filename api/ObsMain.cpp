@@ -1048,12 +1048,18 @@ bool ObsMain::AddWindowCapture(const char* name, const char* window)
     return AddSource(source);
 }
 
-bool ObsMain::AddCamera(const char* name, const char* deviceid, bool enableGreeenBkg)
+bool ObsMain::AddCamera(const char* name, const CameraInfo* info)
 {
     char* newName = get_new_source_name(name);
     obs_data_t* data = obs_data_create();
-    obs_data_set_string(data, "video_device_id", deviceid);
+    obs_data_set_string(data, "video_device_id", info->deviceid.c_str());
 
+    if (!info->resolution.empty())
+    {
+        obs_data_set_int(data, "res_type",1);
+        obs_data_set_string(data, "resolution", info->resolution.c_str());
+        obs_data_set_int(data, "frame_interval", -1);
+    }
 
     OBSSource source = CreateSource("dshow_input", newName, data);
     bfree(newName);
@@ -1065,7 +1071,7 @@ bool ObsMain::AddCamera(const char* name, const char* deviceid, bool enableGreee
     obs_data_release(data);
 
     //如果开启绿幕则使用滤镜
-    if (enableGreeenBkg)
+    if (info->greeenBkg)
     {
         //创建filter
         char* newName = get_new_source_name(ToUtf8(L"色度键").c_str());

@@ -5,7 +5,7 @@
 #include "api/ObsUtils.h"
 
 #include "WindowSelectDialog.h"
-#include "DeviceSelectDialog.h"
+#include "CameraSelectDialog.h"
 #include "MsgBox.h"
 #include "PopupList.h"
 #include "AddVideoDialog.h"
@@ -302,7 +302,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BCamera")) == 0)
         {
-            CDeviceSelectDialog* dialog = new CDeviceSelectDialog(true);
+            CCameraSelectDialog* dialog = new CCameraSelectDialog();
             dialog->ShowDialog(m_hWnd);
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BMedia")) == 0)
