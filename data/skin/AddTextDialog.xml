@@ -10,90 +10,94 @@
     </HorizontalLayout>
 
 	<VerticalLayout inset="36,20,36,0">
-		<Edit name="edit" height="90" multiline="true" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
+		<Edit name="EText" height="90" multiline="true" bkimage="file='image/list_bg.png' corner='3,3,3,3'" maxchar="1000"/>
 		
 		<Control height="16"/>
 		
 		<HorizontalLayout height="24">
 			<Label text="字体:" width="35"/>
-			<Combo width="75" itemtextcolor="#333333">
-				<ListLabelElement text="微软雅黑" height="24" selected="true"/>
-				<ListLabelElement text="宋体" height="24"/>
+			<Combo name="CFontList" width="75" itemtextcolor="#333333">
 			</Combo>
 			
 			<Control width="10"/>
 			<Label text="字体颜色:" width="60"/>
-			<Button text="选择颜色" width="75" height="24" default="NormalBtn"/>
+			<Button name="BFontColor" text="选择颜色" width="75" height="24" default="NormalBtn"/>
 			
 			<Control width="10"/>
 			<Label text="字体大小:" width="60"/>
-			<Combo width="60" itemtextcolor="#333333">
-				<ListLabelElement text="6" height="24"/>
-				<ListLabelElement text="7" height="24"/>
-				<ListLabelElement text="8" height="24"/>
-				<ListLabelElement text="9" height="24"/>
-				<ListLabelElement text="10" height="24"/>
-				<ListLabelElement text="12" height="24"/>
-				<ListLabelElement text="14" height="24"/>
-				<ListLabelElement text="16" height="24"/>
-				<ListLabelElement text="18" height="24"/>
-				<ListLabelElement text="20" height="24"/>
-				<ListLabelElement text="24" height="24"/>
-				<ListLabelElement text="26" height="24"/>
-				<ListLabelElement text="28" height="24"/>
-				<ListLabelElement text="36" height="24" selected="true"/>
-				<ListLabelElement text="48" height="24"/>
-				<ListLabelElement text="72" height="24"/>
+			<Combo name="CFontSize" width="60" itemtextcolor="#333333">
+				<ComboItem text="6" height="24"/>
+				<ComboItem text="7" height="24"/>
+				<ComboItem text="8" height="24"/>
+				<ComboItem text="9" height="24"/>
+				<ComboItem text="10" height="24"/>
+				<ComboItem text="12" height="24"/>
+				<ComboItem text="14" height="24"/>
+				<ComboItem text="16" height="24"/>
+				<ComboItem text="18" height="24"/>
+				<ComboItem text="20" height="24"/>
+				<ComboItem text="24" height="24"/>
+				<ComboItem text="26" height="24"/>
+				<ComboItem text="28" height="24"/>
+				<ComboItem text="36" height="24" selected="true"/>
+				<ComboItem text="48" height="24"/>
+				<ComboItem text="72" height="24"/>
 			</Combo>
 			<Control width="10"/>
-			<Option default="CheckBox" text="粗体" width="55" textcolor="#666666"/>
-			<Option default="CheckBox" text="斜体" width="55" textcolor="#666666"/>
+			<Option name="OBold" default="CheckBox" text="粗体" width="55" textcolor="#666666"/>
+			<Option name="OItalic" default="CheckBox" text="斜体" width="55" textcolor="#666666"/>
 		</HorizontalLayout>
 
 		<Control height="15"/>
-		<Option default="CheckBox" height="24" width="98" text="自定义文本区" textcolor="#666666"/>
+		<Option name="OSetLayout" default="CheckBox" height="24" width="98" text="自定义文本区" textcolor="#666666"/>
 		<Control height="10"/>
 		
-		<HorizontalLayout height="24" inset="20,0,0,0">
-			<Label text="宽度:" width="35"/>
-			<Edit width="54" text="0"/>
+		<HorizontalLayout name="HTextLayout" height="24" inset="20,0,0,0">
+			<Label text="宽度:" width="35" enabled="false"/>
+			<Edit name="EWidth" width="54" text="200" enabled="false" numberonly="true"/>
 			
 			<Control width="10"/>
 			
-			<Label text="左右对齐:" width="60"/>
-			<Combo width="75" itemtextcolor="#333333">
-				<ListLabelElement text="向左对齐" height="24"/>
-				<ListLabelElement text="居中" height="24" selected="true"/>
-				<ListLabelElement text="向右对齐" height="24"/>
+			<Label text="左右对齐:" width="60" enabled="false"/>
+			<Combo name="CAlign" width="75" itemtextcolor="#333333" enabled="false">
+				<ComboItem text="向左对齐" height="24"/>
+				<ComboItem text="居中" height="24" selected="true"/>
+				<ComboItem text="向右对齐" height="24"/>
 			</Combo>			
 			
 			<Control width="10"/>
 			
-			<Label text="垂直对齐:" width="60"/>
-			<Combo width="60" itemtextcolor="#333333">
-				<ListLabelElement text="顶部" height="24"/>
-				<ListLabelElement text="居中" height="24" selected="true"/>
-				<ListLabelElement text="底部" height="24"/>
+			<Label text="垂直对齐:" width="60" enabled="false"/>
+			<Combo name="CValign" width="60" itemtextcolor="#333333" enabled="false">
+				<ComboItem text="顶部" height="24"/>
+				<ComboItem text="居中" height="24" selected="true"/>
+				<ComboItem text="底部" height="24"/>
 			</Combo>
 			<Control width="10"/>			
 			
-			<Option default="CheckBox" text="自动换行" width="78" textcolor="#666666"/>
+			<Option name="OWrap" default="CheckBox" text="自动换行" width="78" textcolor="#666666" enabled="false"/>
 		</HorizontalLayout>
 		<Control height="15"/>
 		<HorizontalLayout height="24">
 			<Label text="描边宽度:" width="60"/>
-			<Edit width="48" text="0"/>
+			<Edit name="EOutlineSize" width="48" text="0" numberonly="true"/>
 			<Control width="10"/>	
 			<Label text="描边颜色:" width="60"/>
-			<Button text="选择颜色" width="75" height="24" default="NormalBtn"/>
+			<Button name="BOutlineColor" text="选择颜色" width="75" height="24" default="NormalBtn"/>
+			
+			<Control width="10"/>	
+			
+			<Label text="描边透明:" width="62" textcolor="#666666"/>
+			<Slider name="SOutlineAlpha" padding="0,7,0,7" min="0" max="100" value="100"/>
+			
 		</HorizontalLayout>
 		<Control height="15"/>
 		<HorizontalLayout height="24">	
 			<Label text="滚动速度:" width="60"/>
-			<Option width="40" text="无" group="Speed" default="Radio"/>
-			<Option width="40" text="慢" group="Speed" default="Radio"/>
-			<Option width="40" text="中" group="Speed" default="Radio"/>
-			<Option width="40" text="快" group="Speed" default="Radio"/>
+			<Option name="OSpeed0" width="40" text="无" group="Speed" default="Radio" selected="true"/>
+			<Option name="OSpeed1" width="40" text="慢" group="Speed" default="Radio"/>
+			<Option name="OSpeed2" width="40" text="中" group="Speed" default="Radio"/>
+			<Option name="OSpeed3" width="40" text="快" group="Speed" default="Radio"/>
 		</HorizontalLayout>
 		
 		<Control height="15"/>

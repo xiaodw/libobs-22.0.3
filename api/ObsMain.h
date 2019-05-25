@@ -21,8 +21,6 @@ enum DropType {
     DropType_Media,
 };
 
-
-
 //管理场景
 class ObsMain:public ObsBasic
 {
@@ -114,7 +112,35 @@ public:
         bool isActiveReplay;
     };
     bool AddVideo(const VideoData* video);
-    bool AddText(const char* text);
+
+
+    struct TextData {
+        std::string name;
+        std::string text;
+        std::string font;
+        uint32_t color = 0;
+        int size = 36;
+        bool bold = false;
+        bool italic = false;
+
+        bool extents = false;//自定义文本区
+        int extents_cx = 0;//宽度
+        bool extents_wrap = false;//自动换行
+        std::string align = "center"; //left,center,right
+        std::string valign = "center";//top,center,bottom
+
+        //描边
+        int outline_size = 0;
+        uint32_t outline_color = 0;
+
+        //滚动速度25,50,100
+        int scroll_speed = 0;
+
+        //透明度
+        int opacity = 100;
+        int outline_opacity = 100;
+    };
+    bool AddText(const TextData* data);
 
     ObsSceneItemList& sceneItemList() { return m_sceneItemList; }
     std::vector<std::unique_ptr<SceneData>>& scenes() { return m_scenes; }

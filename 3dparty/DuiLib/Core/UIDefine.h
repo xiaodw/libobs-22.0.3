@@ -245,6 +245,7 @@ protected:                                                                \
 
 #define  DUI_CTR_ILIST                           (_T("IList"))
 #define  DUI_CTR_COMBO                           (_T("Combo"))
+#define  DUI_CTR_COMBO_ITEM               (_T("ComboItem"))
 #define  DUI_CTR_LABEL                           (_T("Label"))
 #define  DUI_CTR_FLASH							 (_T("Flash"))
 

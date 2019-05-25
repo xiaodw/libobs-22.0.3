@@ -20,7 +20,7 @@
   
   <Default name="Menu" value="bkcolor=&quot;#ff363636&quot; itemtextpadding=&quot;25,0,15,0&quot; itemtextcolor=&quot;#ffffffff&quot; itemselectedtextcolor=&quot;#ffffffff&quot; itemselectedbkcolor=&quot;#ff424242&quot;" shared="true"/>
   
-  <Default name="Combo" value="normalimage=&quot;file='image/combox.png' source='0,0,84,26' corner='3,3,15,3'&quot; hotimage=&quot;file='image/combox.png' source='84,0,168,26' corner='3,3,15,3'&quot; pushedimage=&quot;file='image/combox.png' source='168,0,252,26' corner='3,3,15,3'&quot; textpadding=&quot;3,0,0,0&quot; itemtextpadding=&quot;3,0,0,0&quot; itemhotbkcolor=&quot;#fffff1f1&quot; itemselectedbkcolor=&quot;#fffff1f1&quot; inset=&quot;1,1,1,1&quot;" shared="true"/>
+  <Default name="Combo" value="normalimage=&quot;file='image/combox.png' source='0,0,84,26' corner='3,3,15,3'&quot; hotimage=&quot;file='image/combox.png' source='84,0,168,26' corner='3,3,15,3'&quot; pushedimage=&quot;file='image/combox.png' source='168,0,252,26' corner='3,3,15,3'&quot; textpadding=&quot;3,0,0,0&quot; itemtextpadding=&quot;3,0,0,0&quot; itemhotbkcolor=&quot;#fffff1f1&quot; itemselectedbkcolor=&quot;#fffff1f1&quot; inset=&quot;1,1,1,1&quot; itemdisabledtextcolor=&quot;#6a6a6a&quot; itemselectedtextcolor=&quot;#333333&quot; textpadding=&quot;0,0,15,0&quot;" shared="true"/>
   
   <Default name="Radio" value="align=&quot;left&quot; textpadding=&quot;15,0,0,0&quot; normalimage=&quot;file='image/radio.png' source='12,0,24,12' dest='0,6,12,18'&quot; hotimage=&quot;file='image/radio.png' source='0,0,12,12' dest='0,6,12,18'&quot; selectedimage=&quot;file='image/radio.png' source='60,0,72,12' dest='0,6,12,18'&quot; selectedhotimage=&quot;file='image/radio.png' source='72,0,84,12' dest='0,6,12,18'&quot;" shared="true"/>
 </xml>

@@ -1203,7 +1203,105 @@ bool ObsMain::AddVideo(const VideoData* video)
     return source != nullptr;
 }
 
-bool ObsMain::AddText(const char* text)
+bool ObsMain::AddText(const TextData* data)
 {
-    return AddDropSource(text, DropType_Text);
+    obs_data_t *settings = obs_data_create();
+    obs_source_t *source = nullptr;
+    const char *type = "text_gdiplus";
+    std::string name;
+
+    if (data->name.empty())
+        name = obs_source_get_display_name(type);
+    else
+        name = data->name;
+
+    //配置font
+    {
+        obs_data_t* font = obs_data_create();
+        obs_data_set_string(font, "face", data->font.c_str());
+
+        int flags = 0;
+
+#define OBS_FONT_BOLD      (1<<0)
+#define OBS_FONT_ITALIC    (1<<1)
+
+        if (data->bold)
+            flags |= OBS_FONT_BOLD;
+        if (data->italic)
+            flags |= OBS_FONT_ITALIC;
+
+        obs_data_set_int(font, "flags", flags);
+        obs_data_set_int(font, "size", data->size);
+        obs_data_set_obj(settings, "font", font);
+        obs_data_release(font);
+    }
+
+    obs_data_set_string(settings, "text", data->text.c_str());
+    obs_data_set_int(settings, "color", data->color);
+    obs_data_set_int(settings, "opacity", data->opacity);
+    obs_data_set_int(settings, "outline_opacity", data->outline_opacity);
+
+
+    if (data->outline_size)
+    {
+        obs_data_set_bool(settings, "outline", true);
+        obs_data_set_int(settings, "outline_color", data->outline_color);
+        obs_data_set_int(settings, "outline_size", data->outline_size);
+    }
+    else
+        obs_data_set_bool(settings, "outline", false);
+
+    if (data->extents)
+    {
+        obs_data_set_bool(settings, "extents", true);
+        obs_data_set_int(settings, "extents_cx", data->extents_cx);
+        obs_data_set_bool(settings, "extents_wrap", data->extents_wrap);
+
+        obs_data_set_string(settings, "align", data->align.c_str());
+        obs_data_set_string(settings, "valign", data->valign.c_str());
+    }
+    else
+    {
+        obs_data_set_bool(settings, "extents", false);
+        obs_data_set_string(settings, "align", "center");
+        obs_data_set_string(settings, "valign", "center");
+    }
+
+    source = obs_source_create(type,
+        GenerateSourceName(name).c_str(),
+        settings, nullptr);
+
+
+    if (source) {
+
+        //文字滚动特效
+        if (data->scroll_speed)
+        {
+            char* newName = get_new_source_name("text_scroll_filter");
+
+            obs_data_t *filterSettings = obs_data_create();
+
+            obs_data_set_int(filterSettings, "speed_x", data->scroll_speed);
+
+            obs_source_t *filter = obs_source_create("scroll_filter", newName,
+                filterSettings, nullptr);
+
+            obs_data_release(filterSettings);
+            bfree(newName);
+
+            if (filter)
+            {
+                obs_source_filter_add(source, filter);
+                obs_source_release(filter);
+            }
+        }
+
+        //添加到当前场景
+        OBSScene scene = GetCurrentScene();
+        obs_scene_add(scene, source);
+        obs_source_release(source);
+    }
+    obs_data_release(settings);
+    return source != nullptr;
+
 }

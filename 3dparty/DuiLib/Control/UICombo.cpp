@@ -1274,4 +1274,98 @@ void CComboUI::PaintText(HDC hDC)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+LPCTSTR CComboItemUI::GetClass() const
+{
+    return DUI_CTR_COMBO_ITEM;
+}
+
+LPVOID CComboItemUI::GetInterface(LPCTSTR pstrName)
+{
+    if (_tcscmp(pstrName, DUI_CTR_COMBO_ITEM) == 0) 
+        return static_cast<CComboItemUI*>(this);
+    return 
+        CListElementUI::GetInterface(pstrName);
+}
+
+void CComboItemUI::DrawItemBk(HDC hDC, const RECT& rcItem)
+{
+    if (m_pOwner == NULL) return;
+    TListInfoUI* pInfo = m_pOwner->GetListInfo();
+    if (pInfo == NULL) return;
+    DWORD iBackColor = 0;
+    if (!pInfo->bAlternateBk || m_iDrawIndex % 2 == 0) iBackColor = pInfo->dwBkColor;
+    if ((m_uButtonState & UISTATE_HOT) != 0) {
+        iBackColor = pInfo->dwHotBkColor;
+    }
+    if (IsSelected()) {
+        iBackColor = pInfo->dwSelectedBkColor;
+    }
+
+    CComboUI* owner = static_cast<CComboUI*>(m_pOwner);
+
+    if (!owner->IsEnabled()) {
+        iBackColor = pInfo->dwDisabledBkColor;
+    }
+
+    if (iBackColor != 0) {
+        CRenderEngine::DrawColor(hDC, rcItem, GetAdjustColor(iBackColor));
+    }
+
+    if (!owner->IsEnabled()) {
+        if (DrawImage(hDC, pInfo->diDisabled)) return;
+    }
+    if (IsSelected()) {
+        if (DrawImage(hDC, pInfo->diSelected)) return;
+    }
+    if ((m_uButtonState & UISTATE_HOT) != 0) {
+        if (DrawImage(hDC, pInfo->diHot)) return;
+    }
+
+    if (!DrawImage(hDC, m_diBk)) {
+        if (!pInfo->bAlternateBk || m_iDrawIndex % 2 == 0) {
+            if (DrawImage(hDC, pInfo->diBk)) return;
+        }
+    }
+}
+
+
+
+void CComboItemUI::DrawItemText(HDC hDC, const RECT& rcItem)
+{
+    if (m_sText.IsEmpty()) return;
+
+    if (m_pOwner == NULL) return;
+    TListInfoUI* pInfo = m_pOwner->GetListInfo();
+    if (pInfo == NULL) return;
+    DWORD iTextColor = pInfo->dwTextColor;
+    if ((m_uButtonState & UISTATE_HOT) != 0) {
+        iTextColor = pInfo->dwHotTextColor;
+    }
+    if (IsSelected()) {
+        iTextColor = pInfo->dwSelectedTextColor;
+    }
+
+    CComboUI* owner = static_cast<CComboUI*>(m_pOwner);
+
+    if (!owner->IsEnabled()) {
+        iTextColor = pInfo->dwDisabledTextColor;
+    }
+    int nLinks = 0;
+    RECT rcText = rcItem;
+    rcText.left += pInfo->rcTextPadding.left;
+    rcText.right -= pInfo->rcTextPadding.right;
+    rcText.top += pInfo->rcTextPadding.top;
+    rcText.bottom -= pInfo->rcTextPadding.bottom;
+
+    if (pInfo->bShowHtml)
+        CRenderEngine::DrawHtmlText(hDC, m_pManager, rcText, m_sText, iTextColor, \
+            NULL, NULL, nLinks, pInfo->nFont, pInfo->uTextStyle);
+    else
+        CRenderEngine::DrawText(hDC, m_pManager, rcText, m_sText, iTextColor, \
+            pInfo->nFont, pInfo->uTextStyle);
+}
+
+
+
 } // namespace DuiLib

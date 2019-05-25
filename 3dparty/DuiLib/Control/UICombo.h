@@ -137,6 +137,16 @@ protected:
     TListInfoUI m_ListInfo;
 };
 
+class CComboItemUI :public CListLabelElementUI
+{
+public:
+    LPCTSTR GetClass() const;
+    LPVOID GetInterface(LPCTSTR pstrName);
+
+    void DrawItemBk(HDC hDC, const RECT& rcItem);
+    void DrawItemText(HDC hDC, const RECT& rcItem);
+};
+
 } // namespace DuiLib
 
 #endif // __UICOMBO_H__
