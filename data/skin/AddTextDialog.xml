@@ -21,7 +21,7 @@
 			
 			<Control width="10"/>
 			<Label text="字体颜色:" width="60"/>
-			<Button name="BFontColor" text="选择颜色" width="75" height="24" default="NormalBtn"/>
+			<Button name="BFontColor" tag="65280" text="选择颜色" width="75" height="24" default="NormalBtn"/>
 			
 			<Control width="10"/>
 			<Label text="字体大小:" width="60"/>
@@ -80,15 +80,39 @@
 		<Control height="15"/>
 		<HorizontalLayout height="24">
 			<Label text="描边宽度:" width="60"/>
-			<Edit name="EOutlineSize" width="48" text="0" numberonly="true"/>
+
+			<Combo name="COutlineSize" width="48" itemtextcolor="#333333">
+				<ComboItem text="0" height="24" selected="true"/>
+				<ComboItem text="1" height="24"/>
+				<ComboItem text="2" height="24"/>
+				<ComboItem text="3" height="24"/>
+				<ComboItem text="4" height="24"/>
+				<ComboItem text="5" height="24"/>
+				<ComboItem text="6" height="24"/>
+				<ComboItem text="7" height="24"/>
+				<ComboItem text="8" height="24"/>
+				<ComboItem text="9" height="24"/>
+				<ComboItem text="10" height="24"/>
+				<ComboItem text="11" height="24"/>
+				<ComboItem text="12" height="24"/>
+				<ComboItem text="13" height="24"/>
+				<ComboItem text="14" height="24"/>
+				<ComboItem text="15" height="24"/>
+				<ComboItem text="16" height="24"/>
+				<ComboItem text="17" height="24"/>
+				<ComboItem text="18" height="24"/>
+				<ComboItem text="19" height="24"/>
+				<ComboItem text="20" height="24"/>
+			</Combo>			
+			
 			<Control width="10"/>	
 			<Label text="描边颜色:" width="60"/>
-			<Button name="BOutlineColor" text="选择颜色" width="75" height="24" default="NormalBtn"/>
+			<Button name="BOutlineColor" tag="16777215" text="选择颜色" width="75" height="24" default="NormalBtn"/>
 			
 			<Control width="10"/>	
 			
 			<Label text="描边透明:" width="62" textcolor="#666666"/>
-			<Slider name="SOutlineAlpha" padding="0,7,0,7" min="0" max="100" value="100"/>
+			<Slider name="SOutlineAlpha" padding="0,7,0,7" min="0" max="100" value="70"/>
 			
 		</HorizontalLayout>
 		<Control height="15"/>

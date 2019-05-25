@@ -759,6 +759,52 @@ OBSSceneItem ObsWindow::GetItemAtPos(const vec2 &pos, bool selectBelow)
 }
 
 
+static bool FindSelectItemAtPos(obs_scene_t *scene, obs_sceneitem_t *item,
+    void *param)
+{
+    SceneFindData *data = reinterpret_cast<SceneFindData*>(param);
+    matrix4       transform;
+    matrix4       invTransform;
+    vec3          transformedPos;
+    vec3          pos3;
+    vec3          pos3_;
+
+    if (!SceneItemHasVideo(item))
+        return true;
+    if (obs_sceneitem_locked(item))
+        return true;
+
+    vec3_set(&pos3, data->pos.x, data->pos.y, 0.0f);
+
+    obs_sceneitem_get_box_transform(item, &transform);
+
+    matrix4_inv(&invTransform, &transform);
+    vec3_transform(&transformedPos, &pos3, &invTransform);
+    vec3_transform(&pos3_, &transformedPos, &transform);
+
+    if (CloseFloat(pos3.x, pos3_.x) && CloseFloat(pos3.y, pos3_.y) &&
+        transformedPos.x >= 0.0f && transformedPos.x <= 1.0f &&
+        transformedPos.y >= 0.0f && transformedPos.y <= 1.0f) {
+        if (obs_sceneitem_selected(item)) {
+            data->item = item;
+            return false;
+        }
+    }
+    UNUSED_PARAMETER(scene);
+    return true;
+}
+OBSSceneItem ObsWindow::GetSelectItemAtPos(const vec2 &pos)
+{
+    OBSScene scene = ObsMain::Instance()->GetCurrentScene();
+    if (!scene)
+        return OBSSceneItem();
+
+    SceneFindData data(pos, false);
+    obs_scene_enum_items(scene, FindSelectItemAtPos, &data);
+    return data.item;
+}
+
+
 static bool select_one(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
 {
     obs_sceneitem_t *selectedItem =
@@ -802,7 +848,18 @@ void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
         vec2 pos = GetMouseEventPos(event);
 
         if (!mouseMoved)
-            DoSelect(pos);
+        {
+            if(mouseDown)
+                DoSelect(pos);
+            else
+            {
+                OBSSceneItem item = GetSelectItemAtPos(pos);
+                if (!item)
+                {
+                    DoSelect(pos);
+                }
+            }
+        }
 
         if (stretchGroup) {
             obs_sceneitem_defer_group_resize_end(stretchGroup);
@@ -820,6 +877,7 @@ void ObsWindow::OnMouseReleaseEvent(ObsMouseEvent *event)
             ObsMain::Instance()->DoShowMenu(GetWndHandle(),ObsPoint(event->x, event->y));
         }
     }
+
 }
 
 

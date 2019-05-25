@@ -59,6 +59,8 @@ protected:
     void DoCtrlSelect(const vec2 &pos);
 
     OBSSceneItem GetItemAtPos(const vec2 &pos, bool selectBelow);
+    OBSSceneItem GetSelectItemAtPos(const vec2 &pos);
+
     void ProcessClick(const vec2 &pos) {
         DoSelect(pos);
     }

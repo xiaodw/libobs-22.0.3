@@ -69,8 +69,6 @@ void CAddTextDialog::Notify(TNotifyUI& msg)
 
              text.font = ToUtf8(m_PaintManager.FindControl(_T("CFontList"))->GetText());
              text.color = m_PaintManager.FindControl(_T("BFontColor"))->GetTag();
-             if (text.color == 0)
-                 text.color = 0xff000000;
 
              text.size = _ttoi(m_PaintManager.FindControl(_T("CFontSize"))->GetText());
 
@@ -108,7 +106,7 @@ void CAddTextDialog::Notify(TNotifyUI& msg)
              if (sel >= 0)
                  text.valign = valignText[sel];
 
-             text.outline_size = _ttoi(m_PaintManager.FindControl(_T("EOutlineSize"))->GetText());
+             text.outline_size = _ttoi(m_PaintManager.FindControl(_T("COutlineSize"))->GetText());
              text.outline_color = m_PaintManager.FindControl(_T("BOutlineColor"))->GetTag(); ;
 
 

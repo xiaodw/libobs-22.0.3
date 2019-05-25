@@ -1074,7 +1074,7 @@ bool ObsMain::AddCamera(const char* name, const CameraInfo* info)
     if (info->greeenBkg)
     {
         //创建filter
-        char* newName = get_new_source_name(ToUtf8(L"色度键").c_str());
+        char* newName = get_new_source_name("camera_chroma_key_filter");
 
         obs_source_t *filter = obs_source_create("chroma_key_filter", newName,
             nullptr, nullptr);
@@ -1135,7 +1135,7 @@ bool ObsMain::AddImage(const char* path, int alpha)
 
     if (alpha < 100 && alpha >= 0)
     {
-        char* newName = get_new_source_name(ToUtf8(L"色度值").c_str());
+        char* newName = get_new_source_name("image_color_key_filter");
 
         obs_data_t *filterSettings = obs_data_create();
 
@@ -1298,7 +1298,13 @@ bool ObsMain::AddText(const TextData* data)
 
         //添加到当前场景
         OBSScene scene = GetCurrentScene();
-        obs_scene_add(scene, source);
+        obs_sceneitem_t* item = obs_scene_add(scene, source);
+
+        //文字默认缩放2倍
+        vec2 vec2;
+        vec2_set(&vec2, 1.5, 1.5);
+        obs_sceneitem_set_scale(item, &vec2);
+
         obs_source_release(source);
     }
     obs_data_release(settings);
