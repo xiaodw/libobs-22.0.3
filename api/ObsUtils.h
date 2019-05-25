@@ -15,6 +15,10 @@ typedef void(*enum_device_callback)(void* ptr, bool isVideo,const char* name, co
 //枚举音视频设备
 void EnumDevice(enum_device_callback callback, void * ptr);
 
+//枚举屏幕
+typedef void(*enum_monitor_callback)(void* ptr, const char* name, int id);
+
+void EnumMonitor(enum_monitor_callback callback, void * ptr);
 
 struct WindowInfo
 {

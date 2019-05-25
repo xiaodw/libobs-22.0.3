@@ -15,6 +15,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
     obsMain->InitGlobalConfig();
     obsMain->InitObs();
 
+
+    EnumMonitor(NULL, NULL);
+
     CObsMainFrame* pFrame = new CObsMainFrame();
     if (pFrame == NULL) return 0;
     pFrame->Create(NULL, _T("ObsClient"), UI_WNDSTYLE_FRAME, 0L, 0, 0, 800, 572);

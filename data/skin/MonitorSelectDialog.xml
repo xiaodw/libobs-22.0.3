@@ -7,14 +7,18 @@
   
   <VerticalLayout bkcolor="#FFFFFFFF">
     <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
-        <Label text="选择直播源" textcolor="#ffffff" font="1"/>
+        <Label text="选择桌面" textcolor="#ffffff" font="1"/>
         <Button name="closebtn" default="DlgCloseBtn"/>                    
     </HorizontalLayout>
 
 	<VerticalLayout inset="36,10,36,0">
 		<HorizontalLayout height="25">
-			<Label name="LTip" text="请选择要直播的游戏:" height="25" textcolor="#666666"/>
+			<Label name="LTip" text="请选择桌面:" height="25" textcolor="#666666"/>
+			
+			<Option name="OCaptureMouse" default="CheckBox" selected="true" text="捕获鼠标" width="80" textcolor="#666666"/>
+			
 			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>
+			
 		</HorizontalLayout>	
 		<Control height="16"/>
 		<List name="List" default="SelectList">

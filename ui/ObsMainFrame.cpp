@@ -12,6 +12,7 @@
 #include "AddImageDialog.h"
 #include "AddTextDialog.h"
 #include "RenameDialog.h"
+#include "MonitorSelectDialog.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -296,7 +297,8 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BScreen")) == 0)
         {
-            ObsMain::Instance()->AddCaptureScreen(ToUtf8(L"ÏÔÊ¾Æ÷²¶»ñ").c_str());
+            CMonitorSelectDialog* dialog = new CMonitorSelectDialog();
+            dialog->ShowDialog(m_hWnd);
         }
         else if (_tcsicmp(msg.pSender->GetName(), _T("BCamera")) == 0)
         {

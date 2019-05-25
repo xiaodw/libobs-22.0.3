@@ -152,3 +152,27 @@ std::string GenerateSourceName(const  std::string &base)
             return name;
     }
 }
+
+
+void EnumMonitor(enum_monitor_callback callback, void * ptr)
+{
+    obs_properties_t* prop = obs_properties_by_id("monitor_capture");
+    if (prop)
+    {
+        obs_property_t *monitors = obs_properties_get(prop, "monitor");
+
+        size_t  count = obs_property_list_item_count(monitors);
+        for (size_t i = 0; i < count; i++)
+        {
+            const char *name = obs_property_list_item_name(monitors, i);
+            int id = obs_property_list_item_int(monitors, i);
+
+            if (callback)
+                callback(ptr, name, id);
+            blog(LOG_INFO, "EnumMonitor:%s  %d", name, id);
+        }
+        obs_properties_destroy(prop);
+    }
+}
+
+

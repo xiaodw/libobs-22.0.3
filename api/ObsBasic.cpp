@@ -17,7 +17,7 @@ ObsBasic::ObsBasic()
     if (ret <= 0)
         path[0]='\0';
 
-    obs_startup("en-US", path, nullptr);
+    obs_startup("zh-CN", path, nullptr);
 }
 
 ObsBasic::~ObsBasic()

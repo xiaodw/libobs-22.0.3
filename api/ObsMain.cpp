@@ -996,10 +996,14 @@ static char *get_new_source_name(const char *name)
     return new_name.array;
 }
 
-bool ObsMain::AddCaptureScreen(const char* name)
+bool ObsMain::AddCaptureScreen(const char* name, int screen, bool captureMouse)
 {
     char* newName = get_new_source_name(name);
-    OBSSource source = CreateSource("monitor_capture", newName);
+    obs_data_t* data = obs_data_create();
+    obs_data_set_int(data, "monitor", screen);
+    obs_data_set_bool(data, "capture_cursor", captureMouse);
+    OBSSource source = CreateSource("monitor_capture", newName, data);
+    obs_data_release(data);
     bfree(newName);
     return AddSource(source);
 }

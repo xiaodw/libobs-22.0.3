@@ -90,7 +90,7 @@ public:
     void FitToScreen();
 
     //添加屏幕捕捉
-    bool AddCaptureScreen(const char* name);
+    bool AddCaptureScreen(const char* name,int screen,bool captureMouse);
 
     //name和window可以通过EnumGameProcess获取
     bool AddGameCapture(const char* name,const char* window);

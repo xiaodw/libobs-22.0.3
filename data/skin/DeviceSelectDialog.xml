@@ -13,10 +13,10 @@
 
 	<VerticalLayout inset="36,10,36,0">
 		<HorizontalLayout height="25">
-			<Label name="LTip" text="请选择视频设备:" height="25" width="168" textcolor="#666666"/>
-			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>
-			<Control width="10"/>
-			<Option name="OGreenBkg" visible="false" text="开启绿幕" width="90" default="CheckBox"/>
+			<Label name="LTip" text="请选择视频设备:" height="25" textcolor="#666666"/>
+			<Option name="OGreenBkg" visible="false" text="开启绿幕" width="80" default="CheckBox"/>
+
+			<Button name="BReload" text="刷新列表" textcolor="#ff0000" hottextcolor="#ea4634" width="60"/>						
 		</HorizontalLayout>
 		<Control height="16"/>
 		<List name="List" default="SelectList">
