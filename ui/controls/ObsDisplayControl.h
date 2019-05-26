@@ -11,6 +11,8 @@ public:
     virtual void DoInit();
     virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
     virtual void SetInternVisible(bool bVisible = true);
+
+    void ResetVideo();
 private:
     ObsWindow* m_window;
 };

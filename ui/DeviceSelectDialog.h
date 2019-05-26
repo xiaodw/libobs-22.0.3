@@ -3,7 +3,7 @@
 class CDeviceSelectDialog :public WindowImplBase
 {
 public:
-    CDeviceSelectDialog(bool selVideo);
+    CDeviceSelectDialog();
     ~CDeviceSelectDialog();
 
     void ShowDialog(HWND hParent)
@@ -25,7 +25,7 @@ public:
 
     virtual void Notify(TNotifyUI& msg);
 
-    virtual UILIB_RESOURCETYPE GetResourceType() const { return UILIB_FILE; }
+    virtual UILIB_RESOURCETYPE GetResourceType() const { return RESOURCE_TYPE; }
     virtual CDuiString GetSkinFolder() { return _T(""); }
     LPCTSTR GetWindowClassName() const { return _T("ObsGuiFoundation"); }
 
@@ -42,6 +42,5 @@ private:
 
     CListUI* m_list;
     CWndShadow m_shadow;
-    bool m_isVideo;
 };
 

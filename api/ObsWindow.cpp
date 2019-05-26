@@ -382,6 +382,21 @@ static inline void GetScaleAndCenterPos(
     y = windowCY / 2 - newCY / 2;
 }
 
+void ObsWindow::ResetVideo()
+{
+    obs_video_info ovi;
+    if (obs_get_video_info(&ovi))
+    {
+        GetScaleAndCenterPos(int(ovi.base_width), int(ovi.base_height),
+            size.width - PREVIEW_EDGE_SIZE * 2,
+            size.height - PREVIEW_EDGE_SIZE * 2,
+            m_previewX, m_previewY, m_previewScale);
+
+
+        m_previewX += float(PREVIEW_EDGE_SIZE);
+        m_previewY += float(PREVIEW_EDGE_SIZE);
+    }
+}
 
 void ObsWindow::OnResize(const ObsSize& size)
 {
@@ -389,6 +404,8 @@ void ObsWindow::OnResize(const ObsSize& size)
     {
         obs_display_resize(m_display, size.width, size.height);
     }
+
+    this->size = size;
 
     obs_video_info ovi;
     if (obs_get_video_info(&ovi))

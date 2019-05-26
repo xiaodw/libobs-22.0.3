@@ -101,8 +101,8 @@ bool ObsBasic::InitObs()
     blog(LOG_INFO, "ResetOutputs\n");
     ResetOutputs();
 
-    blog(LOG_INFO, "InitService\n");
-    InitService();
+    blog(LOG_INFO, "ResetService\n");
+    ResetService();
 
     InitDefaultTransitions();
 
@@ -136,10 +136,22 @@ bool ObsBasic::ResetAudio()
     return obs_reset_audio(&ai);
 }
 
-bool ObsBasic::InitService()
+bool ObsBasic::ResetService()
 {
-    m_service = obs_service_create("rtmp_common", "default_service", nullptr,
-        nullptr);
+    OBSData settings = obs_data_create();
+    if (!settings)
+        return false;
+
+    obs_data_release(settings);
+    obs_data_set_string(settings, "server", config_get_string(m_basicConfig, "Stream", "Url"));
+    obs_data_set_string(settings, "key", config_get_string(m_basicConfig, "Stream", "Name"));
+    obs_data_set_bool(settings, "use_auth", config_get_bool(m_basicConfig, "Stream", "Auth"));
+    obs_data_set_string(settings, "username", config_get_string(m_basicConfig, "Stream", "UserName"));
+    obs_data_set_string(settings, "password", config_get_string(m_basicConfig, "Stream", "UserPwd"));
+
+    m_service = obs_service_create("rtmp_common",
+        "default_service", settings, NULL);
+
     if (!m_service)
         return false;
     obs_service_release(m_service);
@@ -262,6 +274,28 @@ void ObsBasic::GetConfigFPS(uint32_t &num, uint32_t &den) const
 #define IS_WIN32 0
 #endif
 
+bool ObsBasic::VideoSettingChange() {
+    if (ResetVideo() == 0)
+    {
+        m_observer->OnVideoReset();
+        return true;
+    }
+    return false;
+}
+
+bool ObsBasic::ServiceSettingChange() {
+    if (StreamActive())
+        return false;
+    else
+    {
+        return ResetService();
+    }
+}
+
+bool ObsBasic::AudioSettingChange()
+{
+    return ResetAudio();
+}
 
 int ObsBasic::ResetVideo()
 {
@@ -975,10 +1009,20 @@ void ObsBasic::EnableDesktopAudio(bool enable)
 {
     if(enable)
         ResetAudioDevice(OutputAudioSource(), "default",
-            Str("Basic.DesktopDevice1"), 1);
+            Str("Basic.DesktopDevice1"), OUTPUT_AUDIO_CHANNEL1);
     else
         ResetAudioDevice(OutputAudioSource(), "disabled",
-            Str("Basic.DesktopDevice1"), 1);
+            Str("Basic.DesktopDevice1"), OUTPUT_AUDIO_CHANNEL1);
+}
+
+void ObsBasic::EnableInputAudio(bool enable)
+{
+    if (enable)
+        ResetAudioDevice(InputAudioSource(), "default",
+            Str("Basic.AuxDevice1"), INPUT_AUDIO_CHANNEL1);
+    else
+        ResetAudioDevice(InputAudioSource(), "disabled",
+            Str("Basic.AuxDevice1"), INPUT_AUDIO_CHANNEL1);
 }
 
 static inline bool HasAudioDevices(const char *source_id)
@@ -1006,22 +1050,14 @@ void ObsBasic::InitAudioSources()
 
     if (hasDesktopAudio)
         ResetAudioDevice(OutputAudioSource(), "default",
-            Str("Basic.DesktopDevice1"), 1);
+            Str("Basic.DesktopDevice1"), OUTPUT_AUDIO_CHANNEL1);
     if (hasInputAudio)
         ResetAudioDevice(InputAudioSource(), "default",
-            Str("Basic.AuxDevice1"), 3);
+            Str("Basic.AuxDevice1"), INPUT_AUDIO_CHANNEL1);
 }
 
 
-void ObsBasic::EnableInputAudio(bool enable)
-{
-    if (enable)
-        ResetAudioDevice(InputAudioSource(), "default",
-            Str("Basic.AuxDevice1"), 1);
-    else
-        ResetAudioDevice(InputAudioSource(), "disabled",
-            Str("Basic.AuxDevice1"), 1);
-}
+
 
 void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
     const char *deviceDesc, int channel)

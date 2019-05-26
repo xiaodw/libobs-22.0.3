@@ -25,10 +25,14 @@ public:
     void Notify(TNotifyUI& msg);
 
     virtual CDuiString GetSkinFolder() { return _T(""); }
-    virtual UILIB_RESOURCETYPE GetResourceType() const { return UILIB_FILE; }
+    virtual UILIB_RESOURCETYPE GetResourceType() const { return RESOURCE_TYPE; }
     virtual CDuiString GetSkinFile() { return _T("msgbox.xml"); }
-    UINT DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption = _T("提示"), UINT uIcon = MESSAGE_INFO, BOOL bOk = TRUE);
+
+
+    UINT DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption = NULL, UINT uIcon = MESSAGE_INFO, BOOL bOk = TRUE);
  
+    void TipBox(HWND hParent, LPCTSTR lpText);
+
     int GetStringLines(CDuiString st, CDuiString &stMax);
 protected:
     CButtonUI *m_pButtonCancel;

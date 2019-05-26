@@ -27,6 +27,7 @@ public:
     gs_vertbuffer_t *boxRight = nullptr;
     gs_vertbuffer_t *boxBottom = nullptr;
 
+    void ResetVideo();
 protected:
     static void _RenderWindow(void* param,uint32_t cx, uint32_t cy);
     void RenderWindow(uint32_t cx, uint32_t cy);
@@ -86,6 +87,8 @@ protected:
     matrix4      screenToItem;
     matrix4      itemToScreen;
     matrix4      invGroupTransform;
+
+    ObsSize   size;
 
     vec2         startPos;
     vec2         lastMoveOffset;

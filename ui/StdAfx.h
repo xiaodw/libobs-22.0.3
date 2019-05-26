@@ -25,6 +25,8 @@ using namespace DuiLib;
 #define STRINGIZE(x) #x
 #endif
 
+#define RESOURCE_TYPE UILIB_FILE
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

@@ -48,3 +48,8 @@ void CObsDisplayControl::SetInternVisible(bool bVisible)
     m_window->SetVisible(bVisible);
     m_window->SetEnable(bVisible);
 }
+
+void CObsDisplayControl::ResetVideo()
+{
+    m_window->ResetVideo();
+}

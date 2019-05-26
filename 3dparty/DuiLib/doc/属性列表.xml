@@ -643,6 +643,7 @@
 		<Attribute name="hotimage" default="" type="STRING" comment="鼠标悬浮状态图片"/>
 		<Attribute name="focusedimage" default="" type="STRING" comment="获得焦点状态图片"/>
 		<Attribute name="disabledimage" default="" type="STRING" comment="禁用状态图片"/>
+		<Attribute name="numberonly" default="" type="BOOL" comment="只允许数字"/>
 		<Attribute name="nativebkcolor" default="0x00000000" type="DWORD" comment="windows原生edit控件的背景颜色,如(0xFFFFFFFF)"/>
 	</Edit>
 	<ScrollBar parent="Control" notifies="timer menu scrolled windowinit(root)">

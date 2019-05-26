@@ -411,6 +411,11 @@ int CComboUI::GetCurSel() const
     return m_iCurSel;
 }
 
+CControlUI* CComboUI::GetSelectItem()const
+{
+    return GetItemAt(m_iCurSel);
+}
+
 bool CComboUI::GetSelectCloseFlag()
 {
 	return m_bSelectCloseFlag;
@@ -437,16 +442,40 @@ bool CComboUI::SelectItem(int iIndex, bool bTakeFocus, bool bTriggerEvent)
     if( m_items.GetSize() == 0 ) return false;
     if( iIndex >= m_items.GetSize() ) iIndex = m_items.GetSize() - 1;
     CControlUI* pControl = static_cast<CControlUI*>(m_items[iIndex]);
-    if( !pControl || !pControl->IsVisible() || !pControl->IsEnabled() ) return false;
+    if( !pControl || !pControl->IsVisible() || !pControl->IsEnabled() )
+        return false;
     IListItemUI* pListItem = static_cast<IListItemUI*>(pControl->GetInterface(DUI_CTR_ILISTITEM));
-    if( pListItem == NULL ) return false;
+    if( pListItem == NULL ) 
+        return false;
     m_iCurSel = iIndex;
-    if( m_pWindow != NULL || bTakeFocus ) pControl->SetFocus();
+    if( m_pWindow != NULL || bTakeFocus )
+        pControl->SetFocus();
     pListItem->Select(true, bTriggerEvent);
-    if( m_pManager != NULL && bTriggerEvent) m_pManager->SendNotify(this, DUI_MSGTYPE_ITEMSELECT, m_iCurSel, iOldSel);
+    if( m_pManager != NULL && bTriggerEvent) 
+        m_pManager->SendNotify(this, DUI_MSGTYPE_ITEMSELECT, m_iCurSel, iOldSel);
     Invalidate();
 
     return true;
+}
+
+bool CComboUI::SelectItem(CControlUI* ctrl, bool bTakeFocus, bool bTriggerEvent)
+{
+    int index = GetItemIndex(ctrl);
+    if (index < 0)
+        return false;
+    return SelectItem(index, bTakeFocus, bTriggerEvent);
+}
+
+bool CComboUI::SelectItemByText(LPCTSTR text, bool bTakeFocus, bool bTriggerEvent)
+{
+    for (int i = 0; i < GetCount(); ++i)
+    {
+        if (GetItemAt(i)->GetText() == text)
+        {
+            return SelectItem(i,bTakeFocus,bTriggerEvent);
+        }
+    }
+    return false;
 }
 
 bool CComboUI::ExpandItem(int iIndex, bool bExpand)

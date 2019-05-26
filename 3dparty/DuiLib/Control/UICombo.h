@@ -30,9 +30,15 @@ public:
     void SetDropBoxSize(SIZE szDropBox);
 
     int GetCurSel() const;
+    CControlUI* GetSelectItem()const;
+
 	bool GetSelectCloseFlag();
 	void SetSelectCloseFlag(bool flag);
     bool SelectItem(int iIndex, bool bTakeFocus = false, bool bTriggerEvent=true);
+    bool SelectItem(CControlUI* item, bool bTakeFocus = false, bool bTriggerEvent = true);
+
+    bool SelectItemByText(LPCTSTR text, bool bTakeFocus = false, bool bTriggerEvent = true);
+
     bool ExpandItem(int iIndex, bool bExpand = true);
     int GetExpandedItem() const;
 
@@ -137,7 +143,7 @@ protected:
     TListInfoUI m_ListInfo;
 };
 
-class CComboItemUI :public CListLabelElementUI
+class DUILIB_API CComboItemUI :public CListLabelElementUI
 {
 public:
     LPCTSTR GetClass() const;
@@ -145,6 +151,8 @@ public:
 
     void DrawItemBk(HDC hDC, const RECT& rcItem);
     void DrawItemText(HDC hDC, const RECT& rcItem);
+
+    virtual bool IsVisible() const { return m_bVisible; }
 };
 
 } // namespace DuiLib

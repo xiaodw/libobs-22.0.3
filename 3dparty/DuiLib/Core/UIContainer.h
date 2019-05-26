@@ -93,6 +93,7 @@ public:
 
     //╡Иурвс©ь╪Ч
     CControlUI* FindItem(LPCTSTR name);
+    CControlUI* FindItemByUserData(LPCTSTR udata);
 
     virtual SIZE GetScrollPos() const;
     virtual SIZE GetScrollRange() const;

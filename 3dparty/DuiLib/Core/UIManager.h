@@ -384,6 +384,12 @@ public:
     CControlUI* GetRoot() const;
     CControlUI* FindControl(POINT pt) const;
     CControlUI* FindControl(LPCTSTR pstrName) const;
+
+    template<class T>
+    T* FindControl(LPCTSTR pstrName) const {
+        return dynamic_cast<T*>(FindControl(pstrName));
+    }
+
     CControlUI* FindSubControlByPoint(CControlUI* pParent, POINT pt) const;
     CControlUI* FindSubControlByName(CControlUI* pParent, LPCTSTR pstrName) const;
     CControlUI* FindSubControlByClass(CControlUI* pParent, LPCTSTR pstrClass, int iIndex = 0);

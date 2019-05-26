@@ -4,6 +4,7 @@
 
 #define MSG_HANDLE_MSG (WM_USER+12)
 
+class CObsDisplayControl;
 
 //obs主界面
 class CObsMainFrame : public WindowImplBase,public ObsObserver,public CMsgHandler
@@ -40,6 +41,7 @@ public:
         MSG_RECORD_STOPPING,
         MSG_RECORD_STOP,
         MSG_RECORD_START,
+        MSG_VIDEO_RESET,
 
         MSG_DELETE_ELEM,
         MSG_DELETE_SCENE,
@@ -124,6 +126,11 @@ public:
         PostMsg(MSG_RECORD_STOP);
     }
 
+    virtual void OnVideoReset()
+    {
+        PostMsg(MSG_VIDEO_RESET);
+    }
+
     //显示菜单
     virtual void OnMenu(window_handle_t handle,const ObsPoint& point);
 
@@ -163,6 +170,7 @@ private:
     CHorizontalLayoutUI* m_sceneList;
     CListUI* m_sceneItemList;
     CWndShadow m_shadow;
+    CObsDisplayControl* m_display;
 };
 
 

@@ -47,6 +47,9 @@ public:
 
     //显示菜单
     virtual void OnMenu(window_handle_t handle,const ObsPoint& point) = 0;
+
+    //设置里重置video大小
+    virtual void OnVideoReset() = 0;
 };
 
 
@@ -102,9 +105,32 @@ public:
     int GetConfigPath(char *path, size_t size, const char *name);
 
     ObsObserver* observer() { return m_observer; }
-protected:
+
+    //视频设置改变
+    bool VideoSettingChange();
+    bool ServiceSettingChange();
+    bool AudioSettingChange();
+    //是否正在录制
+    bool StreamActive() {
+        return (m_outputHandler && m_outputHandler->Active());
+    }
+
+    void SaveConfig() {
+        m_basicConfig.SaveSafe("tmp");
+        //m_globalConfig.SaveSafe("tmp");
+    }
+
+    //音频接口
     const char *InputAudioSource();
     const char *OutputAudioSource();
+    void ResetAudioDevice(const char *sourceId, const char *deviceId,
+        const char *deviceDesc, int channel);
+
+protected:
+    int  ResetVideo();
+    bool ResetAudio();
+    void ResetOutputs();
+    bool  ResetService();
 
     bool InitBasicConfig();
 
@@ -119,14 +145,8 @@ protected:
     void GetFPSFraction(uint32_t &num, uint32_t &den) const;
     void GetFPSNanoseconds(uint32_t &num, uint32_t &den) const;
 
-    int  ResetVideo();
-    bool ResetAudio();
-    void ResetOutputs();
 
-    void ResetAudioDevice(const char *sourceId, const char *deviceId,
-        const char *deviceDesc, int channel);
 
-    bool  InitService();
 
     void CheckForSimpleModeX264Fallback();
 

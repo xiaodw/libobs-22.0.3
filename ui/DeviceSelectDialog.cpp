@@ -5,8 +5,8 @@
 #include "api/ObsUtils.h"
 #include "MsgBox.h"
 
-CDeviceSelectDialog::CDeviceSelectDialog(bool selGame)
-    :m_isVideo(selGame), m_list(nullptr)
+CDeviceSelectDialog::CDeviceSelectDialog()
+    :m_list(nullptr)
 {
 }
 
@@ -18,7 +18,7 @@ CDeviceSelectDialog::~CDeviceSelectDialog()
 void CDeviceSelectDialog::OnEnumDevice(void* ptr, bool isVideo, const char* name, const char* id)
 {
     CDeviceSelectDialog* dialog = (CDeviceSelectDialog*)ptr;
-    if (dialog->m_isVideo == isVideo)
+    if (!isVideo)
     {
         CListLabelElementUI* elem = new CListLabelElementUI();
         elem->SetText(CDuiString(name));
@@ -35,16 +35,7 @@ void CDeviceSelectDialog::Notify(TNotifyUI& msg)
         m_list = (CListUI*)m_PaintManager.FindControl(_T("List"));
         m_list->RemoveAll();
 
-        if (m_isVideo)
-        {
-            m_PaintManager.FindControl(_T("OGreenBkg"))->SetVisible(true);
-            m_PaintManager.FindControl(_T("LTip"))->SetText(_T("请选择摄像头:"));
-        }
-        else
-        {
-            m_PaintManager.FindControl(_T("LTip"))->SetText(_T("请选择麦克风:"));
-        }
-
+        m_PaintManager.FindControl(_T("LTip"))->SetText(_T("请选择音频设备:"));
         EnumDevice(OnEnumDevice, this);
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
@@ -73,18 +64,7 @@ void CDeviceSelectDialog::Notify(TNotifyUI& msg)
                  os_wcs_to_utf8_ptr(deviceid, deviceid.GetLength(), &deviceidUtf);
 
                  //添加音视频设备
-                 if (m_isVideo)
-                 {
-                     COptionUI* opt =(COptionUI*) m_PaintManager.FindControl(_T("OGreenBkg"));
-
-                     ObsMain::CameraInfo info;
-                     info.greeenBkg = opt->IsSelected();
-                     info.deviceid = deviceidUtf;
-
-                     ObsMain::Instance()->AddCamera(nameUtf, &info);
-                 }
-                 else
-                     ObsMain::Instance()->AddAudio(nameUtf, deviceidUtf);
+                 ObsMain::Instance()->AddAudio(nameUtf, deviceidUtf);
 
                  bfree(nameUtf);
                  bfree(deviceidUtf);

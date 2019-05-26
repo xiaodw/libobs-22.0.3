@@ -13,6 +13,7 @@
 #include "AddTextDialog.h"
 #include "RenameDialog.h"
 #include "MonitorSelectDialog.h"
+#include "SettingDialog.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -21,7 +22,7 @@ const TCHAR* const kMaxButtonControlName = _T("maxbtn");
 const TCHAR* const kRestoreButtonControlName = _T("restorebtn");
 
 CObsMainFrame::CObsMainFrame()
-    :m_sceneList(nullptr), m_sceneItemList(nullptr)
+    :m_sceneList(nullptr), m_sceneItemList(nullptr), m_display(nullptr)
 {
     ObsMain::Instance()->SetObserver(this);
 }
@@ -68,7 +69,7 @@ CDuiString CObsMainFrame::GetSkinFolder()
 
 UILIB_RESOURCETYPE CObsMainFrame::GetResourceType() const
 {
-    return UILIB_FILE;
+    return RESOURCE_TYPE;
 }
 
 LRESULT CObsMainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -139,6 +140,7 @@ void CObsMainFrame::OnPrepare(TNotifyUI& msg)
 {
     m_sceneList =(CHorizontalLayoutUI*)m_PaintManager.FindControl(_T("SceneList"));
     m_sceneItemList = (CListUI*)m_PaintManager.FindControl(_T("SceneItemList"));
+    m_display = (CObsDisplayControl*)m_PaintManager.FindControl(_T("ObsDisplay"));
 
     //加载场景
     ObsMain::Instance()->LoadScene();
@@ -192,11 +194,12 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {
-        if (_tcsicmp(msg.pSender->GetName(), kCloseButtonControlName) == 0)
+        CDuiString name = msg.pSender->GetName();
+        if (_tcsicmp(name, kCloseButtonControlName) == 0)
         {
             OnExit(msg);
         }
-        else if (_tcsicmp(msg.pSender->GetName(), kMinButtonControlName) == 0)
+        else if (_tcsicmp(name, kMinButtonControlName) == 0)
         {
 #if defined(UNDER_CE)
             ::ShowWindow(m_hWnd, SW_MINIMIZE);
@@ -204,7 +207,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
 #endif
         }
-        else if (_tcsicmp(msg.pSender->GetName(), kMaxButtonControlName) == 0)
+        else if (_tcsicmp(name, kMaxButtonControlName) == 0)
         {
 #if defined(UNDER_CE)
             ::ShowWindow(m_hWnd, SW_MAXIMIZE);
@@ -216,7 +219,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             SendMessage(WM_SYSCOMMAND, SC_MAXIMIZE, 0);
 #endif
         }
-        else if (_tcsicmp(msg.pSender->GetName(), kRestoreButtonControlName) == 0)
+        else if (_tcsicmp(name, kRestoreButtonControlName) == 0)
         {
 #if defined(UNDER_CE)
             ::ShowWindow(m_hWnd, SW_RESTORE);
@@ -228,7 +231,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             SendMessage(WM_SYSCOMMAND, SC_RESTORE, 0);
 #endif
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("SceneItemRemove")) == 0)
+        else if (_tcsicmp(name, _T("SceneItemRemove")) == 0)
         {
             CListContainerElementUI* elem = static_cast<CListContainerElementUI*>(msg.pSender->GetParent()->GetParent());
 
@@ -246,7 +249,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
                 itemList.Remove(elem->GetIndex());
             }
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BAddScene")) == 0)
+        else if (_tcsicmp(name, _T("BAddScene")) == 0)
         {
             CRenameDialog* dialog = new CRenameDialog();
             dialog->ShowDialog(m_hWnd, _T("创建场景"), _T(""), [](CRenameDialog* dialog) {
@@ -285,27 +288,27 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
                 return false;
             });
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BGame")) == 0)
+        else if (_tcsicmp(name, _T("BGame")) == 0)
         {
             CWindowSelectDialog* dialog = new CWindowSelectDialog(true);
             dialog->ShowDialog(m_hWnd);
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BWindow")) == 0)
+        else if (_tcsicmp(name, _T("BWindow")) == 0)
         {
             CWindowSelectDialog* dialog = new CWindowSelectDialog(false);
             dialog->ShowDialog(m_hWnd);
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BScreen")) == 0)
+        else if (_tcsicmp(name, _T("BScreen")) == 0)
         {
             CMonitorSelectDialog* dialog = new CMonitorSelectDialog();
             dialog->ShowDialog(m_hWnd);
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BCamera")) == 0)
+        else if (_tcsicmp(name, _T("BCamera")) == 0)
         {
             CCameraSelectDialog* dialog = new CCameraSelectDialog();
             dialog->ShowDialog(m_hWnd);
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("BMedia")) == 0)
+        else if (_tcsicmp(name, _T("BMedia")) == 0)
         {
             RECT rc = msg.pSender->GetPos();
 
@@ -341,6 +344,18 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             });
             dialog->ShowDialog(m_hWnd, dest);
         }
+        else if (name == _T("BStartLive"))
+        {
+
+
+        }
+        else if (name == _T("BSetting"))
+        {
+            CSettingDialog* dialog = new CSettingDialog();
+            dialog->ShowDialog(m_hWnd);
+        }
+
+
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)
     {
@@ -607,6 +622,12 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             m_sceneItemList->SelectItem(index->data, false, false);
         }
         break;
+    case MSG_VIDEO_RESET:
+        {
+            m_display->ResetVideo();
+        }
+        break;
+
     case MSG_DELETE_ELEM:
         {
             CTypedMsgData<int>*index = static_cast<CTypedMsgData<int>*>(data);

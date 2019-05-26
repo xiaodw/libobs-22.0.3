@@ -25,7 +25,7 @@ public:
 
     virtual void Notify(TNotifyUI& msg);
 
-    virtual UILIB_RESOURCETYPE GetResourceType() const { return UILIB_FILE; }
+    virtual UILIB_RESOURCETYPE GetResourceType() const { return RESOURCE_TYPE; }
     virtual CDuiString GetSkinFolder() { return _T(""); }
     LPCTSTR GetWindowClassName() const { return _T("ObsGuiFoundation"); }
 

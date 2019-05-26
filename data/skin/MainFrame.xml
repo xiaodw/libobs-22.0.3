@@ -3,7 +3,6 @@
   <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="true" />
   <Font id="1" name="微软雅黑" size="12" bold="false" default="true" shared="true" />
   
-  
   <Include source="default.xml"/>
   
   <Default name="VScrollBar" value="thumbnormalimage=&quot;file='image/scrollbar_thumb2.png' source='0,0,8,15' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='image/scrollbar_thumb2.png' source='8,0,16,15' corner='0,4,0,4'&quot; bknormalimage=&quot;file='image/scrollbar_bkg.png' source='0,0,8,25' corner='0,4,0,4'&quot; bkhotimage=&quot;file='image/scrollbar_bkg.png' source='8,0,16,25' corner='0,4,0,4'&quot; bkpushedimage=&quot;file='image/scrollbar_bkg.png' source='8,0,26,15' corner='0,4,0,4'&quot; width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot;"/>
@@ -40,7 +39,7 @@
 			</ListContainerElement>
 		</List>
 		<VerticalLayout>
-		  <ObsDisplay visible="true">
+		  <ObsDisplay name="ObsDisplay" visible="true">
 		  </ObsDisplay>
 		  <HorizontalLayout height="63" bkcolor="#ff161616">
 			<Button name="BGame" width="72" normalimage="file='image/btn/live_game.png' source='0,0,72,63'" hotimage="file='image/btn/live_game.png' source='72,0,144,63'" pushedimage="file='image/btn/live_game.png' source='144,0,216,63'" text="游戏" textcolor="#949494" textpadding="24,30,0,0" align="left"/>
@@ -53,7 +52,7 @@
 
 			<Button name="BMedia" width="72" normalimage="file='image/btn/live_video.png' source='0,0,72,63'" hotimage="file='image/btn/live_video.png' source='72,0,144,63'" pushedimage="file='image/btn/live_video.png' source='144,0,216,63'" text="媒体" textcolor="#949494" textpadding="24,30,0,0" align="left"/>			
 			
-			<Button width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
+			<Button name="BStartLive" width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
 			
 			<Control width="22"/>
 			<Option default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="72" padding="0,18,0,0"/>
@@ -67,7 +66,7 @@
 				
 				<Button visible="false" width="32" height="32" normalimage="file='image/btn/mic_close.png' source='0,0,32,32'" hotimage="file='image/btn/mic_close.png' source='32,0,64,32'" pushedimage="file='image/btn/mic_close.png' source='64,0,96,32'" padding="0,14,0,0"/>
 				
-				<Button width="32" height="32" normalimage="file='image/btn/setting.png' source='0,0,32,32'" hotimage="file='image/btn/setting.png' source='32,0,64,32'" pushedimage="file='image/btn/setting.png' source='64,0,96,32'" padding="0,14,0,0"/>				
+				<Button name="BSetting" width="32" height="32" normalimage="file='image/btn/setting.png' source='0,0,32,32'" hotimage="file='image/btn/setting.png' source='32,0,64,32'" pushedimage="file='image/btn/setting.png' source='64,0,96,32'" padding="0,14,0,0"/>				
 				<Button width="32" height="32" normalimage="file='image/btn/plugin.png' source='0,0,32,32'" hotimage="file='image/btn/plugin.png' source='32,0,64,32'" pushedimage="file='image/btn/plugin.png' source='64,0,96,32'" padding="0,14,0,0"/>				
 			</HorizontalLayout>
 		  </HorizontalLayout>

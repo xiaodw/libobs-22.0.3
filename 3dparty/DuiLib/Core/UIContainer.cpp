@@ -1169,4 +1169,20 @@ namespace DuiLib
         return NULL;
     }
 
+    CControlUI* CContainerUI::FindItemByUserData(LPCTSTR udata)
+    {
+        if (!udata)
+            return NULL;
+
+        for (int i = 0; i<GetCount(); ++i)
+        {
+            CControlUI* control = GetItemAt(i);
+            if (_tcscmp(control->GetUserData(), udata) == 0)
+            {
+                return control;
+            }
+        }
+        return NULL;
+    }
+
 } // namespace DuiLib

@@ -95,7 +95,7 @@ UINT CMsgBox::DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption, UIN
     }
 
     CTextUI* pCaption_control = static_cast<CTextUI*>(m_PaintManager.FindControl(wMessageBoxCaption));
-    if (pCaption_control != NULL)    pCaption_control->SetText(lpCaption);
+    if (pCaption_control != NULL && lpCaption)    pCaption_control->SetText(lpCaption);
     
     CContainerUI* pTextLayout = static_cast<CContainerUI*>(m_PaintManager.FindControl(wMessageBoxTextLayout));
     CTextUI* pText_control = static_cast<CTextUI*>(m_PaintManager.FindControl(wMessageBoxText));
@@ -132,6 +132,12 @@ UINT CMsgBox::DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption, UIN
     CenterWindow();
     UINT uRet = ShowModal();
     return uRet;
+}
+
+
+void CMsgBox::TipBox(HWND hParent, LPCTSTR lpText)
+{
+    DuiMessageBox(hParent, lpText, NULL, MESSAGE_INFO, FALSE);
 }
 
 

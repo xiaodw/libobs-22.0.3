@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="450,350" caption="0,0,0,36" defaultfontcolor="#333333"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <Default name="SettingOption" value="group=&quot;SettingType&quot; height=&quot;30&quot; normalimage=&quot;file='image/setting_btn.png' source='0,0,79,28'&quot; hotimage=&quot;file='image/setting_btn.png' source='79,0,158,28'&quot; pushedimage=&quot;file='image/setting_btn.png' source='158,0,237,28'&quot; selectedimage=&quot;file='image/setting_btn.png' source='237,0,316,28'&quot; hottextcolor=&quot;#ffffff&quot; pushedtextcolor=&quot;#ffffff&quot; selectedtextcolor=&quot;#fe2d42&quot;"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39" inset="10,0,0,0">
+        <Label text="设置" textcolor="#ffffff" font="1"/>
+        <Button name="closebtn" default="DlgCloseBtn"/>                    
+    </HorizontalLayout>
+
+	<VerticalLayout>
+		<HorizontalLayout>
+			<VerticalLayout width="85" childpadding="12" inset="0,10,0,0">
+				<Option name="OVideo" text="视频" default="SettingOption" selected="true"/>
+				<Option name="OLive" text="直播" default="SettingOption"/>
+				<Option name="OSound" text="声音" default="SettingOption"/>
+				<Option name="ORecord" text="录制" default="SettingOption"/>
+				<Option name="OOther" text="其他" default="SettingOption"/>
+			</VerticalLayout>
+			<Control width="1" bkcolor="#ffeaeaea"/>
+			<TabLayout name="TSetting" selectedid="0">
+				<VerticalLayout inset="10,22,30,10" childpadding="10">
+					<HorizontalLayout height="24">
+						<Label text="分辨率:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CVideoSize">
+							<ComboItem text="1920*1080(16:9) 1080p (不推荐)"/>
+							<ComboItem text="1280*720(16:9) 720p (推荐)" selected="true"/>
+							<ComboItem text="960*540(16:9) 540p"/>
+							<ComboItem text="720*480(16:9) 480p"/>
+							<ComboItem text="640*360(16:9) 360p"/>
+						</Combo>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24" inset="80,0,0,0">
+						<Option name="OVideoSizeModify" text="自定义" width="60" default="CheckBox"/>
+						<Control />
+						<Edit name="EVideoWidth" width="50" text="1280" enable="false" enabled="false" numberonly="true"/>
+						<Label width="20" text="X" align="center"/>
+						<Edit name="EVideoHeight" width="50" text="720" enable="false" enabled="false" numberonly="true"/>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="帧数:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CFps">
+							<ComboItem text="15fps"/>
+							<ComboItem text="20fps"/>
+							<ComboItem text="25fps(推荐)" selected="true"/>
+							<ComboItem text="30fps"/>
+							<ComboItem text="40fps"/>
+							<ComboItem text="50fps"/>
+							<ComboItem text="60fps"/>
+						</Combo>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="码率:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CBitrate">
+							<ComboItem text="800"/>
+							<ComboItem text="1000"/>
+							<ComboItem text="1200(推荐)" selected="true"/>
+							<ComboItem text="1600"/>
+							<ComboItem text="2000"/>
+						</Combo>
+					</HorizontalLayout>		
+					<HorizontalLayout height="24">
+						<Label text="编码器:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CCodec">
+							<ComboItem text="软件编码" selected="true"/>
+							<ComboItem text="硬件编码"/>
+						</Combo>
+					</HorizontalLayout>	
+					
+				</VerticalLayout>
+				
+				<VerticalLayout inset="10,22,30,10" childpadding="10">
+					<HorizontalLayout height="24">
+						<Label text="URL:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Edit name="EStreamUrl"/>
+					</HorizontalLayout>
+					<HorizontalLayout height="24">
+						<Label text="流名称:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Edit name="EStreamName"/>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24" inset="80,0,0,0">
+						<Option name="OVerify" text="身份验证" width="80" default="CheckBox"/>
+					</HorizontalLayout>
+
+					<HorizontalLayout name="HUserName" height="24" visible="false">
+						<Label text="用户名:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Edit name="EUserName"/>
+					</HorizontalLayout>	
+
+					<HorizontalLayout name="HUserPwd" height="24" visible="false">
+						<Label text="密码:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Edit name="EUserPwd" password="true"/>
+					</HorizontalLayout>
+
+
+				</VerticalLayout>
+				
+				<VerticalLayout inset="10,22,30,10" childpadding="10">
+					<HorizontalLayout height="24">
+						<Label text="采样率:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CSampleRate">
+							<ComboItem text="44.1khz"/>
+							<ComboItem text="48khz" selected="true"/>
+						</Combo>
+						
+						<Label text="声道:"  width="50" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CChannel">
+							<ComboItem text="单声道"/>
+							<ComboItem text="立体声(推荐)" selected="true"/>
+							<ComboItem text="2.1"/>
+							<ComboItem text="4.0"/>
+							<ComboItem text="4.1"/>
+							<ComboItem text="5.1"/>
+							<ComboItem text="7.1"/>
+						</Combo>
+					</HorizontalLayout>				
+
+					<HorizontalLayout height="24">
+						<Label text="系统声音:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CDesktopAudioDevice1">
+						</Combo>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="系统声音2:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CDesktopAudioDevice2">
+						</Combo>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="麦克风:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CAuxAudioDevice1">
+						</Combo>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="麦克风2:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CAuxAudioDevice2">
+						</Combo>
+					</HorizontalLayout>
+
+					<HorizontalLayout height="24">
+						<Label text="麦克风3:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CAuxAudioDevice3">
+						</Combo>
+					</HorizontalLayout>
+					
+				</VerticalLayout>
+				
+				<VerticalLayout inset="10,22,30,10" childpadding="10">
+					<HorizontalLayout height="24">
+						<Label text="录像路径:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Edit name="ERecordPath"/>
+						<Control width="5"/>
+						<Button text="浏览" default="NormalBtn" width="45"/>
+						<Control width="5"/>
+						<Button text="打开" default="NormalBtn" width="45"/>
+					</HorizontalLayout>
+					
+					
+					<HorizontalLayout height="24">
+						<Label text="保存格式:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CRecordFormat">
+							<ComboItem text="flv"/>
+							<ComboItem text="mp4" selected="true"/>
+							<ComboItem text="mov"/>
+							<ComboItem text="mkv"/>
+							<ComboItem text="ts"/>
+							<ComboItem text="m3u8"/>
+						</Combo>
+					</HorizontalLayout>
+				</VerticalLayout>
+				<VerticalLayout inset="10,22,30,10" childpadding="10">
+					<HorizontalLayout height="24" inset="10,0,0,0">
+						<Option name="OEnableDealy" text="开启防窃屏设置：直播内容延迟" width="206" default="CheckBox"/>
+						<Edit name="EDelay" width="30" text="20" numberonly="true" enabled="false"/>
+						<Label text="秒(0-60秒)" textpadding="5,0,0,0"/>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24" inset="10,0,0,0">
+						<Option text="总是最小化到系统托盘，而不是任务栏" width="0" default="CheckBox"/>
+					</HorizontalLayout>
+				</VerticalLayout>
+				
+
+			</TabLayout>
+		</HorizontalLayout>	
+		
+
+		<Control height="1" bkcolor="#ffeaeaea"/>
+		<Control height="18"/>
+		<HorizontalLayout height="35" childpadding="25">
+		  <Control />
+		  
+		  <Button name="acceptbtn" width="140" height="35" text="确定" default="AcceptBtn"/>
+		  
+		  <Control />
+		</HorizontalLayout>
+		<Control height="24"/>
+	</VerticalLayout>
+  </VerticalLayout>  
+</Window>
+
+ 
