@@ -128,7 +128,7 @@
 						</Combo>
 					</HorizontalLayout>
 					
-					<HorizontalLayout height="24">
+					<HorizontalLayout height="24" visible="false">
 						<Label text="系统声音2:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Combo name="CDesktopAudioDevice2">
 						</Combo>
@@ -140,13 +140,13 @@
 						</Combo>
 					</HorizontalLayout>
 					
-					<HorizontalLayout height="24">
+					<HorizontalLayout height="24" visible="false">
 						<Label text="麦克风2:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Combo name="CAuxAudioDevice2">
 						</Combo>
 					</HorizontalLayout>
 
-					<HorizontalLayout height="24">
+					<HorizontalLayout height="24" visible="false">
 						<Label text="麦克风3:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Combo name="CAuxAudioDevice3">
 						</Combo>

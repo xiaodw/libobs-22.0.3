@@ -142,6 +142,15 @@ void CObsMainFrame::OnPrepare(TNotifyUI& msg)
     m_sceneItemList = (CListUI*)m_PaintManager.FindControl(_T("SceneItemList"));
     m_display = (CObsDisplayControl*)m_PaintManager.FindControl(_T("ObsDisplay"));
 
+    config_t* config = GetBasicConfig();
+    if (config)
+    {
+        if (config_get_bool(config, "Output", "AutoRecord"))
+        {
+            m_PaintManager.FindControl<COptionUI>(_T("OAutoRecord"))->Selected(true, false);
+        }
+    }
+
     //¼ÓÔØ³¡¾°
     ObsMain::Instance()->LoadScene();
 }
@@ -404,6 +413,14 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             //³¡¾°ÇÐ»»
             obs_scene_t* scene = (obs_scene_t*) msg.pSender->GetTag();
             ObsMain::Instance()->SetCurrentScene(scene);
+        }
+        else if (_tcsicmp(msg.pSender->GetName(), _T("OAutoRecord")) == 0)
+        {
+            config_t* config = GetBasicConfig();
+            if (config)
+            {
+                config_set_bool(config, "Output", "AutoRecord",msg.wParam);
+            }
         }
     }
 }

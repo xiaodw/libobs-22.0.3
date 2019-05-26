@@ -97,9 +97,12 @@ public:
 
     void SetTransition(OBSSource transition);
 
-    void EnableDesktopAudio(bool enable);
-    void EnableInputAudio(bool enable);
-    void InitAudioSources();
+    //0~100
+    void SetDesktopVolume(int vol);
+    void SetInputVolume(int vol);
+
+    int GetDesktopVolume();
+    int GetInputVolume();
 
     int GetProfilePath(char *path, size_t size, const char *file);
     int GetConfigPath(char *path, size_t size, const char *name);
@@ -131,6 +134,10 @@ protected:
     bool ResetAudio();
     void ResetOutputs();
     bool  ResetService();
+
+    void EnableDesktopAudio(bool enable);
+    void EnableInputAudio(bool enable);
+    void InitAudioSources();
 
     bool InitBasicConfig();
 

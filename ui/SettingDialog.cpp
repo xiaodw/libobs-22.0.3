@@ -367,11 +367,11 @@ void CSettingDialog::LoadListValues(CComboUI *widget, obs_property_t *prop,
 
 void CSettingDialog::InitRecordPage(config_t* config)
 {
-    CDuiString data = config_get_default_string(config, "AdvOut", "RecFilePath");
+    CDuiString data = config_get_string(config, "AdvOut", "RecFilePath");
     m_PaintManager.FindControl(_T("ERecordPath"))->SetText(data);
 
 
-    data = config_get_default_string(config, "AdvOut", "RecFormat");
+    data = config_get_string(config, "AdvOut", "RecFormat");
     m_PaintManager.FindControl<CComboUI>(_T("CRecordFormat"))->SelectItemByText(data);
     
 }
@@ -386,10 +386,10 @@ bool CSettingDialog::SaveRecordPage(config_t* config)
         return false;
     }
 
-    config_set_default_string(config, "AdvOut", "RecFilePath", path.c_str());
+    config_set_string(config, "AdvOut", "RecFilePath", path.c_str());
 
     std::string format = ToUtf8(m_PaintManager.FindControl(_T("CRecordFormat"))->GetText());
-    config_set_default_string(config, "AdvOut", "RecFormat", format.c_str());
+    config_set_string(config, "AdvOut", "RecFormat", format.c_str());
     return true;
 }
 

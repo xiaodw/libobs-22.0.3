@@ -27,6 +27,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
     CPaintManagerUI::MessageLoop();
 
     obsMain->SaveProject();
+    obsMain->SaveConfig();
     delete obsMain;
 
     blog(LOG_INFO, "Number of memory leaks: %ld", bnum_allocs());

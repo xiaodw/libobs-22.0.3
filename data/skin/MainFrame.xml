@@ -55,7 +55,7 @@
 			<Button name="BStartLive" width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
 			
 			<Control width="22"/>
-			<Option default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="72" padding="0,18,0,0"/>
+			<Option name="OAutoRecord" default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="72" padding="0,18,0,0"/>
 			<Control width="22"/>
 			<HorizontalLayout childpadding="25">
 				<Button width="32" height="32" normalimage="file='image/btn/snd_open.png' source='0,0,32,32'" hotimage="file='image/btn/snd_open.png' source='32,0,64,32'" pushedimage="file='image/btn/snd_open.png' source='64,0,96,32'" padding="0,14,0,0"/>
