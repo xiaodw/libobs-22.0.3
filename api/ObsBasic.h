@@ -98,11 +98,9 @@ public:
     void SetTransition(OBSSource transition);
 
     //0~100
-    void SetDesktopVolume(int vol);
-    void SetInputVolume(int vol);
+    void SetVolume(int channel,int vol);
+    int GetVolume(int channel);
 
-    int GetDesktopVolume();
-    int GetInputVolume();
 
     int GetProfilePath(char *path, size_t size, const char *file);
     int GetConfigPath(char *path, size_t size, const char *name);

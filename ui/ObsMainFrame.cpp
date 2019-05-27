@@ -373,7 +373,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
 
             ClientToScreen(m_hWnd, &pt);
 
-            box->ShowDialog(m_hWnd,pt);
+            box->ShowDialog(m_hWnd,pt, OUTPUT_AUDIO_CHANNEL1);
         }
         else if (name == _T("BMicOpen") || name == _T("BMicClose"))
         {
@@ -384,7 +384,7 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
 
             ClientToScreen(m_hWnd, &pt);
 
-            box->ShowDialog(m_hWnd, pt);
+            box->ShowDialog(m_hWnd, pt, INPUT_AUDIO_CHANNEL1);
         }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)

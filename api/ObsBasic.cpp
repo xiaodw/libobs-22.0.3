@@ -1055,42 +1055,25 @@ void ObsBasic::InitAudioSources()
 }
 
 
-void ObsBasic::SetDesktopVolume(int vol)
+void ObsBasic::SetVolume(int channel, int vol)
 {
-    obs_source_t* source = obs_get_output_source(OUTPUT_AUDIO_CHANNEL1);
+    obs_source_t* source = obs_get_output_source(channel);
     if (source)
     {
         obs_source_set_volume(source, vol / 100.0);
     }
 }
 
-int ObsBasic::GetDesktopVolume()
+int ObsBasic::GetVolume(int channel)
 {
-    obs_source_t* source = obs_get_output_source(OUTPUT_AUDIO_CHANNEL1);
+    obs_source_t* source = obs_get_output_source(channel);
     if (source)
         return obs_source_get_volume(source) * 100;
     else
         return 0;
 }
 
-void ObsBasic::SetInputVolume(int vol)
-{
-    obs_source_t* source = obs_get_output_source(INPUT_AUDIO_CHANNEL1);
-    if (source)
-    {
-        obs_source_set_volume(source, vol / 100.0);
-    }
-}
 
-
-int ObsBasic::GetInputVolume()
-{
-    obs_source_t* source = obs_get_output_source(INPUT_AUDIO_CHANNEL1);
-    if (source)
-        return obs_source_get_volume(source) * 100;
-    else
-        return 0;
-}
 
 void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
     const char *deviceDesc, int channel)

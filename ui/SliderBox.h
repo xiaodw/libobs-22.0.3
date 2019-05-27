@@ -6,8 +6,9 @@ public:
     CSliderBox();
     ~CSliderBox();
 
-    void ShowDialog(HWND hParent,POINT pt)
+    void ShowDialog(HWND hParent,POINT pt,int channel)
     {
+        m_channel = channel;
         CreateDuiWindow(hParent, _T(""), WS_POPUPWINDOW | WS_VISIBLE, WS_EX_TOOLWINDOW);
         UINT uFlags = SWP_NOZORDER | SWP_NOSIZE;
         ::SetWindowPos(m_hWnd, NULL, pt.x, pt.y , 0 , 0 , uFlags);
@@ -28,11 +29,7 @@ public:
     LPCTSTR GetWindowClassName() const { return _T("ObsGuiFoundation"); }
 
     //如果丢失焦点关闭
-    virtual LRESULT OnKillFocus(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-    {
-        Close();
-        return 0;
-    }
+    virtual LRESULT OnKillFocus(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
     void InitWindow()
     {
@@ -42,7 +39,7 @@ public:
         m_shadow.Create(m_hWnd);
     }
 private:
-    CListUI* m_list;
+    int m_channel;
     CWndShadow m_shadow;
 };
 
