@@ -1,4 +1,4 @@
-project "libobs"
+project "obs"
 	kind "SharedLib"
 	language "C"
 	
@@ -25,7 +25,7 @@ project "libobs"
 	links{
 		"zlib",
 		"jansson",
-		"pthread",
+		"w32-pthreads",
 		"avcodec",
 		"avformat",
 		"avutil",

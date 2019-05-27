@@ -16,12 +16,13 @@ project "ObsClient"
 		"controls/*.cpp",
 		"*.h",
 		"*.cpp",
+		"rc/client.rc",
 	}
 	defines {
 
 	}
 	
 	links{
-		"libobs",
+		"obs",
 		"duilib",
 	}

@@ -18,7 +18,7 @@ project "coreaudio-encoder"
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}
 	
 project "win-decklink"
@@ -46,7 +46,7 @@ project "win-decklink"
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}
 	
 	
@@ -67,8 +67,8 @@ project "image-source"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 	}	
 	
 	
@@ -93,8 +93,8 @@ end
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"avcodec",
 		"avformat",
 		"avutil",
@@ -123,8 +123,8 @@ project "obs-ffmpeg"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"avcodec",
 		"avformat",
 		"avutil",
@@ -151,8 +151,8 @@ project "obs-filters"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"speexdsp",
 	}	
 
@@ -174,8 +174,8 @@ project "obs-libfdk"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"fdk-aac_dll",
 	}
 	
@@ -209,8 +209,8 @@ project "obs-outputs"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"jansson",
 		"mbedtls",
 		"libcurl",
@@ -243,8 +243,8 @@ project "obs-qsv11"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 		"d3d11",
 		"dxgi",
 		"D3d9",
@@ -268,7 +268,7 @@ project "obs-text"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"gdiplus",
 	}	
 		
@@ -289,7 +289,7 @@ project "obs-transitions"
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}		
 	
 project "obs-x264"
@@ -309,7 +309,7 @@ project "obs-x264"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"x264",
 	}		
 	
@@ -331,8 +331,8 @@ project "vlc-video"
 	}
 
 	links{
-		"libobs",
-		"pthread",
+		"obs",
+		"w32-pthreads",
 	}		
 		
 project "win-capture"
@@ -354,7 +354,7 @@ project "win-capture"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"psapi"
 	}		
 	
@@ -382,7 +382,7 @@ end
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"d3d9",
 		"dxgi",
 		"d3d11",
@@ -415,7 +415,7 @@ end
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"d3d9",
 		"dxgi",
 		"d3d11",
@@ -444,7 +444,7 @@ end
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}	
 	
 	
@@ -472,7 +472,7 @@ project "win-dshow"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"strmiids",
 		"ksuser",
 		"wmcodecdspuuid",
@@ -502,7 +502,7 @@ project "win-ivcam"
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}		
 	
 
@@ -528,7 +528,7 @@ project "seg_service"
 	}
 
 	links{
-		"libobs",
+		"obs",
 	}	
 	]]
 	
@@ -550,7 +550,7 @@ project "win-mf"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"d3d9",
 		"dxva2",
 		"uuid",
@@ -577,7 +577,7 @@ project "win-wasapi"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"d3d9",
 		"dxva2",
 		"uuid",
@@ -605,7 +605,7 @@ project "rtmp-services"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"jansson",
 	}
 	
@@ -627,9 +627,9 @@ project "obslua"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"luajit",
-		"pthread",
+		"w32-pthreads",
 	}		
 		
 	
@@ -650,9 +650,9 @@ project "obs-scripting"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"luajit",
-		"pthread",
+		"w32-pthreads",
 	}		
 	
 	

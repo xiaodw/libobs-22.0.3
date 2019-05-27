@@ -16,7 +16,7 @@ project "obs_opengl"
 		"../../"
 	}
 	links{
-		"libobs"
+		"obs"
 	}
 	
 if is_pfm("windows") then

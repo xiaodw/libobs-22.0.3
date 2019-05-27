@@ -14,7 +14,7 @@ project "obs_d3d11"
 	}
 
 	links{
-		"libobs",
+		"obs",
 		"d3d11",
 		"dxgi",
 	}

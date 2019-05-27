@@ -1,5 +1,5 @@
 
-project "pthread"
+project "w32-pthreads"
 	kind "SharedLib"
 	language "C"
 	defines {

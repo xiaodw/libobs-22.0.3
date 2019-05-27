@@ -69,7 +69,7 @@ project "test"
 	
 	
 	links{
-		"libobs",
+		"obs",
 	}
 	
 	
