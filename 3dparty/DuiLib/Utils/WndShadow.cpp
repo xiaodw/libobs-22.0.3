@@ -353,6 +353,8 @@ void CWndShadow::Update(HWND hParent)
 	bmi.bmiHeader.biSizeImage = nShadWndWid * nShadWndHei * 4;
 	BYTE *pvBits;          // pointer to DIB section
 	HBITMAP hbitmap = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void **)&pvBits, NULL, 0);
+    if (!pvBits)
+        return;
 	ZeroMemory(pvBits, bmi.bmiHeader.biSizeImage);
 
 	HDC hMemDC = CreateCompatibleDC(NULL);

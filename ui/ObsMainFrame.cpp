@@ -135,11 +135,8 @@ void CObsMainFrame::InitWindow()
     RECT hole = { 0,0,0,0 };
     m_shadow.SetImage(_T("image/window_shadow.png"), corner, hole);
     m_shadow.Create(m_hWnd);
-}
 
-void CObsMainFrame::OnPrepare(TNotifyUI& msg)
-{
-    m_sceneList =(CHorizontalLayoutUI*)m_PaintManager.FindControl(_T("SceneList"));
+    m_sceneList = (CHorizontalLayoutUI*)m_PaintManager.FindControl(_T("SceneList"));
     m_sceneItemList = (CListUI*)m_PaintManager.FindControl(_T("SceneItemList"));
     m_display = (CObsDisplayControl*)m_PaintManager.FindControl(_T("ObsDisplay"));
 
@@ -151,9 +148,12 @@ void CObsMainFrame::OnPrepare(TNotifyUI& msg)
             m_PaintManager.FindControl<COptionUI>(_T("OAutoRecord"))->Selected(true, false);
         }
     }
+}
 
-    //¼ÓÔØ³¡¾°
-    ObsMain::Instance()->LoadScene();
+void CObsMainFrame::OnPrepare(TNotifyUI& msg)
+{
+
+
 }
 
 void CObsMainFrame::RemoveScene(COptionExUI* opt)
