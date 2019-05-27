@@ -17,6 +17,9 @@ elseif is_pfm("windows") then
 	libdirs{
 		"depend/win32/bin"
 	}
+	linkoptions{
+		"/SAFESEH:NO",
+	}
 elseif is_pfm("ios") then
 	location "build"
 	defines { "POSIX" ,"TARGET_OS_IOS","TARGET_OS_IPHONE"}

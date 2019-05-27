@@ -20,6 +20,7 @@
 #include "vec3.h"
 #include "vec4.h"
 #include "axisang.h"
+#include <string.h>
 
 /* 4x4 Matrix */
 
@@ -43,10 +44,12 @@ static inline void matrix4_copy(struct matrix4 *dst, const struct matrix4 *m)
 
 static inline void matrix4_identity(struct matrix4 *dst)
 {
-	vec4_zero(&dst->x);
-	vec4_zero(&dst->y);
-	vec4_zero(&dst->z);
-	vec4_zero(&dst->t);
+	//vec4_zero(&dst->x);
+	//vec4_zero(&dst->y);
+	//vec4_zero(&dst->z);
+	//vec4_zero(&dst->t);
+
+    memset(dst, 0, sizeof(struct matrix4));
 	dst->x.x = 1.0f;
 	dst->y.y = 1.0f;
 	dst->z.z = 1.0f;

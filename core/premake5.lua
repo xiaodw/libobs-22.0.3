@@ -61,4 +61,8 @@ if is_pfm("windows") then
 		"Winmm",
 		"Psapi",
 	}
+	
+	linkoptions{
+		"/SAFESEH:NO",
+	}
 end

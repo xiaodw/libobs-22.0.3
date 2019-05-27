@@ -217,8 +217,12 @@ project "obs-outputs"
 		"zlib",
 		"Crypt32",
 		"Iphlpapi",
+		"winmm",
 	}
-		
+	
+	linkoptions{
+		"/SAFESEH:NO",
+	}
 	
 project "obs-qsv11"
 	kind "SharedLib"
