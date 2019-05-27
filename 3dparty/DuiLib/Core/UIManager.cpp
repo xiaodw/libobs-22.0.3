@@ -940,7 +940,7 @@ bool CPaintManagerUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, LR
             {
                 HBITMAP hOldBitmap = (HBITMAP) ::SelectObject(m_hDcOffscreen, m_hbmpOffscreen);
                 int iSaveDC = ::SaveDC(m_hDcOffscreen);
-				if (m_bLayered && m_diLayered.pImageInfo == NULL) {
+				if (m_bLayered && m_pOffscreenBits) {
 					COLORREF* pOffscreenBits = NULL;
 					for( LONG y = rcClient.bottom - rcPaint.bottom; y < rcClient.bottom - rcPaint.top; ++y ) {
 						for( LONG x = rcPaint.left; x < rcPaint.right; ++x ) {
@@ -1594,13 +1594,16 @@ void CPaintManagerUI::NeedUpdate()
 
 void CPaintManagerUI::Invalidate()
 {
-	if( !m_bLayered ) ::InvalidateRect(m_hWndPaint, NULL, FALSE);
+	if( !m_bLayered ) 
+        ::InvalidateRect(m_hWndPaint, NULL, FALSE);
 	else {
 		RECT rcClient = { 0 };
 		::GetClientRect(m_hWndPaint, &rcClient);
         if (IsRectEmpty(&m_rcLayeredUpdate))
         {
             ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcClient);
+
+            m_bLayeredChanged = true;
             PostMessage(m_hWndPaint, UIMSG_LAYERPAINT, 0, 0);
         }
         else
@@ -1622,6 +1625,7 @@ void CPaintManagerUI::Invalidate(RECT& rcItem)
     {
         if (IsRectEmpty(&m_rcLayeredUpdate))
         {
+            //m_bLayeredChanged = true;
             ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcItem);
             PostMessage(m_hWndPaint, UIMSG_LAYERPAINT, 0, 0);
         }
