@@ -1127,6 +1127,17 @@ bool CPaintManagerUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, LR
 			if( m_bLayered ) Invalidate();
         }
         return true;
+    case UIMSG_LAYERPAINT:
+    {
+        if (m_bLayered && !::IsRectEmpty(&m_rcLayeredUpdate)) {
+            LRESULT lRes = 0;
+            if (!::IsIconic(m_hWndPaint)) 
+                MessageHandler(WM_PAINT, 0, 0L, lRes);
+            break;
+        }
+    }
+    break;
+
     case WM_TIMER:
         {
 			if( LOWORD(wParam) == LAYEREDUPDATE_TIMERID ) {
@@ -1587,7 +1598,15 @@ void CPaintManagerUI::Invalidate()
 	else {
 		RECT rcClient = { 0 };
 		::GetClientRect(m_hWndPaint, &rcClient);
-		::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcClient);
+        if (IsRectEmpty(&m_rcLayeredUpdate))
+        {
+            ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcClient);
+            PostMessage(m_hWndPaint, UIMSG_LAYERPAINT, 0, 0);
+        }
+        else
+        {
+            ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcClient);
+        }
 	}
 }
 
@@ -1597,8 +1616,18 @@ void CPaintManagerUI::Invalidate(RECT& rcItem)
 	if( rcItem .top < 0 ) rcItem.top = 0;
 	if( rcItem.right < rcItem.left ) rcItem.right = rcItem.left;
 	if( rcItem.bottom < rcItem.top ) rcItem.bottom = rcItem.top;
-	if( !m_bLayered ) ::InvalidateRect(m_hWndPaint, &rcItem, FALSE);
-	else ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcItem);
+	if( !m_bLayered ) 
+        ::InvalidateRect(m_hWndPaint, &rcItem, FALSE);
+    else
+    {
+        if (IsRectEmpty(&m_rcLayeredUpdate))
+        {
+            ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcItem);
+            PostMessage(m_hWndPaint, UIMSG_LAYERPAINT, 0, 0);
+        }
+        else
+            ::UnionRect(&m_rcLayeredUpdate, &m_rcLayeredUpdate, &rcItem);
+    }
 }
 
 bool CPaintManagerUI::AttachDialog(CControlUI* pControl)

@@ -13,6 +13,8 @@
   
   <Default name="Slider" value="height=&quot;10&quot; thumbsize=&quot;10,10&quot; bkimage=&quot;file='image/slider_bg.png' corner='3,0,3,0'&quot; foreimage=&quot;file='image/slider_bg1.png' corner='3,0,3,0'&quot; thumbimage=&quot;file='image/slider_thumb.png'&quot;" shared="true"/>  
  
+   <Default name="VSlider" value="thumbsize=&quot;13,13&quot; bkimage=&quot;file='image/vertical_progressbg1.png' corner='0,3,0,3'&quot; foreimage=&quot;file='image/vertical_progressbg2.png' corner='0,3,0,3'&quot; thumbimage=&quot;file='image/vertical_progress_thumb.png'&quot; hor=&quot;false&quot;" shared="true"/>
+ 
   <Default name="Edit" value="bkimage=&quot;file='image/list_bg.png' corner='3,3,3,3'&quot;" shared="true"/> 
   
   

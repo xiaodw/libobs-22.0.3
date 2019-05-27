@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="25,128" layeredimage="file='image/vertical_seekbar_bg.png' corner='3,3,3,10'"> 
+	<Font name="微软雅黑" id="0" size="13" default="true"/>
+	<VerticalLayout inset="0,6,0,6">
+		<Slider default="VSlider" min="0" max="100" value="100" height="96" padding="6,0,6,0"/>
+		<Control height="4"/>
+		<Option visible="false" normalimage="file='image/mic_mute1.png' source='0,0,13,12'" hotimage="file='image/mic_mute1.png' source='13,0,26,12'" height="13" padding="8,0,4,0" selectedimage="file='image/mic_mute2.png' source='0,0,13,12'" selectedhotimage="file='image/mic_mute2.png' source='13,0,26,12'"/>
+
+		<Option visible="false" normalimage="file='image/mute2.png' source='0,0,13,12'" hotimage="file='image/mute2.png' source='13,0,26,12'" height="13" padding="6,0,6,0" selectedimage="file='image/mute1.png' source='0,0,13,12'" selectedhotimage="file='image/mute1.png' source='13,0,26,12'"/>
+		
+	</VerticalLayout>
+</Window>
+
+ 

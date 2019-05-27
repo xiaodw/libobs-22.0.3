@@ -58,13 +58,13 @@
 			<Option name="OAutoRecord" default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="72" padding="0,18,0,0"/>
 			<Control width="22"/>
 			<HorizontalLayout childpadding="25">
-				<Button width="32" height="32" normalimage="file='image/btn/snd_open.png' source='0,0,32,32'" hotimage="file='image/btn/snd_open.png' source='32,0,64,32'" pushedimage="file='image/btn/snd_open.png' source='64,0,96,32'" padding="0,14,0,0"/>
+				<Button name="BSoundOpen" width="32" height="32" normalimage="file='image/btn/snd_open.png' source='0,0,32,32'" hotimage="file='image/btn/snd_open.png' source='32,0,64,32'" pushedimage="file='image/btn/snd_open.png' source='64,0,96,32'" padding="0,14,0,0"/>
 				
-				<Button visible="false" width="32" height="32" normalimage="file='image/btn/snd_close.png' source='0,0,32,32'" hotimage="file='image/btn/snd_close.png' source='32,0,64,32'" pushedimage="file='image/btn/snd_close.png' source='64,0,96,32'" padding="0,14,0,0"/>			
+				<Button name="BSoundClose" visible="false" width="32" height="32" normalimage="file='image/btn/snd_close.png' source='0,0,32,32'" hotimage="file='image/btn/snd_close.png' source='32,0,64,32'" pushedimage="file='image/btn/snd_close.png' source='64,0,96,32'" padding="0,14,0,0"/>			
 				
-				<Button width="32" height="32" normalimage="file='image/btn/mic_open.png' source='0,0,32,32'" hotimage="file='image/btn/mic_open.png' source='32,0,64,32'" pushedimage="file='image/btn/mic_open.png' source='64,0,96,32'" padding="0,14,0,0"/>
+				<Button name="BMicOpen" width="32" height="32" normalimage="file='image/btn/mic_open.png' source='0,0,32,32'" hotimage="file='image/btn/mic_open.png' source='32,0,64,32'" pushedimage="file='image/btn/mic_open.png' source='64,0,96,32'" padding="0,14,0,0"/>
 				
-				<Button visible="false" width="32" height="32" normalimage="file='image/btn/mic_close.png' source='0,0,32,32'" hotimage="file='image/btn/mic_close.png' source='32,0,64,32'" pushedimage="file='image/btn/mic_close.png' source='64,0,96,32'" padding="0,14,0,0"/>
+				<Button name="BMicClose" visible="false" width="32" height="32" normalimage="file='image/btn/mic_close.png' source='0,0,32,32'" hotimage="file='image/btn/mic_close.png' source='32,0,64,32'" pushedimage="file='image/btn/mic_close.png' source='64,0,96,32'" padding="0,14,0,0"/>
 				
 				<Button name="BSetting" width="32" height="32" normalimage="file='image/btn/setting.png' source='0,0,32,32'" hotimage="file='image/btn/setting.png' source='32,0,64,32'" pushedimage="file='image/btn/setting.png' source='64,0,96,32'" padding="0,14,0,0"/>				
 				<Button width="32" height="32" normalimage="file='image/btn/plugin.png' source='0,0,32,32'" hotimage="file='image/btn/plugin.png' source='32,0,64,32'" pushedimage="file='image/btn/plugin.png' source='64,0,96,32'" padding="0,14,0,0"/>				

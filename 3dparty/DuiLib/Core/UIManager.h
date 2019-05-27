@@ -81,7 +81,7 @@ enum EVENTTYPE_UI
 enum
 {
     UIMSG_TRAYICON = WM_USER + 1,// 托盘消息
-
+    UIMSG_LAYERPAINT,
 
     UIMSG_USER = WM_USER + 100,	 // 程序自定义消息
 };

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ObsMainFrame.h"
 #include "api/ObsMain.h"
+#include "rc/resource.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
@@ -21,6 +22,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
     CObsMainFrame* pFrame = new CObsMainFrame();
     if (pFrame == NULL) return 0;
     pFrame->Create(NULL, _T("ObsClient"), UI_WNDSTYLE_FRAME, 0L, 0, 0, 800, 572);
+
+    HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+    ::SendMessage(*pFrame, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+    ::SendMessage(*pFrame, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
     pFrame->CenterWindow();
     ::ShowWindow(*pFrame, SW_SHOW);
 

@@ -2,8 +2,6 @@
 <Window> 
 	<Font name="微软雅黑" id="0" size="13" default="true"/>
 
-	<Include source="default.xml"/>
-	
 	<Container bkimage="image/side_select_bg.png">
 		<List name="List" header="hidden" vscrollbar="true" itemhotbkcolor="#ff424242" itemselectedbkcolor="#ff424242" itemtextcolor="#666666" itemhottextcolor="#ffffff" itemselectedtextcolor="#ffffff" itemalign="center">
 

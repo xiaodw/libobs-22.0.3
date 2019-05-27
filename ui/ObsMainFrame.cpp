@@ -14,6 +14,7 @@
 #include "RenameDialog.h"
 #include "MonitorSelectDialog.h"
 #include "SettingDialog.h"
+#include "SliderBox.h"
 
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
@@ -363,8 +364,28 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
             CSettingDialog* dialog = new CSettingDialog();
             dialog->ShowDialog(m_hWnd);
         }
+        else if (name == _T("BSoundOpen") || name == _T("BSoundClose"))
+        {
+            CSliderBox* box = new CSliderBox();
+            RECT pos = msg.pSender->GetPos();
 
+            POINT pt = { pos.left + 3,pos.top - 128 };
 
+            ClientToScreen(m_hWnd, &pt);
+
+            box->ShowDialog(m_hWnd,pt);
+        }
+        else if (name == _T("BMicOpen") || name == _T("BMicClose"))
+        {
+            CSliderBox* box = new CSliderBox();
+            RECT pos = msg.pSender->GetPos();
+
+            POINT pt = { pos.left + 3,pos.top - 128 };
+
+            ClientToScreen(m_hWnd, &pt);
+
+            box->ShowDialog(m_hWnd, pt);
+        }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_TIMER) == 0)
     {
