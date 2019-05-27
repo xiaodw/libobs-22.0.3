@@ -469,6 +469,12 @@ namespace DuiLib
 		return m_pstr; 
 	}
 
+    void CDuiString::Append(TCHAR ch)
+    {
+        TCHAR buf[2] = { ch,_T('\0') };
+        Append(buf);
+    }
+
 	void CDuiString::Append(LPCTSTR pstr)
 	{
 		int nNewLength = GetLength() + (int) _tcslen(pstr);
@@ -808,6 +814,15 @@ namespace DuiLib
 		Assign(szBuffer);
 		return iRet;
 	}
+
+    TCHAR CDuiString::LastChar()
+    {
+        int len = GetLength();
+        if (len == 0)
+            return _T('\0');
+        else
+            return m_pstr[len-1];
+    }
 
 	/////////////////////////////////////////////////////////////////////////////
 	//

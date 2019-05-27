@@ -37,7 +37,7 @@ void CObsDisplayControl::SetPos(RECT rc, bool bNeedInvalidate)
         temp.bottom - temp.top
     };
 
-    blog(LOG_INFO, "setpos %d,%d,%d,%d", pos.x, pos.y, pos.width, pos.height);
+    //blog(LOG_INFO, "setpos %d,%d,%d,%d", pos.x, pos.y, pos.width, pos.height);
     m_window->SetWindowPos(pos);
 }
 

@@ -52,11 +52,17 @@ private:
     void InitOtherPage(config_t* config);
     bool SaveOtherPage(config_t* config);
 
+
+    void ResetDownscales(uint32_t cx, uint32_t cy);
+
     void LoadListValues(CComboUI *widget, obs_property_t *prop,
         int index);
 
     CWndShadow m_shadow;
     CTabLayoutUI* m_tab;
+
+    uint32_t m_outputCX = 1280;
+    uint32_t m_outputCY = 720;
 
     //…˘“Ù «∑Ò…Ë÷√
     bool m_desktopAudioDevice1Changed = false;

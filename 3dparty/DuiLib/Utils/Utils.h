@@ -96,6 +96,8 @@ namespace DuiLib
         bool IsEmpty() const;
         TCHAR GetAt(int nIndex) const;
         void Append(LPCTSTR pstr);
+        void Append(TCHAR ch);
+
         void Assign(LPCTSTR pstr, int nLength = -1);
         LPCTSTR GetData() const;
 
@@ -140,6 +142,8 @@ namespace DuiLib
         int Find(LPCTSTR pstr, int iPos = 0) const;
         int ReverseFind(TCHAR ch) const;
         int Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo);
+
+        TCHAR LastChar();
 
         int __cdecl Format(LPCTSTR pstrFormat, ...);
         int __cdecl SmallFormat(LPCTSTR pstrFormat, ...);

@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "Utils.h"
 #include <commdlg.h>
+#include <Shlobj.h>
+#include <shellapi.h>
 
 CDuiString OpenSingleFileDialog(HWND hwnd, LPCTSTR filter)
 {
@@ -67,6 +69,54 @@ bool OpenColorSelectDialog(HWND hwnd, COLORREF & rgbCurrent)
         return false;
 }
 
+CDuiString OpenSelectPathDialog(HWND hwnd)
+{
+    BROWSEINFO bInfo;
+    memset(&bInfo, 0, sizeof(bInfo));
+    bInfo.hwndOwner = hwnd;//父窗口
+    bInfo.lpszTitle = TEXT("请选择文件夹");
+    bInfo.ulFlags = BIF_RETURNONLYFSDIRS
+        | BIF_USENEWUI //包含一个编辑框 用户可以手动填写路径 对话框可以调整大小之类的..
+        | BIF_UAHINT //带TIPS提示 
+        | BIF_DONTGOBELOWDOMAIN //显示网络目录
+        ;
+
+    CDuiString  strPath;
+    LPITEMIDLIST lpDlist = SHBrowseForFolder(&bInfo);
+    if (lpDlist != NULL)//单击了确定按钮  
+    {
+        TCHAR szPathName[MAX_PATH];
+        memset(szPathName, 0, MAX_PATH);
+        SHGetPathFromIDList(lpDlist, szPathName);
+        strPath = szPathName;
+    }
+    return strPath;
+
+}
+
+void OpenFolder(HWND hwnd, LPCTSTR path)
+{
+    //CDuiString file;
+    //SHELLEXECUTEINFO shex = { 0 };
+    //shex.cbSize = sizeof(SHELLEXECUTEINFO);
+    //shex.lpFile = _T("explorer");
+    //file = _T(" /select, ");
+    //file.Append(path);
+    //shex.lpParameters = file;
+    //shex.lpVerb = _T("open");
+    //shex.nShow = SW_SHOWDEFAULT;
+    //shex.lpDirectory = NULL;
+    //ShellExecuteEx(&shex);
+
+    CDuiString file = path;
+
+    TCHAR lastChar = file.LastChar();
+    if (lastChar != _T('/') && lastChar != _T('\\'))
+    {
+        file.Append(_T('\\'));
+    }
+    ShellExecute(hwnd, _T("open"), file, NULL, NULL, SW_SHOW);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 CFontsEnumerator::CFontsEnumerator(void)

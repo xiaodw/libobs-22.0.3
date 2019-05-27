@@ -1773,15 +1773,17 @@ void CPaintManagerUI::SetFocus(CControlUI* pControl, bool bFocusWnd)
     // Already has focus?
     if( pControl == m_pFocus ) return;
     // Remove focus from old control
-    if( m_pFocus != NULL ) 
+    if( m_pFocus != NULL  && m_pFocus->GetManager()==this) 
     {
+        CControlUI* focusControl = m_pFocus;
+        m_pFocus = NULL;
+
         TEventUI event = { 0 };
         event.Type = UIEVENT_KILLFOCUS;
         event.pSender = pControl;
         event.dwTimestamp = ::GetTickCount();
-        m_pFocus->Event(event);
-        SendNotify(m_pFocus, DUI_MSGTYPE_KILLFOCUS);
-        m_pFocus = NULL;
+        focusControl->Event(event);
+        SendNotify(focusControl, DUI_MSGTYPE_KILLFOCUS);
     }
     if( pControl == NULL ) return;
     // Set focus to new control

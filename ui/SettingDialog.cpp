@@ -2,7 +2,8 @@
 #include "api/ObsMain.h"
 #include "SettingDialog.h"
 #include "MsgBox.h"
-
+#include "Utils.h"
+#include <sstream>
 
 CSettingDialog::CSettingDialog()
     :m_tab(nullptr)
@@ -32,8 +33,17 @@ uint32_t bitrate[] = {
 
 void CSettingDialog::InitVideoPage(config_t* config)
 {
+    bool isPortrait = config_get_bool(config, "Video", "Portrait");
     int base_width = (uint32_t)config_get_uint(config, "Video", "BaseCX");
     int base_height = (uint32_t)config_get_uint(config, "Video", "BaseCY");
+
+    if (isPortrait)
+    {
+        int temp = base_width;
+        base_width = base_height;
+        base_height = temp;
+    }
+
     bool modify_size = config_get_bool(config, "Video", "ModifySize");
 
     if (modify_size)
@@ -63,9 +73,23 @@ void CSettingDialog::InitVideoPage(config_t* config)
     }
 
 
+    m_outputCX = (uint32_t)config_get_uint(config, "Video", "OutputCX");
+    m_outputCY = (uint32_t)config_get_uint(config, "Video", "OutputCY");
+
+    if (isPortrait)
+    {
+        int temp = m_outputCX;
+        m_outputCX = m_outputCY;
+        m_outputCY = temp;
+    }
+
+    //设置输出尺寸
+    ResetDownscales(base_width, base_height);
+
     //选择fps
     uint32_t nfps = (uint32_t)config_get_uint(config, "Video", "FPSInt");
     
+
     for (int i = 0; i < ARRAYSIZE(fps); ++i)
     {
         if (nfps == fps[i])
@@ -92,31 +116,137 @@ void CSettingDialog::InitVideoPage(config_t* config)
 
 }
 
+
+
+static std::string ResString(uint32_t cx, uint32_t cy)
+{
+    std::stringstream res;
+    res << cx << "x" << cy;
+    return res.str();
+}
+
+SIZE StringToRes(const CDuiString& text)
+{
+    SIZE size = { 0,0 };
+    if (!text.IsEmpty())
+    {
+        LPTSTR pstr = NULL;
+        size.cx = _tcstol(text, &pstr, 10);  ASSERT(pstr);
+        size.cy = _tcstol(pstr+1, &pstr, 10);  ASSERT(pstr);
+    }
+    return size;
+}
+
+/* some nice default output resolution vals */
+static const double scaleValues[] =
+{
+    1.0,
+    1.25,
+    (1.0 / 0.75),
+    1.5,
+    (1.0 / 0.6),
+    1.75,
+    2.0,
+    2.25,
+    2.5,
+    2.75,
+    3.0
+};
+
+static const size_t numVals = sizeof(scaleValues) / sizeof(double);
+
+void CSettingDialog::ResetDownscales(uint32_t cx, uint32_t cy)
+{
+    string bestScale;
+    int bestPixelDiff = 0x7FFFFFFF;
+    int   out_cx = m_outputCX;
+    int   out_cy = m_outputCY;
+
+    CComboUI* combo = m_PaintManager.FindControl<CComboUI>(_T("COutSize"));
+    combo->RemoveAll();
+
+    for (size_t idx = 0; idx < numVals; idx++) {
+        uint32_t downscaleCX = uint32_t(double(cx) / scaleValues[idx]);
+        uint32_t downscaleCY = uint32_t(double(cy) / scaleValues[idx]);
+
+        downscaleCX &= 0xFFFFFFFC;
+        downscaleCY &= 0xFFFFFFFE;
+
+        string res = ResString(downscaleCX, downscaleCY);
+
+        CComboItemUI* item = new CComboItemUI();
+        item->SetText(CDuiString(res.c_str()));
+        combo->Add(item);
+
+        /* always try to find the closest output resolution to the
+        * previously set output resolution */
+        int newPixelCount = int(downscaleCX * downscaleCY);
+        int oldPixelCount = int(out_cx * out_cy);
+        int diff = abs(newPixelCount - oldPixelCount);
+
+        if (diff < bestPixelDiff) {
+            bestScale = res;
+            bestPixelDiff = diff;
+        }
+    }
+
+
+    //纠正输出尺寸
+    if (bestScale == "1920x1080")
+    {
+        bestScale = "1280x720";
+    }
+
+    if (!combo->SelectItemByText(CDuiString(bestScale.c_str()), false, false))
+        combo->SelectItem(0, false, false);
+}
+
+
+SIZE GetVideoSize(CPaintManagerUI* mgr,bool * modify=nullptr) {
+    int width;
+    int height;
+
+    if (mgr->FindControl<COptionUI>(_T("OVideoSizeModify"))->IsSelected())
+    {
+        width = _ttoi(mgr->FindControl<CEditUI>(_T("EVideoWidth"))->GetText());
+        height = _ttoi(mgr->FindControl<CEditUI>(_T("EVideoHeight"))->GetText());
+
+        if (modify)
+            *modify = true;
+    }
+    else
+    {
+        int sel = mgr->FindControl<CComboUI>(_T("CVideoSize"))->GetCurSel();
+        if (sel < 0)
+            sel = 0;
+        width = videoSize[sel].cx;
+        height = videoSize[sel].cy;
+
+        if (modify)
+            *modify = false;
+    }
+
+    SIZE sz = { width,height };
+    return sz;
+}
+
 bool CSettingDialog::SaveVideoPage(config_t* config)
 {
     int base_width = (uint32_t)config_get_uint(config, "Video", "BaseCX");
     int base_height = (uint32_t)config_get_uint(config, "Video", "BaseCY");
     int basse_fps = (uint32_t)config_get_uint(config, "Video", "FPSInt");
+    bool base_portrait = config_get_bool(config,"Video","Portrait");
 
-    int width;
-    int height;
+    bool isPortrait = m_PaintManager.FindControl<COptionUI>(_T("OPortrait"))->IsSelected();
 
-    if (m_PaintManager.FindControl<COptionUI>(_T("OVideoSizeModify"))->IsSelected())
-    {
-        width = _ttoi(m_PaintManager.FindControl<CEditUI>(_T("EVideoWidth"))->GetText());
-        height = _ttoi(m_PaintManager.FindControl<CEditUI>(_T("EVideoHeight"))->GetText());
-        config_set_bool(config, "Video", "ModifySize", true);
-    }
-    else
-    {
-        config_set_bool(config, "Video", "ModifySize", false);
+    int width = 0;
+    int height = 0;
 
-        int sel = m_PaintManager.FindControl<CComboUI>(_T("CVideoSize"))->GetCurSel();
-        if (sel < 0)sel = 0;
-
-        width = videoSize[sel].cx;
-        height = videoSize[sel].cy;
-    }
+    bool modify = false;
+    SIZE size = GetVideoSize(&m_PaintManager, &modify);
+    width = size.cx;
+    height = size.cy;
+    config_set_bool(config, "Video", "ModifySize", modify);
 
     if (width <= 0 || width > 4000)
     {
@@ -132,9 +262,34 @@ bool CSettingDialog::SaveVideoPage(config_t* config)
         return false;
     }
 
-    config_set_uint(config, "Video", "BaseCX", width);
-    config_set_uint(config, "Video", "BaseCY", height);
+    if (isPortrait)
+    {
+        config_set_uint(config, "Video", "BaseCX", height);
+        config_set_uint(config, "Video", "BaseCY", width);
 
+        CDuiString text = m_PaintManager.FindControl<CComboUI>(_T("COutSize"))->GetText();
+        if (!text.IsEmpty())
+        {
+            SIZE res = StringToRes(text);
+            config_set_uint(config, "Video", "OutputCX", res.cy);
+            config_set_uint(config, "Video", "OutputCY", res.cx);
+        }
+    }
+    else
+    {
+        config_set_uint(config, "Video", "BaseCX", width);
+        config_set_uint(config, "Video", "BaseCY", height);
+
+        CDuiString text = m_PaintManager.FindControl<CComboUI>(_T("COutSize"))->GetText();
+        if (!text.IsEmpty())
+        {
+            SIZE res = StringToRes(text);
+            config_set_uint(config, "Video", "OutputCX", res.cx);
+            config_set_uint(config, "Video", "OutputCY", res.cy);
+        }
+    }
+
+    //fps设置
     int fpsidx = m_PaintManager.FindControl<CComboUI>(_T("CFps"))->GetCurSel();
     if (fpsidx < 0) fpsidx = 1;
         
@@ -147,7 +302,7 @@ bool CSettingDialog::SaveVideoPage(config_t* config)
     else
         config_set_string(config, "SimpleOutput", "StreamEncoder", "qsv");
 
-    if (base_width != width || base_height != height || basse_fps != fps[fpsidx])
+    if (base_width != width || base_height != height || basse_fps != fps[fpsidx] || base_portrait != isPortrait)
     {
         ObsMain::Instance()->VideoSettingChange();
     }
@@ -202,6 +357,11 @@ const char* channelText[] = {
     "7.1",
 };
 
+uint32_t abitrate[] = {
+    64,96,128,160,192,224,256,288,320
+};
+
+
 void CSettingDialog::InitAudioPage(config_t* config)
 {
     m_PaintManager.FindControl<CComboUI>(_T("CSampleRate"))->SelectItem(config_get_uint(config, "Audio", "SampleRate") == 48000);
@@ -220,6 +380,18 @@ void CSettingDialog::InitAudioPage(config_t* config)
         }
     }
     m_PaintManager.FindControl<CComboUI>(_T("CChannel"))->SelectItem(index);
+
+    //音频码率设置
+    uint32_t bitrate = (uint32_t)config_get_uint(config, "SimpleOutput", "ABitrate");
+    for (int i = 0; i < ARRAYSIZE(abitrate); ++i)
+    {
+        if (bitrate == abitrate[i])
+        {
+            m_PaintManager.FindControl<CComboUI>(_T("CAudioBitrate"))->SelectItem(i, false, false);
+            break;
+        }
+    }
+
 
     //音频设备设置
     const char *input_id = ObsMain::Instance()->InputAudioSource();
@@ -273,6 +445,9 @@ bool CSettingDialog::SaveAudioPage(config_t* config)
 
     if (newSamplerate != samplerate || channel != channelText[index])
         ObsMain::Instance()->AudioSettingChange();
+
+
+    config_set_uint(config, "SimpleOutput", "ABitrate", abitrate[m_PaintManager.FindControl<CComboUI>(_T("CAudioBitrate"))->GetCurSel()]);
 
     //音频设备设置
     auto UpdateAudioDevice = [this](bool input, CComboUI *combo,
@@ -402,6 +577,10 @@ void CSettingDialog::InitOtherPage(config_t* config)
     TCHAR buf[32];
     _itot(second, buf, 10);
     m_PaintManager.FindControl(_T("EDelay"))->SetText(buf);
+
+    //竖屏模式
+    m_PaintManager.FindControl<COptionUI>(_T("OPortrait"))->Selected(config_get_bool(config, "Video", "Portrait"), false);
+
 }
 
 bool CSettingDialog::SaveOtherPage(config_t* config)
@@ -420,6 +599,10 @@ bool CSettingDialog::SaveOtherPage(config_t* config)
     }
 
     config_set_uint(config, "Output", "DelaySec", second);
+
+    //是否竖屏模式
+    config_set_bool(config, "Video", "Portrait", m_PaintManager.FindControl<COptionUI>(_T("OPortrait"))->IsSelected());
+
     return true;
 }
 
@@ -442,12 +625,15 @@ void CSettingDialog::Notify(TNotifyUI& msg)
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {
-         if (_tcsicmp(msg.pSender->GetName(), _T("closebtn")) == 0)
+        CDuiString name = msg.pSender->GetName();
+
+        if (name ==  _T("closebtn"))
         {
              Close();
         }
-        else if (_tcsicmp(msg.pSender->GetName(), _T("acceptbtn")) == 0)
+        else if (name ==  _T("acceptbtn"))
         {
+
             if (ObsMain::Instance()->StreamActive())
             {
                 CMsgBox msgBox;
@@ -469,7 +655,19 @@ void CSettingDialog::Notify(TNotifyUI& msg)
             ObsMain::Instance()->SaveConfig();
             Close();
         }
-
+        else if (name == _T("BSelectRecordPath"))
+        {
+            CDuiString path = OpenSelectPathDialog(m_hWnd);
+            if (!path.IsEmpty())
+            {
+                m_PaintManager.FindControl(_T("ERecordPath"))->SetText(path);
+            }
+        }
+        else if (name == _T("BOpenRecordPath"))
+        {
+            CDuiString path = m_PaintManager.FindControl(_T("ERecordPath"))->GetText();
+            OpenFolder(m_hWnd,path);
+        }
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_SELECTCHANGED) == 0)
     {
@@ -508,7 +706,16 @@ void CSettingDialog::Notify(TNotifyUI& msg)
         {
             m_PaintManager.FindControl(_T("EDelay"))->SetEnabled(msg.wParam);
         }
+        else if (name == _T("OVideoSizeModify"))
+        {
+            m_PaintManager.FindControl(_T("EVideoWidth"))->SetEnabled(msg.wParam);
+            m_PaintManager.FindControl(_T("EVideoHeight"))->SetEnabled(msg.wParam);
+            m_PaintManager.FindControl(_T("CVideoSize"))->SetEnabled(!msg.wParam);
 
+            //重置缩放尺寸
+            SIZE sz = GetVideoSize(&m_PaintManager);
+            ResetDownscales(sz.cx,sz.cy);
+        }
     }
     else if (msg.sType == DUI_MSGTYPE_ITEMSELECT)
     {
@@ -533,7 +740,32 @@ void CSettingDialog::Notify(TNotifyUI& msg)
         {
             m_auxAudioDevice3Changed = true;
         }
-
+        else if (name == _T("CVideoSize"))
+        {
+            int sel = static_cast<CComboUI*>(msg.pSender)->GetCurSel();
+            if (sel < 0)
+                sel = 0;
+            ResetDownscales(videoSize[sel].cx, videoSize[sel].cy);
+        }
+        else if (name == _T("COutSize"))
+        {
+            SIZE res = StringToRes(msg.pSender->GetText());
+            if (res.cx > 0 && res.cy > 0)
+            {
+                m_outputCX = res.cx;
+                m_outputCY = res.cy;
+            }
+        }
+    }
+    else if (msg.sType == DUI_MSGTYPE_KILLFOCUS)
+    {
+        CDuiString name = msg.pSender->GetName();
+        if (name == _T("EVideoWidth") || name==_T("EVideoHeight"))
+        {
+            SIZE sz = GetVideoSize(&m_PaintManager);
+            if(sz.cx>0 && sz.cy>0)
+                ResetDownscales(sz.cx, sz.cy);
+        }
     }
 
 }

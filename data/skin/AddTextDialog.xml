@@ -112,7 +112,7 @@
 			<Control width="10"/>	
 			
 			<Label text="描边透明:" width="62" textcolor="#666666"/>
-			<Slider name="SOutlineAlpha" padding="0,7,0,7" min="0" max="100" value="70"/>
+			<Slider name="SOutlineAlpha" padding="0,7,0,7" min="0" max="100" value="100"/>
 			
 		</HorizontalLayout>
 		<Control height="15"/>

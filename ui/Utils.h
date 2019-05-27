@@ -4,6 +4,10 @@ CDuiString OpenSingleFileDialog(HWND hwnd, LPCTSTR filter = NULL);
 
 bool OpenColorSelectDialog(HWND hwnd, COLORREF & rgbCurrent);
 
+CDuiString OpenSelectPathDialog(HWND hwnd);
+
+void OpenFolder(HWND hwnd,LPCTSTR path);
+
 //系统字体枚举器
 class CFontsEnumerator
 {

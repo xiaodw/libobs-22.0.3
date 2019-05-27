@@ -5,7 +5,6 @@
 
 namespace DuiLib
 {
-	class CControl;
 
 #define EVENT_TIEM_ID	100
 

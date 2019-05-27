@@ -78,8 +78,10 @@
 #include "Core/UIMarkup.h"
 #include "Core/UIDlgBuilder.h"
 #include "Core/UIRender.h"
+
 #include "Utils/WinImplBase.h"
 #include "Utils/WndShadow.h"
+#include "Utils/TrayIcon.h"
 
 #include "Layout/UIVerticalLayout.h"
 #include "Layout/UIHorizontalLayout.h"

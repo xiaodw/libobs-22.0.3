@@ -78,6 +78,15 @@ enum EVENTTYPE_UI
 #define UISTATE_READONLY     0x00000020
 #define UISTATE_CAPTURED     0x00000040
 
+enum
+{
+    UIMSG_TRAYICON = WM_USER + 1,// 托盘消息
+
+
+    UIMSG_USER = WM_USER + 100,	 // 程序自定义消息
+};
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////

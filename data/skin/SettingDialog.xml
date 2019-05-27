@@ -26,7 +26,7 @@
 					<HorizontalLayout height="24">
 						<Label text="分辨率:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Combo name="CVideoSize">
-							<ComboItem text="1920*1080(16:9) 1080p (不推荐)"/>
+							<ComboItem text="1920*1080(16:9) 1080p"/>
 							<ComboItem text="1280*720(16:9) 720p (推荐)" selected="true"/>
 							<ComboItem text="960*540(16:9) 540p"/>
 							<ComboItem text="720*480(16:9) 480p"/>
@@ -40,6 +40,12 @@
 						<Edit name="EVideoWidth" width="50" text="1280" enable="false" enabled="false" numberonly="true"/>
 						<Label width="20" text="X" align="center"/>
 						<Edit name="EVideoHeight" width="50" text="720" enable="false" enabled="false" numberonly="true"/>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="输出分辨率:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="COutSize">
+						</Combo>						
 					</HorizontalLayout>
 					
 					<HorizontalLayout height="24">
@@ -120,8 +126,24 @@
 							<ComboItem text="5.1"/>
 							<ComboItem text="7.1"/>
 						</Combo>
-					</HorizontalLayout>				
-
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24">
+						<Label text="比特率:"  width="80" align="right" textpadding="0,0,6,0"/>
+						<Combo name="CAudioBitrate">
+							<ComboItem text="64"/>
+							<ComboItem text="96"/>
+							<ComboItem text="128"/>
+							<ComboItem text="160(推荐)" selected="true"/>	
+							<ComboItem text="192"/>
+							<ComboItem text="224"/>	
+							<ComboItem text="256"/>
+							<ComboItem text="288"/>
+							<ComboItem text="320"/>								
+						</Combo>
+					</HorizontalLayout>
+					
+					
 					<HorizontalLayout height="24">
 						<Label text="系统声音:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Combo name="CDesktopAudioDevice1">
@@ -159,9 +181,9 @@
 						<Label text="录像路径:"  width="80" align="right" textpadding="0,0,6,0"/>
 						<Edit name="ERecordPath"/>
 						<Control width="5"/>
-						<Button text="浏览" default="NormalBtn" width="45"/>
+						<Button name="BSelectRecordPath" text="选择" default="NormalBtn" width="45"/>
 						<Control width="5"/>
-						<Button text="打开" default="NormalBtn" width="45"/>
+						<Button name="BOpenRecordPath" text="打开" default="NormalBtn" width="45"/>
 					</HorizontalLayout>
 					
 					
@@ -182,6 +204,10 @@
 						<Option name="OEnableDealy" text="开启防窃屏设置：直播内容延迟" width="206" default="CheckBox"/>
 						<Edit name="EDelay" width="30" text="20" numberonly="true" enabled="false"/>
 						<Label text="秒(0-60秒)" textpadding="5,0,0,0"/>
+					</HorizontalLayout>
+					
+					<HorizontalLayout height="24" inset="10,0,0,0">
+						<Option name="OPortrait" text="竖屏模式" width="80" default="CheckBox"/>
 					</HorizontalLayout>
 					
 					<HorizontalLayout height="24" inset="10,0,0,0">
