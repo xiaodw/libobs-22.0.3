@@ -4,7 +4,7 @@
 	<VerticalLayout inset="0,6,0,6">
 		<Slider default="VSlider" min="0" max="100" value="100" height="96" padding="6,0,6,0"/>
 		<Control height="4"/>
-		<Option visible="false" normalimage="file='image/mic_mute1.png' source='0,0,13,12'" hotimage="file='image/mic_mute1.png' source='13,0,26,12'" height="13" padding="8,0,4,0" selectedimage="file='image/mic_mute2.png' source='0,0,13,12'" selectedhotimage="file='image/mic_mute2.png' source='13,0,26,12'"/>
+		<Option visible="true" normalimage="file='image/mic_mute1.png' source='0,0,13,12'" hotimage="file='image/mic_mute1.png' source='13,0,26,12'" height="13" padding="8,0,4,0" selectedimage="file='image/mic_mute2.png' source='0,0,13,12'" selectedhotimage="file='image/mic_mute2.png' source='13,0,26,12'"/>
 
 		<Option visible="false" normalimage="file='image/mute2.png' source='0,0,13,12'" hotimage="file='image/mute2.png' source='13,0,26,12'" height="13" padding="6,0,6,0" selectedimage="file='image/mute1.png' source='0,0,13,12'" selectedhotimage="file='image/mute1.png' source='13,0,26,12'"/>
 		
