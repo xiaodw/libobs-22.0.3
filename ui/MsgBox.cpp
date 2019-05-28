@@ -135,9 +135,9 @@ UINT CMsgBox::DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption, UIN
 }
 
 
-void CMsgBox::TipBox(HWND hParent, LPCTSTR lpText)
+UINT CMsgBox::TipBox(HWND hParent, LPCTSTR lpText)
 {
-    DuiMessageBox(hParent, lpText, NULL, MESSAGE_INFO, FALSE);
+    return DuiMessageBox(hParent, lpText, NULL, MESSAGE_INFO, FALSE);
 }
 
 

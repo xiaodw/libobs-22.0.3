@@ -3,7 +3,6 @@
   <Font name="微软雅黑" id="0" size="13" default="true"/>
   <Font name="微软雅黑" id="1" size="14"/>
   
-  <Include source="default.xml"/>
   <VerticalLayout>
     <HorizontalLayout name="background" height="36" bkcolor="#FFee4b39">
         <Label name="MessageBox_Caption" text="提示" font="1" textcolor="#ffffff" textpadding="10,0,0,0"/>

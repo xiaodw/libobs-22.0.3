@@ -721,7 +721,7 @@ bool ObsBasic::Active() const
 }
 
 
-obs_service_t *ObsBasic::GetService()
+OBSService ObsBasic::GetService()
 {
     if (!m_service) {
         ResetService();

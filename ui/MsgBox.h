@@ -31,7 +31,7 @@ public:
 
     UINT DuiMessageBox(HWND hParent, LPCTSTR lpText, LPCTSTR lpCaption = NULL, UINT uIcon = MESSAGE_INFO, BOOL bOk = TRUE);
  
-    void TipBox(HWND hParent, LPCTSTR lpText);
+    UINT TipBox(HWND hParent, LPCTSTR lpText);
 
     int GetStringLines(CDuiString st, CDuiString &stMax);
 protected:

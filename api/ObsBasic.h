@@ -62,7 +62,7 @@ public:
     //≥ı ºªØobs
     virtual bool InitObs();
 
-    obs_service_t *GetService();
+    OBSService GetService();
     void  SetService(obs_service_t *service);
     void SetObserver(ObsObserver* obs) { m_observer = obs; }
     bool SetRtmpServer(const RtmpServer& server);

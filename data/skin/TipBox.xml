@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="270,160" sizebox="4,4,4,4" caption="0,0,0,126" minsize="355,166"> 
+  <Font name="微软雅黑" id="0" size="13" default="true"/>
+  <Font name="微软雅黑" id="1" size="14"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <HorizontalLayout height="36" bkcolor="#FFee4b39">
+        <Label text="提示" font="1" textcolor="#ffffff" textpadding="10,0,0,0"/>
+        <Button name="closebtn" default="DlgCloseBtn"/>                      
+    </HorizontalLayout>
+	
+    <Text name="TText" textpadding="15,15,15,15"/>
+
+  </VerticalLayout >  
+</Window>
+
+ 

@@ -15,6 +15,7 @@
 #include "MonitorSelectDialog.h"
 #include "SettingDialog.h"
 #include "SliderBox.h"
+#include "TipBox.h"
 
 #include "rc/resource.h"
 
@@ -343,8 +344,45 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         }
         else if (name == _T("BStartLive"))
         {
+            //检测账号
+            OBSService service = m_obs->GetService();
+            const char* url =  obs_service_get_url(service);
+            if (!url || !url[0])
+            {
+                service = NULL;
+                CMsgBox box;
+                if (box.TipBox(m_hWnd, _T("直播url未设置，请先进行设置。")) == IDOK)
+                {
+                    //打开设置
+                    CSettingDialog* setting = new CSettingDialog();
+                    setting->ShowDialog(m_hWnd);
+                    setting->ShowPage(_T("OLive"));
+                }
+                return;
+            }
 
+            if (!m_obs->StreamActive())
+            {
+                m_obs->StartStreaming();//开始推流
 
+                COptionUI* opt = m_PaintManager.FindControl<COptionUI>(_T("OAutoRecord"));
+                if(opt->IsSelected())
+                    m_obs->StartRecording(); //开始录制
+
+                opt->SetEnabled(false);
+
+                //设置按钮状态
+                msg.pSender->SetText(_T("开始直播..."));
+                msg.pSender->SetEnabled(false);
+            }
+            else
+            {
+                m_obs->StopStreaming();
+                m_obs->StopRecording();
+
+                msg.pSender->SetText(_T("停止直播..."));
+                msg.pSender->SetEnabled(false);
+            }
         }
         else if (name == _T("BSetting"))
         {
@@ -707,6 +745,26 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
         {
             CTypedMsgData<COptionExUI*>*option = static_cast<CTypedMsgData<COptionExUI*>*>(data);
             RemoveScene(option->data);
+        }
+        break;
+
+    case MSG_STREAM_START:
+        {
+            //开始推送
+            CButtonUI* btn = m_PaintManager.FindControl<CButtonUI>(_T("BStartLive"));
+            btn->SetEnabled(true);
+            btn->SetText(_T("停止直播"));
+        }
+        break;
+    case MSG_STREAM_STOPPING:
+
+        break;
+    case MSG_STREAM_STOP:
+        {
+            CButtonUI* btn = m_PaintManager.FindControl<CButtonUI>(_T("BStartLive"));
+            btn->SetEnabled(true);
+            btn->SetText(_T("开始直播"));
+            m_PaintManager.FindControl(_T("OAutoRecord"))->SetEnabled(true);
         }
         break;
     default:

@@ -626,22 +626,34 @@ bool CSettingDialog::SaveOtherPage(config_t* config)
     return true;
 }
 
+
+void CSettingDialog::InitWindow()
+{
+    RECT corner = { 5,3,5,7 };
+    RECT hole = { 0,0,0,0 };
+    m_shadow.SetImage(_T("image/window_shadow.png"), corner, hole);
+    m_shadow.Create(m_hWnd);
+
+
+    m_tab = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("TSetting")));
+
+    //初始化配置
+    config_t* config = ObsMain::Instance()->basicConfig();
+    if (!config)
+        return;
+
+    InitVideoPage(config);
+    InitLivePage(config);
+    InitAudioPage(config);
+    InitRecordPage(config);
+    InitOtherPage(config);
+}
+
 void CSettingDialog::Notify(TNotifyUI& msg)
 {
     if (_tcsicmp(msg.sType, DUI_MSGTYPE_WINDOWINIT) == 0)
     {
-        m_tab = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("TSetting")));
 
-        //初始化配置
-        config_t* config= ObsMain::Instance()->basicConfig();
-        if (!config)
-            return;
-
-        InitVideoPage(config);
-        InitLivePage(config);
-        InitAudioPage(config);
-        InitRecordPage(config);
-        InitOtherPage(config);
     }
     else if (_tcsicmp(msg.sType, DUI_MSGTYPE_CLICK) == 0)
     {

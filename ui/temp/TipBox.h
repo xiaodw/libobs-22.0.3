@@ -1,10 +1,10 @@
 #pragma once
 
-class CAddVideoDialog :public WindowImplBase
+class CTipBox :public WindowImplBase
 {
 public:
-    CAddVideoDialog();
-    ~CAddVideoDialog();
+    CTipBox();
+    ~CTipBox();
 
     void ShowDialog(HWND hParent)
     {
@@ -25,7 +25,7 @@ public:
 
     virtual void Notify(TNotifyUI& msg);
 
-    virtual UILIB_RESOURCETYPE GetResourceType() const { return UILIB_FILE; }
+    virtual UILIB_RESOURCETYPE GetResourceType() const { return RESOURCE_TYPE; }
     virtual CDuiString GetSkinFolder() { return _T(""); }
     LPCTSTR GetWindowClassName() const { return _T("ObsGuiFoundation"); }
 
@@ -37,7 +37,6 @@ public:
         m_shadow.Create(m_hWnd);
     }
 private:
-    CListUI* m_list;
     CWndShadow m_shadow;
 };
 

@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Window caption="0,0,0,36" size="1000,592" sizebox="3,3,3,3" mininfo="800,600">
-  <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="true" />
-  <Font id="1" name="微软雅黑" size="12" bold="false" default="true" shared="true" />
+  <Font id="0" name="微软雅黑" size="13" bold="false" default="true" shared="false" />
+  <Font id="1" name="微软雅黑" size="12" bold="false" shared="false" />
+  <Font id="2" name="微软雅黑" size="18" bold="false" shared="false" />
+  
   
   <Include source="default.xml"/>
   
@@ -52,7 +54,7 @@
 
 			<Button name="BMedia" width="72" normalimage="file='image/btn/live_video.png' source='0,0,72,63'" hotimage="file='image/btn/live_video.png' source='72,0,144,63'" pushedimage="file='image/btn/live_video.png' source='144,0,216,63'" text="媒体" textcolor="#949494" textpadding="24,30,0,0" align="left"/>			
 			
-			<Button name="BStartLive" width="160" normalimage="file='image/start_live.png' source='0,0,160,44'" hotimage="file='image/start_live.png' source='160,0,320,44'" pushedimage="file='image/start_live.png' source='320,0,480,44'" padding="0,7,0,12"/>					
+			<Button name="BStartLive" font="2" text="开始直播" textcolor="#ffffff" width="160" normalimage="file='image/live.png' source='0,0,160,44'" hotimage="file='image/live.png' source='160,0,320,44'" pushedimage="file='image/live.png' source='320,0,480,44'" padding="0,7,0,12" disabledtextcolor="#ffffff"/>		
 			
 			<Control width="22"/>
 			<Option name="OAutoRecord" default="CheckBox" textcolor="#bfbfbf" text="同步录制" width="72" padding="0,18,0,0"/>

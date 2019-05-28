@@ -13,6 +13,12 @@ public:
         CenterWindow();
     }
 
+    void ShowPage(LPCTSTR name) {
+        COptionUI* opt = m_PaintManager.FindControl<COptionUI>(name);
+        if (opt)
+            opt->Selected(true);
+    }
+
     virtual CDuiString GetSkinFile() {
         return _T("SettingDialog.xml");
     }
@@ -29,13 +35,8 @@ public:
     virtual CDuiString GetSkinFolder() { return _T(""); }
     LPCTSTR GetWindowClassName() const { return _T("ObsGuiFoundation"); }
 
-    void InitWindow()
-    {
-        RECT corner = { 5,3,5,7 };
-        RECT hole = { 0,0,0,0 };
-        m_shadow.SetImage(_T("image/window_shadow.png"), corner, hole);
-        m_shadow.Create(m_hWnd);
-    }
+    void InitWindow();
+
 private:
     void InitVideoPage(config_t* config);
     bool SaveVideoPage(config_t* config);
