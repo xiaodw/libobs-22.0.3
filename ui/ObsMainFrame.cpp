@@ -99,9 +99,9 @@ void CObsMainFrame::OnTimer(TNotifyUI& msg)
 {
 }
 
-void CObsMainFrame::OnExit(TNotifyUI& msg)
+void CObsMainFrame::QuitApp()
 {
-    Close();
+    PostMsg(MSG_QUIT_APP);
 }
 
 void CObsMainFrame::InitWindow()
@@ -190,8 +190,10 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         CDuiString name = msg.pSender->GetName();
         if (_tcsicmp(name, kCloseButtonControlName) == 0)
         {
-            if(!IsAddTray())
-                OnExit(msg);
+            if (!IsAddTray())
+            {
+                QuitApp();
+            }
             else
             {
                 ShowWindow(false, false);
@@ -747,7 +749,20 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             RemoveScene(option->data);
         }
         break;
-
+    case MSG_QUIT_APP:
+        {
+            //提示是否关闭
+            if (m_obs->StreamActive())
+            {
+                CMsgBox msgBox;
+                if (msgBox.DuiMessageBox(m_hWnd, _T("当前正在直播中，您确定要退出？"), _T("提示")) != IDOK)
+                {
+                    return;
+                }
+            }
+            Close();
+        }
+        break;
     case MSG_STREAM_START:
         {
             //开始推送
@@ -767,6 +782,7 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             m_PaintManager.FindControl(_T("OAutoRecord"))->SetEnabled(true);
         }
         break;
+
     default:
 
         break;
@@ -938,7 +954,7 @@ LRESULT CObsMainFrame::OnTrayEvent(UINT uMsg, WPARAM wParam, BOOL& bHandled)
                 }
                 else
                 {
-                    this->Close();
+                    this->QuitApp();
                 }
             });
         }

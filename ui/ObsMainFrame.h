@@ -49,6 +49,7 @@ public:
 
         MSG_DELETE_ELEM,
         MSG_DELETE_SCENE,
+        MSG_QUIT_APP,
     };
     typedef CTypedMsgData<OBSSource> ObsSourceData;
     typedef CTypedMsgData<OBSScene> ObsSceneData;
@@ -156,7 +157,7 @@ protected:
 
     void Notify(TNotifyUI& msg);
     void OnPrepare(TNotifyUI& msg);
-    void OnExit(TNotifyUI& msg);
+    void QuitApp();
     void OnTimer(TNotifyUI& msg);
 
     void AddScene(OBSScene scene);
