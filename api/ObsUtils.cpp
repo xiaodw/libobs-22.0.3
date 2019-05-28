@@ -176,3 +176,42 @@ void EnumMonitor(enum_monitor_callback callback, void * ptr)
 }
 
 
+std::string ObsErrorToText(int code)
+{
+    std::string msg;
+    switch (code) {
+    case OBS_OUTPUT_BAD_PATH:
+        msg = ToUtf8(L"无效的路径或URL。请检查您的设置以确认它们是有效的。");
+        break;
+
+    case OBS_OUTPUT_CONNECT_FAILED:
+        msg = ToUtf8(L"无法连接到服务器");
+        break;
+
+    case OBS_OUTPUT_INVALID_STREAM:
+        msg = ToUtf8(L"无法访问指定的频道或流密钥, 请仔细检查您的密钥流.  如果它是正确的, 有可能是连接到服务器时出现问题.");
+        break;
+
+    case OBS_OUTPUT_ERROR:
+        msg = ToUtf8(L"试图连接到服务器时出现意外的错误。详细信息记录在日志文件中。");
+        break;
+
+    case OBS_OUTPUT_DISCONNECTED:
+        /* doesn't happen if output is set to reconnect.  note that
+        * reconnects are handled in the output, not in the UI */
+        msg = ToUtf8(L"已从服务器断开。");
+        break;
+    case OBS_OUTPUT_UNSUPPORTED:
+        msg = ToUtf8(L"输出格式不支持或者不支持超过一个音轨.请检查你的设置, 然后重试。");
+        break;
+    case OBS_OUTPUT_NO_SPACE:
+        msg = ToUtf8(L"磁盘空间不足。");
+        break;
+    default:
+        msg = ToUtf8(L"发送未知错误。");
+        break;
+    }
+    return msg;
+}
+
+

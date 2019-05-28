@@ -110,9 +110,26 @@ public:
     {
         PostMsg(MSG_STREAM_START);
     }
+
+    struct ErrorMsg:public CMsgData
+    {
+        ErrorMsg(int _code, const char* _error)
+            :code(_code)
+        {
+            if (_error)
+                error = _error;
+        }
+        int code;
+        std::string error;
+    };
+
     virtual void OnStreamingStop(int code, const char* error)
     {
-        PostMsg(MSG_STREAM_STOP);
+        if (code != 0)
+            blog(LOG_ERROR, "%s", error);
+
+
+        PostMsg(MSG_STREAM_STOP, std::make_shared<ErrorMsg>(code,error));
     }
 
     //录制回调接口
@@ -128,7 +145,7 @@ public:
 
     virtual void OnRecordingStop(int code)
     {
-        PostMsg(MSG_RECORD_STOP);
+        PostMsg(MSG_RECORD_STOP,std::make_shared<CTypedMsgData<int>>(code));
     }
 
     virtual void OnVideoReset()
