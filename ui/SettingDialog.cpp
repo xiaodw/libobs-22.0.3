@@ -2,6 +2,7 @@
 #include "api/ObsMain.h"
 #include "SettingDialog.h"
 #include "MsgBox.h"
+#include "ObsMainFrame.h"
 #include "Utils.h"
 #include <sstream>
 
@@ -480,6 +481,12 @@ bool CSettingDialog::SaveAudioPage(config_t* config)
     if (m_auxAudioDevice3Changed)
         UpdateAudioDevice(true, m_PaintManager.FindControl<CComboUI>(_T("CAuxAudioDevice3")),
         "Basic.AuxDevice3", 5);
+
+    //设备状态改变，通知主界面更新音频状态
+    if (m_desktopAudioDevice1Changed || m_auxAudioDevice1Changed)
+    {
+        ::PostMessage(GetParent(m_hWnd), MSG_UPDATE_AUDIO, 0, 0);
+    }
     return true;
 }
 
@@ -572,7 +579,7 @@ bool CSettingDialog::SaveRecordPage(config_t* config)
 void CSettingDialog::InitOtherPage(config_t* config)
 {
     int second = config_get_uint(config, "Output", "DelaySec");
-    m_PaintManager.FindControl<COptionUI>(_T("OEnableDealy"))->Selected(config_get_bool(config, "Output", "DelayEnable"), false);
+    m_PaintManager.FindControl<COptionUI>(_T("OEnableDealy"))->Selected(config_get_bool(config, "Output", "DelayEnable"));
 
     TCHAR buf[32];
     _itot(second, buf, 10);
@@ -580,6 +587,9 @@ void CSettingDialog::InitOtherPage(config_t* config)
 
     //竖屏模式
     m_PaintManager.FindControl<COptionUI>(_T("OPortrait"))->Selected(config_get_bool(config, "Video", "Portrait"), false);
+
+    //添加托盘
+    m_PaintManager.FindControl<COptionUI>(_T("OAddTray"))->Selected(config_get_bool(config, "BasicWindow", "AddTray"), false);
 
 }
 
@@ -602,6 +612,16 @@ bool CSettingDialog::SaveOtherPage(config_t* config)
 
     //是否竖屏模式
     config_set_bool(config, "Video", "Portrait", m_PaintManager.FindControl<COptionUI>(_T("OPortrait"))->IsSelected());
+
+    //保存添加托盘
+    bool addTray = config_get_bool(config, "BasicWindow", "AddTray");
+    if (m_PaintManager.FindControl<COptionUI>(_T("OAddTray"))->IsSelected() != addTray)
+    {
+        config_set_bool(config, "BasicWindow", "AddTray", !addTray);
+
+        //通知主界面添加托盘
+       ::PostMessage(GetParent(m_hWnd), MSG_UPDATE_TRAY, !addTray, 0);
+    }
 
     return true;
 }

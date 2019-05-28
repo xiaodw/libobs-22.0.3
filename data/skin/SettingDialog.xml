@@ -211,7 +211,7 @@
 					</HorizontalLayout>
 					
 					<HorizontalLayout height="24" inset="10,0,0,0">
-						<Option text="总是最小化到系统托盘，而不是任务栏" width="0" default="CheckBox"/>
+						<Option name="OAddTray" text="关闭主界面时最小化到系统托盘" width="0" default="CheckBox"/>
 					</HorizontalLayout>
 				</VerticalLayout>
 				

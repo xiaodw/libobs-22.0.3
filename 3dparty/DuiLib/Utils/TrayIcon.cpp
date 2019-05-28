@@ -6,6 +6,7 @@ namespace DuiLib
 	CTrayIcon::CTrayIcon(void)
 	{
 		memset(&m_trayData, 0, sizeof(m_trayData));
+        m_bCreated = false;
 		m_bEnabled = false;
 		m_bVisible = false;
 		m_hWnd = NULL;
@@ -17,10 +18,10 @@ namespace DuiLib
 		DeleteTrayIcon();
 	}
 
-	void CTrayIcon::CreateTrayIcon( HWND _RecvHwnd, UINT _IconIDResource, LPCTSTR _ToolTipText, UINT _Message)
+    bool CTrayIcon::CreateTrayIcon( HWND _RecvHwnd, UINT _IconIDResource, LPCTSTR _ToolTipText, UINT _Message)
 	{
-		if(!_RecvHwnd || _IconIDResource <= 0 ){
-			return;
+		if(!_RecvHwnd || _IconIDResource <= 0 || m_bCreated){
+			return false;
 		}
 		if(_Message != 0) m_uMessage = _Message;
 		m_hIcon = LoadIcon(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(_IconIDResource));
@@ -31,18 +32,32 @@ namespace DuiLib
 		m_trayData.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
 		m_trayData.uCallbackMessage = m_uMessage;
 		if(_ToolTipText) _tcscpy(m_trayData.szTip, _ToolTipText);
-		Shell_NotifyIcon(NIM_ADD, &m_trayData);
+        m_bCreated = Shell_NotifyIcon(NIM_ADD, &m_trayData);
 		m_bEnabled = true;
+
+        return m_bCreated;
 	}
 
 	void CTrayIcon::DeleteTrayIcon()
 	{
-		Shell_NotifyIcon(NIM_DELETE, &m_trayData);
-		m_bEnabled = false;
-		m_bVisible = false;
-		m_hWnd = NULL;
-		m_uMessage = UIMSG_TRAYICON;
+        if (m_bCreated)
+        {
+            Shell_NotifyIcon(NIM_DELETE, &m_trayData);
+            m_bEnabled = false;
+            m_bVisible = false;
+            m_bCreated = false;
+            m_hWnd = NULL;
+            m_uMessage = UIMSG_TRAYICON;
+        }
 	}
+
+    void CTrayIcon::ResetIcon()
+    {
+        if (m_bCreated)
+        {
+            m_bCreated = Shell_NotifyIcon(NIM_ADD, &m_trayData);
+        }
+    }
 
 	bool CTrayIcon::SetTooltipText( LPCTSTR _ToolTipText )
 	{

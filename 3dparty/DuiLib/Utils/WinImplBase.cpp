@@ -7,6 +7,8 @@ namespace DuiLib
 
 LPBYTE WindowImplBase::m_lpResourceZIPBuffer=NULL;
 
+const UINT WM_TASKBARCREATED = ::RegisterWindowMessage(_T("TaskbarCreated"));
+
 DUI_BEGIN_MESSAGE_MAP(WindowImplBase,CNotifyPump)
 	DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK,OnClick)
 DUI_END_MESSAGE_MAP()
@@ -237,7 +239,13 @@ LRESULT WindowImplBase::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	if (wParam == SC_CLOSE)
 	{
 		bHandled = TRUE;
-		SendMessage(WM_CLOSE);
+        if (IsAddTray())
+        {
+            //如果添加了托盘则不退出
+            ShowWindow(false, false);
+        }
+        else
+		    SendMessage(WM_CLOSE);
 		return 0;
 	}
 #if defined(WIN32) && !defined(UNDER_CE)
@@ -404,9 +412,17 @@ LRESULT WindowImplBase::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:	lRes = OnLButtonDown(uMsg, wParam, lParam, bHandled); break;
 	case WM_MOUSEMOVE:		lRes = OnMouseMove(uMsg, wParam, lParam, bHandled); break;
 	case WM_MOUSEHOVER:	lRes = OnMouseHover(uMsg, wParam, lParam, bHandled); break;
+    case UIMSG_TRAYICON:  lRes = OnTrayEvent(lParam, wParam, bHandled); break;
 	default:				bHandled = FALSE; break;
 	}
-	if (bHandled) return lRes;
+	if (bHandled) 
+        return lRes;
+
+    if (uMsg == WM_TASKBARCREATED)
+    {
+        m_tray.ResetIcon();
+        return 0;
+    }
 
 	lRes = HandleCustomMessage(uMsg, wParam, lParam, bHandled);
 	if (bHandled) return lRes;
@@ -461,4 +477,24 @@ void WindowImplBase::Notify(TNotifyUI& msg)
 	return CNotifyPump::NotifyPump(msg);
 }
 
+bool WindowImplBase::AddTrayIcon(UINT _IconIDResource, LPCTSTR _ToolTipText)
+{
+    return m_tray.CreateTrayIcon(m_hWnd, _IconIDResource, _ToolTipText, UIMSG_TRAYICON);
 }
+
+void WindowImplBase::RemoveTrayIcon()
+{
+    m_tray.DeleteTrayIcon();
+}
+
+bool WindowImplBase::IsAddTray()
+{
+    return m_tray.IsCreated();
+}
+
+LRESULT WindowImplBase::OnTrayEvent(UINT uMsg, WPARAM wParam, BOOL& bHandled)
+{
+    return 0;
+}
+
+}//namespace

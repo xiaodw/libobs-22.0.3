@@ -16,6 +16,8 @@
 #include "SettingDialog.h"
 #include "SliderBox.h"
 
+#include "rc/resource.h"
+
 const TCHAR* const kTitleControlName = _T("apptitle");
 const TCHAR* const kCloseButtonControlName = _T("closebtn");
 const TCHAR* const kMinButtonControlName = _T("minbtn");
@@ -23,14 +25,15 @@ const TCHAR* const kMaxButtonControlName = _T("maxbtn");
 const TCHAR* const kRestoreButtonControlName = _T("restorebtn");
 
 CObsMainFrame::CObsMainFrame()
-    :m_sceneList(nullptr), m_sceneItemList(nullptr), m_display(nullptr)
+    :m_obs(ObsMain::Instance()),m_sceneList(nullptr), m_sceneItemList(nullptr), m_display(nullptr)
 {
-    ObsMain::Instance()->SetObserver(this);
+
+    m_obs->SetObserver(this);
 }
 
 CObsMainFrame::~CObsMainFrame()
 {
-    ObsMain::Instance()->SetObserver(NULL);
+    m_obs->SetObserver(NULL);
     PostQuitMessage(0);
 }
 
@@ -71,35 +74,6 @@ CDuiString CObsMainFrame::GetSkinFolder()
 UILIB_RESOURCETYPE CObsMainFrame::GetResourceType() const
 {
     return RESOURCE_TYPE;
-}
-
-LRESULT CObsMainFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-#if defined(WIN32) && !defined(UNDER_CE)
-    BOOL bZoomed = ::IsZoomed(m_hWnd);
-    LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
-    if (::IsZoomed(m_hWnd) != bZoomed)
-    {
-        if (!bZoomed)
-        {
-            CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(kMaxButtonControlName));
-            if (pControl) pControl->SetVisible(false);
-            pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(kRestoreButtonControlName));
-            if (pControl) pControl->SetVisible(true);
-        }
-        else
-        {
-            CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(kMaxButtonControlName));
-            if (pControl) pControl->SetVisible(true);
-            pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(kRestoreButtonControlName));
-            if (pControl) pControl->SetVisible(false);
-        }
-    }
-#else
-    return __super::OnSysCommand(uMsg, wParam, lParam, bHandled);
-#endif
-
-    return 0;
 }
 
 LRESULT CObsMainFrame::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -148,11 +122,19 @@ void CObsMainFrame::InitWindow()
             m_PaintManager.FindControl<COptionUI>(_T("OAutoRecord"))->Selected(true, false);
         }
     }
+
+    m_obs->LoadScene();
+
+
+    if (config_get_bool(config, "BasicWindow", "AddTray"))
+    {
+        ::PostMessage(m_hWnd, MSG_UPDATE_TRAY, 1, 0);
+    }
 }
 
 void CObsMainFrame::OnPrepare(TNotifyUI& msg)
 {
-
+    UpdateAudioState();
 
 }
 
@@ -207,7 +189,12 @@ void CObsMainFrame::Notify(TNotifyUI& msg)
         CDuiString name = msg.pSender->GetName();
         if (_tcsicmp(name, kCloseButtonControlName) == 0)
         {
-            OnExit(msg);
+            if(!IsAddTray())
+                OnExit(msg);
+            else
+            {
+                ShowWindow(false, false);
+            }
         }
         else if (_tcsicmp(name, kMinButtonControlName) == 0)
         {
@@ -594,6 +581,25 @@ LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
         m_msgQueue.HandleMsg();
         bHandled = TRUE;
     }
+    else if (uMsg == MSG_UPDATE_AUDIO)
+    {
+        UpdateAudioState();
+        bHandled = TRUE;
+    }
+    else if (uMsg == MSG_UPDATE_TRAY)
+    {
+        if (wParam)
+        {
+            //添加托盘
+            AddTrayIcon(IDI_ICON1, _T("直播客户端"));
+        }
+        else
+        {
+            //移除托盘
+            RemoveTrayIcon();
+        }
+        bHandled = TRUE;
+    }
     return 0;
 }
 
@@ -799,7 +805,7 @@ void CObsMainFrame::AddSceneItem(OBSSceneItem item)
 
 void CObsMainFrame::OnMenu(window_handle_t handle, const ObsPoint& point)
 {
-    int index = ObsMain::Instance()->sceneItemList().GetCurrentIndex();
+    int index = m_obs->sceneItemList().GetCurrentIndex();
 
     if (index >= 0)
     {
@@ -808,3 +814,63 @@ void CObsMainFrame::OnMenu(window_handle_t handle, const ObsPoint& point)
     }
 }
 
+void CObsMainFrame::UpdateAudioState()
+{
+    if (m_obs->GetMuted(OUTPUT_AUDIO_CHANNEL1))
+    {
+        m_PaintManager.FindControl(_T("BSoundOpen"))->SetVisible(false);
+        m_PaintManager.FindControl(_T("BSoundClose"))->SetVisible(true);
+    }
+    else
+    {
+        m_PaintManager.FindControl(_T("BSoundOpen"))->SetVisible(true);
+        m_PaintManager.FindControl(_T("BSoundClose"))->SetVisible(false);
+    }
+
+    if (m_obs->GetMuted(INPUT_AUDIO_CHANNEL1))
+    {
+        m_PaintManager.FindControl(_T("BMicOpen"))->SetVisible(false);
+        m_PaintManager.FindControl(_T("BMicClose"))->SetVisible(true);
+    }
+    else
+    {
+        m_PaintManager.FindControl(_T("BMicOpen"))->SetVisible(true);
+        m_PaintManager.FindControl(_T("BMicClose"))->SetVisible(false);
+    }
+}
+
+//托盘鼠标事件
+LRESULT CObsMainFrame::OnTrayEvent(UINT uMsg, WPARAM wParam, BOOL& bHandled)
+{
+    switch (uMsg)
+    {
+    case WM_LBUTTONUP:
+        {
+            //显示主界面
+            SetForeground();
+        }
+        break;
+    case WM_RBUTTONUP:
+        {
+            POINT pt = { 0,0 };
+            GetCursorPos(&pt);
+
+            pt.x += 4;
+            pt.y -= 66;
+
+            CMenuWnd* menu = CMenuWnd::ShowMenu(NULL, _T("TrayMenu.xml"), pt, [this](CMenuElementUI* elem) {
+                CDuiString name = elem->GetName();
+                if (name == _T("Show"))
+                {
+                    this->SetForeground();
+                }
+                else
+                {
+                    this->Close();
+                }
+            });
+        }
+        break;
+    }
+    return 0;
+}

@@ -75,6 +75,8 @@ public:
     HWND Subclass(HWND hWnd);
     void Unsubclass();
     void ShowWindow(bool bShow = true, bool bTakeFocus = true);
+    void SetForeground();
+
     UINT ShowModal();
     void Close(UINT nRet = IDOK);
     void CenterWindow();	// 居中，支持扩展屏幕

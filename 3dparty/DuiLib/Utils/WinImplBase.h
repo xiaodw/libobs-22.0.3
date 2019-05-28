@@ -70,6 +70,15 @@ namespace DuiLib
 		virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		virtual LRESULT HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		virtual LONG GetStyle();
+
+        //ÍÐÅÌÊÂ¼þ
+        virtual LRESULT OnTrayEvent(UINT uMsg, WPARAM wParam, BOOL& bHandled);
+
+        bool AddTrayIcon(UINT _IconIDResource, LPCTSTR _ToolTipText = NULL);
+        void RemoveTrayIcon();
+        bool IsAddTray();
+    protected:
+        CTrayIcon m_tray;
 	};
 }
 

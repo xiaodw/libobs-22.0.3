@@ -616,7 +616,7 @@ void CControlUI::SetVisible(bool bVisible)
     m_bVisible = bVisible;
     if( m_bFocused ) m_bFocused = false;
 	if (!bVisible && m_pManager && m_pManager->GetFocus() == this) {
-		m_pManager->SetFocus(NULL) ;
+		m_pManager->SetFocus(NULL,false) ;
 	}
     if( IsVisible() != v ) {
         NeedParentUpdate();
@@ -629,7 +629,7 @@ void CControlUI::SetInternVisible(bool bVisible)
 {
     m_bInternVisible = bVisible;
 	if (!bVisible && m_pManager && m_pManager->GetFocus() == this) {
-		m_pManager->SetFocus(NULL) ;
+		m_pManager->SetFocus(NULL,false) ;
 	}
 
     if( m_pCover != NULL ) m_pCover->SetInternVisible(IsVisible());

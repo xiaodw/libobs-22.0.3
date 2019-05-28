@@ -8,7 +8,6 @@
 
 #define ASSERT assert
 
-
 //#define SubclassWindow(hwnd, lpfn)       \
 //	((WNDPROC)SetWindowLongPtr((hwnd), GWLP_WNDPROC, (LPARAM)(WNDPROC)(lpfn)))
 

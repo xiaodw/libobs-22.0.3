@@ -70,6 +70,8 @@
 
 #include "Utils/Utils.h"
 #include "Utils/UIDelegate.h"
+#include "Utils/TrayIcon.h"
+
 #include "Core/UIDefine.h"
 #include "Core/UIManager.h"
 #include "Core/UIBase.h"
@@ -81,7 +83,7 @@
 
 #include "Utils/WinImplBase.h"
 #include "Utils/WndShadow.h"
-#include "Utils/TrayIcon.h"
+
 
 #include "Layout/UIVerticalLayout.h"
 #include "Layout/UIHorizontalLayout.h"

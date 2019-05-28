@@ -282,6 +282,30 @@ void CWindowWnd::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= false*/)
     ::ShowWindow(m_hWnd, bShow ? (bTakeFocus ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE) : SW_HIDE);
 }
 
+void CWindowWnd::SetForeground()
+{
+    HWND hForeWnd = NULL;
+    HWND hWnd = m_hWnd;
+    DWORD dwForeID;
+    DWORD dwCurID;
+
+    hForeWnd = GetForegroundWindow();
+    dwCurID = GetCurrentThreadId();
+    dwForeID = GetWindowThreadProcessId(hForeWnd, NULL);
+    AttachThreadInput(dwCurID, dwForeID, TRUE);
+    if (IsIconic(hWnd) || IsWindowVisible(hWnd) == FALSE)
+        ::ShowWindow(hWnd, SW_SHOWNORMAL);
+
+    if ((GetWindowLong(m_hWnd, GWL_EXSTYLE) & WS_EX_TOPMOST) == 0)
+    {
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    }
+
+    SetForegroundWindow(hWnd);
+    AttachThreadInput(dwCurID, dwForeID, FALSE);
+}
+
 UINT CWindowWnd::ShowModal()
 {
     ASSERT(::IsWindow(m_hWnd));

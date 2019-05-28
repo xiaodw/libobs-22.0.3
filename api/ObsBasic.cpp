@@ -22,6 +22,16 @@ ObsBasic::ObsBasic()
 
 ObsBasic::~ObsBasic()
 {
+    // Õ∑≈“Ù∆µ…Ë±∏
+    for(int channel =0; channel<5;++channel)
+    {
+        obs_source_t* source = obs_get_output_source(channel);
+        if (source) {
+            obs_set_output_source(channel, nullptr);
+            obs_source_release(source);
+        }
+    }
+
     m_service = NULL;
     m_basicConfig.Close();
     m_globalConfig.Close();
@@ -1061,19 +1071,54 @@ void ObsBasic::SetVolume(int channel, int vol)
     if (source)
     {
         obs_source_set_volume(source, vol / 100.0);
+        obs_source_release(source);
     }
 }
 
 int ObsBasic::GetVolume(int channel)
 {
     obs_source_t* source = obs_get_output_source(channel);
+    int volume = 0;
     if (source)
-        return obs_source_get_volume(source) * 100;
-    else
-        return 0;
+    {
+        volume = obs_source_get_volume(source) * 100;
+        obs_source_release(source);
+    }
+    return volume;
 }
 
+void ObsBasic::SetMuted(int channel, bool mute)
+{
+    obs_source_t* source = obs_get_output_source(channel);
+    if (source)
+    {
+        obs_source_set_muted(source, mute);
+        obs_source_release(source);
+    }
+}
 
+bool ObsBasic::GetMuted(int channel)
+{
+    bool muted = true;
+    obs_source_t* source = obs_get_output_source(channel);
+    if (source)
+    {
+        muted = obs_source_muted(source);
+        obs_source_release(source);
+    }
+    return muted;
+}
+
+bool ObsBasic::CheckChannel(int channel)
+{
+    obs_source_t* source = obs_get_output_source(channel);
+    if (source)
+    {
+        obs_source_release(source);
+        return true;
+    }
+    return false;
+}
 
 void ObsBasic::ResetAudioDevice(const char *sourceId, const char *deviceId,
     const char *deviceDesc, int channel)

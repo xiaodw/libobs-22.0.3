@@ -13,7 +13,7 @@ namespace DuiLib
 		~CTrayIcon(void);
 
 	public:
-		void CreateTrayIcon( HWND _RecvHwnd, UINT _IconIDResource, LPCTSTR _ToolTipText = NULL, UINT _Message = NULL);
+		bool CreateTrayIcon( HWND _RecvHwnd, UINT _IconIDResource, LPCTSTR _ToolTipText = NULL, UINT _Message = NULL);
 		void DeleteTrayIcon();
 		bool SetTooltipText(LPCTSTR _ToolTipText);
 		bool SetTooltipText(UINT _IDResource);
@@ -28,8 +28,11 @@ namespace DuiLib
 		void RemoveIcon();
 		bool Enabled(){return m_bEnabled;};
 		bool IsVisible(){return !m_bVisible;};
+        bool IsCreated() { return m_bCreated; }
 
+        void ResetIcon();
 	private:
+        bool m_bCreated;
 		bool m_bEnabled;
 		bool m_bVisible;
 		HWND m_hWnd;

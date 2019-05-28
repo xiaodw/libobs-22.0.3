@@ -3,6 +3,9 @@
 #include "MsgQueue.h"
 
 #define MSG_HANDLE_MSG (WM_USER+12)
+#define MSG_UPDATE_AUDIO (WM_USER+13)
+#define MSG_UPDATE_TRAY (WM_USER+14)
+
 
 class CObsDisplayControl;
 
@@ -23,8 +26,8 @@ public:
     virtual CDuiString GetSkinFolder();
     virtual CControlUI* CreateControl(LPCTSTR pstrClass);
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     virtual LRESULT HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    virtual LRESULT OnTrayEvent(UINT uMsg, WPARAM wParam, BOOL& bHandled);
 
     enum {
         MSG_ADD_SCENE,
@@ -165,7 +168,11 @@ protected:
 
     void ShowSceneItemMenu(HWND hParent,POINT pt,int index);
     void ShowSceneMenu(COptionExUI* opt,POINT pt);
+
+    //¸üÐÂÒôÆµ°´Å¥×´Ì¬
+    void UpdateAudioState();
 private:
+    ObsMain*     m_obs;
     CMsgQueue m_msgQueue;
     CHorizontalLayoutUI* m_sceneList;
     CListUI* m_sceneItemList;

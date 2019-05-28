@@ -100,7 +100,9 @@ public:
     //0~100
     void SetVolume(int channel,int vol);
     int GetVolume(int channel);
-
+    void SetMuted(int channel,bool mute);
+    bool GetMuted(int channel);
+    bool CheckChannel(int channel);
 
     int GetProfilePath(char *path, size_t size, const char *file);
     int GetConfigPath(char *path, size_t size, const char *name);
