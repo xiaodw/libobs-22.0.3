@@ -286,7 +286,7 @@ CControlUI* CDialogBuilder::_Parse(CMarkupNode* pRoot, CControlUI* pParent, CPai
 		}
         else {
 #ifdef _DEBUG
-			DUITRACE(_T("Create Control: %s"), pstrClass);
+			//DUITRACE(_T("Create Control: %s"), pstrClass);
 #endif
             SIZE_T cchLen = _tcslen(pstrClass);
             switch( cchLen ) {

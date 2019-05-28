@@ -80,6 +80,9 @@ project "ffmpeg-mux32"
 end
 	kind "ConsoleApp"
 	language "C++"
+	
+	targetdir "../data/obs-plugins/obs-ffmpeg"
+		
 	defines {
 
 	}
@@ -370,6 +373,8 @@ end
 
 	kind "ConsoleApp"
 	language "C++"
+	targetdir "../data/obs-plugins/win-capture/"
+		
 	defines {
 
 	}
@@ -400,6 +405,8 @@ end
 
 	kind "SharedLib"
 	language "C++"
+	targetdir "../data/obs-plugins/win-capture/"
+	
 	defines {
 
 	}
@@ -434,6 +441,8 @@ end
 
 	kind "ConsoleApp"
 	language "C++"
+	targetdir "../data/obs-plugins/win-capture/"
+	
 	defines {
 
 	}
