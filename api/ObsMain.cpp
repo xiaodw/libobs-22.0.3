@@ -526,6 +526,15 @@ bool ObsMain::InitGlobalConfig()
         changed = true;
     }
 
+    //设置默认参数
+    config_set_default_string(m_globalConfig, "Basic", "Profile",
+        Str("Untitled"));
+    config_set_default_string(m_globalConfig, "Basic", "ProfileDir",
+        Str("Untitled"));
+    config_set_default_string(m_globalConfig, "Basic", "SceneCollection",
+        Str("Untitled"));
+    config_set_default_string(m_globalConfig, "Basic", "SceneCollectionFile",
+        Str("Untitled"));
 
     if (changed)
         config_save_safe(m_globalConfig, "tmp", nullptr);

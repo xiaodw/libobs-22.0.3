@@ -73,5 +73,3 @@ void obs_log(int log_level, const char *msg, va_list args, void *param)
 
     UNUSED_PARAMETER(param);
 }
-
-

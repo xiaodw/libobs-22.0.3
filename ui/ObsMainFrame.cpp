@@ -603,6 +603,27 @@ LRESULT CObsMainFrame::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lPar
     return 0;
 }
 
+COptionExUI* FirstItem(CHorizontalLayoutUI* list)
+{
+    CControlUI* item = list->GetItemAt(0);
+    if (item && _tcscmp(item->GetClass(), kOptionExUIClassName) == 0)
+    {
+        return static_cast<COptionExUI*>(item);
+    }
+
+    return nullptr;
+}
+
+//更新场景删除按钮状态
+void CObsMainFrame::UpdateSceneCloseBtnState()
+{
+    COptionExUI* first = FirstItem(m_sceneList);
+    if (first)
+    {
+        first->EnableCloseBtn(m_sceneList->GetCount()>2);
+    }
+}
+
 void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
 {
     switch (msgid)
@@ -611,17 +632,15 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
         {
             ObsSceneData* scene = static_cast<ObsSceneData*>(data);
             AddScene(scene->data);
-            COptionExUI* option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
-            option->EnableCloseBtn(m_sceneList->GetCount()>1);
-
             AddNewSceneBtn();
+            UpdateSceneCloseBtnState();
         }
         break;
     case MSG_REMOVE_SCENE:
         {
             ObsSceneData* scene = static_cast<ObsSceneData*>(data);
 
-            for (int i = 0; i < m_sceneList->GetCount(); ++i)
+            for (int i = 0; i < m_sceneList->GetCount()-1 ; ++i)
             {
                 COptionExUI* option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(i));
                 if (option->GetTag() == (UINT_PTR)(obs_scene_t*)scene->data)
@@ -630,12 +649,7 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
                     break;
                 }
             }
-
-            if (m_sceneList->GetCount() == 1)
-            {
-                COptionExUI* option = static_cast<COptionExUI*>(m_sceneList->GetItemAt(0));
-                option->EnableCloseBtn(false);
-            }
+            UpdateSceneCloseBtnState();
         }
         break;
     case MSG_REORDER_SCENE:
@@ -646,8 +660,8 @@ void CObsMainFrame::OnMsg(unsigned int msgid, CMsgData* data)
             {
                 AddScene(scene->scene);
             }
-
             AddNewSceneBtn();
+            UpdateSceneCloseBtnState();
         }
         break;
     case MSG_RELOAD_SCENE_ITEM:

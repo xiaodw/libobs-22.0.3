@@ -105,7 +105,11 @@ public:
     bool CheckChannel(int channel);
 
     int GetProfilePath(char *path, size_t size, const char *file);
-    int GetConfigPath(char *path, size_t size, const char *name);
+    static int GetConfigPath(char *path, size_t size, const char *name);
+
+    //创建用户目录
+    bool MakeUserDirs();
+    bool MakeUserProfileDirs();
 
     ObsObserver* observer() { return m_observer; }
 

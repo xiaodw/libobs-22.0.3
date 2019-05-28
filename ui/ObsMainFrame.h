@@ -161,6 +161,8 @@ protected:
     void AddScene(OBSScene scene);
     void AddSceneItem(OBSSceneItem item);
     void AddNewSceneBtn();
+    void UpdateSceneCloseBtnState();
+
     void UpdateSceneItemName(int index,const CDuiString& name);
     void UpdateSceneItemVisible(int index, bool bVisible);
 

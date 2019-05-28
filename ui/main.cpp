@@ -13,8 +13,26 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
     if (FAILED(Hr)) return 0;
 
     ObsMain* obsMain = ObsMain::Instance();
-    obsMain->InitGlobalConfig();
-    obsMain->InitObs();
+
+    if (!obsMain->MakeUserDirs())
+    {
+        blog(LOG_ERROR, "Failed to create required user directories");
+    }
+
+    if (!obsMain->InitGlobalConfig())
+    {
+        blog(LOG_ERROR, "Failed to initialize global config");
+    }
+
+    if (!obsMain->MakeUserProfileDirs())
+    {
+        blog(LOG_ERROR, "Failed to create profile directories");
+    }
+
+    if (!obsMain->InitObs())
+    {
+        blog(LOG_ERROR, "Failed to init obs");
+    }
 
 
     CObsMainFrame* pFrame = new CObsMainFrame();

@@ -647,6 +647,9 @@ bool ObsBasic::InitBasicConfigDefaults()
         VOLUME_METER_DECAY_FAST);
     config_set_default_uint(m_basicConfig, "Audio", "PeakMeterType", 0);
 
+
+    config_set_default_bool(m_basicConfig, "BasicWindow", "AddTray",true);
+
     return true;
 }
 
@@ -676,13 +679,13 @@ bool ObsBasic::InitBasicConfig()
     }
 
     if (os_mkdir(configPath) == MKDIR_ERROR) {
-        blog(LOG_ERROR, "Failed to create profile path");
+        blog(LOG_ERROR, "Failed to create profile path %s", configPath);
         return false;
     }
 
     ret = GetProfilePath(configPath, sizeof(configPath), "basic.ini");
     if (ret <= 0) {
-        blog(LOG_ERROR, "Failed to get base.ini path");
+        blog(LOG_ERROR, "Failed to get base.ini path %s", configPath);
         return false;
     }
 
@@ -1200,7 +1203,7 @@ int ObsBasic::GetProfilePath(char *path, size_t size, const char *file)
     if (!profile)
     {
         //给个默认名
-        profile = "profile";
+        profile = "Untitled";
         config_set_string(globalConfig(), "Basic", "Profile", profile);
     }
 
@@ -1220,3 +1223,70 @@ int ObsBasic::GetProfilePath(char *path, size_t size, const char *file)
 }
 
 
+static bool do_mkdir(const char *path)
+{
+    if (os_mkdirs(path) == MKDIR_ERROR) {
+        blog(LOG_ERROR, "Failed to create directory %s", path);
+        return false;
+    }
+
+    return true;
+}
+
+
+
+bool ObsBasic::MakeUserDirs()
+{
+    char path[512];
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/basic") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/logs") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/profiler_data") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+#ifdef _WIN32
+    if (GetConfigPath(path, sizeof(path), "obs-studio/crashes") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/updates") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+#endif
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/plugin_config") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    return true;
+}
+
+bool ObsBasic::MakeUserProfileDirs()
+{
+    char path[512];
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/basic/profiles") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    if (GetConfigPath(path, sizeof(path), "obs-studio/basic/scenes") <= 0)
+        return false;
+    if (!do_mkdir(path))
+        return false;
+
+    return true;
+}
