@@ -7,4 +7,4 @@
 
 #### 界面
 
-![main](https://gitee.com/zentel/libobs/blob/master/snapshot/main.png)
+![main](https://gitee.com/zentel/libobs/raw/master/snapshot/main.png)
